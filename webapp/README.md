@@ -1,0 +1,39 @@
+# Aulo 웹앱 (데모)
+
+목적별 공간 추천, Focus·Rest·Suite 예약, 음료 주문을 체험하는 React + Vite 웹앱입니다.
+실제 결제·로그인은 없고 예약·주문 기록은 브라우저(localStorage)에만 저장됩니다.
+
+## 실행
+
+```bash
+cd webapp
+npm install
+npm run dev      # 개발 서버 http://localhost:5173
+npm test         # 정책 단위 테스트 (Vitest)
+npm run build    # dist/ 정적 빌드 (어느 경로에 올려도 동작)
+```
+
+## 구조
+
+| 경로 | 내용 |
+|---|---|
+| `src/config/policy.js` | 확정 정책과 임시값. **정책 변경은 이 파일만 수정** |
+| `src/lib/reservation.js` | 시작·이용 시간, 마감 제한, 충돌 방지, 요금 |
+| `src/lib/order.js` | 주문 유형별 할인 (추가 음료 50%, Suite 리필 순서) |
+| `src/lib/recommend.js` | 목적·시간·환경 응답 기반 공간 추천 |
+| `src/pages/` | 홈, 공간 추천, 예약, 예약 완료, 음료 주문 |
+
+## 임시값
+
+`brand-landing/CLAUDE_HANDOFF.md`의 '미확정' 항목은 `provisional()`로 감싼 임시값으로 동작하고,
+화면에 `임시` 표시와 하단 '임시 정책 안내'가 나타납니다.
+
+- 오픈 09:00, 예약 가능 기간 14일
+- Suite 마지막 종료 22:00 (1시간 단위와 22:50 퇴실), Focus·Rest 마지막 종료 23:00
+- 음료 메뉴·가격: `java-basic/DrinkMenu.java` 값
+- 데모 매장 2곳과 좌석·공간 수
+- Suite 리필: 기본 음료 1잔, 이후 정상가와 50% 할인 교대
+
+## 범위 밖 (1차)
+
+예약 내역·취소, 로그인, 현장 연장, 결제, 마감 알림은 구현하지 않았습니다.
