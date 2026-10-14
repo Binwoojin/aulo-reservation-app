@@ -1,7 +1,11 @@
 # Claude Code 인계 — Aulo 브랜드 랜딩
 
 ## 범위
-`index.html`은 CSS, JavaScript, 외부 라이브러리가 없는 시맨틱 HTML 뼈대다. 브라우저에서 바로 열 수 있다. 기존 Java 학습 코드와 자료는 변경하지 않았다.
+`index.html`(시맨틱 HTML)과 `styles.css`(AULO / STYLE BOARD v0.1 토큰 기반 스타일)로 구성된다. JavaScript는 없고, 폰트(Pretendard·Manrope) 외 외부 라이브러리를 쓰지 않는다. 브라우저에서 바로 열 수 있다.
+- 스타일 작업은 UI UX Pro Max 스킬(`.claude/skills/ui-ux-pro-max`)의 접근성·터치·반응형·모션 기준으로 점검했다. 색상·폰트·레이아웃은 스토리보드를 우선했다.
+- 확인 완료: 375·390·1280px 가로 스크롤 없음, 텍스트 대비 4.5:1 이상, 칩·컨트롤 테두리 3:1 이상, 터치 영역 44px 이상, sticky 헤더 scroll-padding, reduced-motion.
+- 공간 칩은 필터가 아니라 각 공간 카드로 이동하는 앵커다. 네 공간 설명은 항상 모두 보인다.
+- 사진은 아직 없어 `data-asset-slot` figure에 CSS 그라디언트 자리표시를 둔다.
 
 공개 시안: https://raid-insert-58814555.figma.site/
 이번 작업에서는 사이트 조회가 완료되지 않아 대화에 첨부된 모바일 전체 페이지·히어로 이미지와 사용자가 확정한 수정 방향을 기준으로 구조를 작성했다. 최신 사이트와 픽셀 단위 일치를 주장하지 않는다.
