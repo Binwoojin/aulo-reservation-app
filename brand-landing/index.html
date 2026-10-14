@@ -44,9 +44,9 @@
             <a class="button button--secondary" href="#brand">브랜드 알아보기</a>
           </div>
         </div>
-        <!-- 실제 히어로 사진은 승인된 원본 확보 후 삽입. 시안 스크린샷을 배경으로 사용하지 않는다. -->
+        <!-- 히어로는 Flow Cafe 사진을 세로로 잘라 사용한다. 전용 히어로 사진이 생기면 교체. -->
         <figure class="photo photo--hero" data-asset-slot="hero">
-          <figcaption>공간 사진 준비 영역: 원목과 식물, 따뜻한 자연광이 있는 카페</figcaption>
+          <img src="assets/flow-cafe-768.webp" srcset="assets/flow-cafe-768.webp 768w, assets/flow-cafe-1536.webp 1536w" sizes="(min-width: 900px) 85vw, 115vw" width="1536" height="1024" alt="큰 창으로 햇살이 드는 Aulo 카페. 원목 원형 테이블과 올리브색 의자, 화분과 커피 바가 보인다." decoding="async" fetchpriority="high">
         </figure>
       </div>
       <div class="container hero__meta">
@@ -95,7 +95,7 @@
         </nav>
         <div class="space-list">
           <article id="flow-cafe" class="space-card" data-reveal data-service="cafe" aria-labelledby="cafe-title">
-            <figure class="photo" data-asset-slot="cafe"><figcaption>사진 준비 영역: 일반 카페 테이블과 좌석</figcaption></figure>
+            <figure class="photo" data-asset-slot="cafe"><img src="assets/flow-cafe-768.webp" srcset="assets/flow-cafe-768.webp 768w, assets/flow-cafe-1536.webp 1536w" sizes="(min-width: 1264px) 576px, (min-width: 768px) 50vw, 100vw" width="1536" height="1024" alt="Flow Cafe. 원목 원형 테이블과 올리브색 쿠션 의자가 놓인 밝은 카페 좌석." decoding="async" loading="lazy"></figure>
             <div class="space-card__body">
               <p class="tag"><span lang="en">CAFÉ</span> · 커피와 일상</p>
               <h3 id="cafe-title" lang="en">Flow Cafe</h3>
@@ -106,7 +106,7 @@
             </div>
           </article>
           <article id="flow-focus" class="space-card" data-reveal data-service="focus" aria-labelledby="focus-title">
-            <figure class="photo" data-asset-slot="focus"><figcaption>사진 준비 영역: 가림막이 있는 개인 작업 좌석</figcaption></figure>
+            <figure class="photo" data-asset-slot="focus"><img src="assets/flow-focus-768.webp" srcset="assets/flow-focus-768.webp 768w, assets/flow-focus-1536.webp 1536w" sizes="(min-width: 1264px) 576px, (min-width: 768px) 50vw, 100vw" width="1536" height="1024" alt="Flow Focus. 원목 가림막으로 나뉜 1인 작업 좌석과 책상 아래 잠금 사물함, 올리브색 의자." decoding="async" loading="lazy"></figure>
             <div class="space-card__body">
               <p class="tag"><span lang="en">FOCUS</span> · 작업과 공부</p>
               <h3 id="focus-title" lang="en">Flow Focus</h3>
@@ -118,7 +118,7 @@
             </div>
           </article>
           <article id="flow-rest" class="space-card" data-reveal data-service="rest" aria-labelledby="rest-title">
-            <figure class="photo" data-asset-slot="rest"><figcaption>사진 준비 영역: 실내 반폐쇄형 1인 리클라이너 좌석</figcaption></figure>
+            <figure class="photo" data-asset-slot="rest"><img src="assets/flow-rest-768.webp" srcset="assets/flow-rest-768.webp 768w, assets/flow-rest-1536.webp 1536w" sizes="(min-width: 1264px) 576px, (min-width: 768px) 50vw, 100vw" width="1536" height="1024" alt="Flow Rest. 원목 칸막이로 둘러싼 반폐쇄형 공간의 1인 리클라이너와 담요, 이어폰이 놓인 사이드 테이블." decoding="async" loading="lazy"></figure>
             <div class="space-card__body">
               <p class="tag"><span lang="en">REST</span> · 온전한 휴식</p>
               <h3 id="rest-title" lang="en">Flow Rest</h3>
@@ -130,7 +130,7 @@
             </div>
           </article>
           <article id="flow-suite" class="space-card" data-reveal data-service="suite" aria-labelledby="suite-title">
-            <figure class="photo" data-asset-slot="suite"><figcaption>사진 준비 영역: 문으로 분리된 독립형 개인 오피스</figcaption></figure>
+            <figure class="photo" data-asset-slot="suite"><img src="assets/flow-suite-768.webp" srcset="assets/flow-suite-768.webp 768w, assets/flow-suite-1536.webp 1536w" sizes="(min-width: 1264px) 576px, (min-width: 768px) 50vw, 100vw" width="1536" height="1024" alt="Flow Suite. 문을 열고 들어가는 독립형 개인 오피스. 창가 책상과 수납장, 공기청정기, 콘센트가 갖춰져 있다." decoding="async" loading="lazy"></figure>
             <div class="space-card__body">
               <p class="tag"><span lang="en">PRIVATE</span> · 나만의 독립 공간</p>
               <h3 id="suite-title" lang="en">Flow Suite</h3>
@@ -146,6 +146,7 @@
           <h3 id="lounge-title">야외 라운지</h3>
           <p>Aulo 이용 고객 누구나 쉬어갈 수 있는 공용 공간입니다. Flow Rest 예약 대상에는 포함되지 않습니다.</p>
         </aside>
+        <p class="photo-note">사진은 공간 분위기를 보여주는 AI 생성 참고 이미지이며, 실제 매장이 아닙니다.</p>
       </div>
     </section>
 

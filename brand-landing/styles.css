@@ -250,6 +250,15 @@ h2 {
     linear-gradient(160deg, #F2E7D6 0%, color-mix(in srgb, var(--tone) 45%, #EADBC6) 100%);
   transition: transform var(--motion-slow) var(--ease-out);
 }
+.photo > img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--motion-slow) var(--ease-out);
+}
+.photo--hero > img { object-position: 30% 50%; }
 .photo figcaption {
   position: absolute;
   left: var(--space-3);
@@ -425,6 +434,7 @@ h2 {
 }
 .lounge-note h3 { font-size: var(--fs-lead); font-weight: 600; }
 .lounge-note p { color: var(--color-on-dark-sub); }
+.photo-note { margin-top: var(--space-3); font-size: var(--fs-label); color: var(--color-on-dark-sub); }
 
 /* ---------- Usage guide ---------- */
 .usage-steps { counter-reset: step; border-top: 1px solid var(--color-border); }
@@ -527,7 +537,8 @@ h2 {
   clip-path: inset(100% 0 0 0);
   animation: unveil 1100ms var(--ease-out) 200ms forwards;
 }
-.motion-ready .photo--hero::before {
+.motion-ready .photo--hero::before,
+.motion-ready .photo--hero > img {
   transform: scale(1.08);
   animation: light-in 1800ms var(--ease-out) 200ms forwards;
 }
@@ -613,7 +624,8 @@ h2 {
 @media (hover: hover) {
   .space-card:hover,
   .motion-ready .space-card.is-visible:hover { transform: translateY(-4px); }
-  .space-card:hover .photo::before { transform: scale(1.04); }
+  .space-card:hover .photo::before,
+  .space-card:hover .photo > img { transform: scale(1.04); }
   .button:hover:not(:disabled) > span[aria-hidden] { transform: translateX(4px); }
 }
 .button > span[aria-hidden] { display: inline-block; transition: transform var(--motion) var(--ease); }
