@@ -1,7 +1,7 @@
 # Claude Code 인계 — Aulo 브랜드 랜딩
 
 ## 범위
-`index.html`(시맨틱 HTML)과 `styles.css`(AULO / STYLE BOARD v0.1 토큰 기반 스타일)로 구성된다. JavaScript는 없고, 폰트(Pretendard·Manrope) 외 외부 라이브러리를 쓰지 않는다. 브라우저에서 바로 열 수 있다.
+`index.html`(시맨틱 HTML), `styles.css`(AULO / STYLE BOARD v0.1 토큰 기반 스타일), `script.js`(동적 표현, 점진적 향상)로 구성된다. 폰트(Pretendard·Manrope) 외 외부 라이브러리를 쓰지 않는다. 브라우저에서 바로 열 수 있다.
 - 스타일 작업은 UI UX Pro Max 스킬(`.claude/skills/ui-ux-pro-max`)의 접근성·터치·반응형·모션 기준으로 점검했다. 색상·폰트·레이아웃은 스토리보드를 우선했다.
 - 확인 완료: 375·390·1280px 가로 스크롤 없음, 텍스트 대비 4.5:1 이상, 칩·컨트롤 테두리 3:1 이상, 터치 영역 44px 이상, sticky 헤더 scroll-padding, reduced-motion.
 - 공간 칩은 필터가 아니라 각 공간 카드로 이동하는 앵커다. 네 공간 설명은 항상 모두 보인다.
@@ -25,6 +25,9 @@
 - 기존 원목 사진은 참고 이미지다. Focus는 가림막, Rest는 리클라이너, Suite는 독립된 방이라는 최신 정책과 맞는 사진을 사용한다.
 
 ## JavaScript 작업
+- 동적 표현 원칙: "Stay in your rhythm" — 느리게 들어오고(640–900ms, ease-out) 짧게 반응한다(180ms, 4px). 장식용 반복 애니메이션은 넣지 않는다.
+- 현재 구현: 히어로 1회 등장(문장 순차·사진 아래서 위로 드러남), 섹션 스크롤 등장과 구분선 그리기, 헤더 경계선, 현재 섹션 메뉴 밑줄, 보고 있는 공간 칩 선택 표시(`aria-current="location"`), 카드 hover, 정책 펼침.
+- JS가 없거나 `prefers-reduced-motion: reduce`이면 `.motion-ready`가 붙지 않아 모든 내용이 처음부터 보인다.
 - 앵커 이동과 details는 기본 HTML로 작동한다. 필요할 때만 JS를 추가한다.
 - `data-action="open-service"` 버튼은 현재 비활성이다. 실제 예약 서비스 경로가 준비되면 정상 링크로 교체하고 준비 중 문구를 갱신한다.
 - 앱 알림·예약 충돌 검사·음료 혜택 계산은 브랜드 페이지 기능이 아니다. 서비스 구현에서 다룬다.
