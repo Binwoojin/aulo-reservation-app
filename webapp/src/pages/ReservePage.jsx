@@ -9,14 +9,25 @@ import {
   SPACES,
   STORES,
 } from '../config/policy.js';
-import { ChoiceGroup, Provisional, SpaceImage, Tag } from '../components/ui.jsx';
+import { AppBar, BottomBar } from '../components/AppShell.jsx';
+import Icon from '../components/Icon.jsx';
+import {
+  ChipGrid,
+  OptionList,
+  Provisional,
+  Segmented,
+  SpaceImage,
+  StepProgress,
+  Stepper,
+  SwitchRow,
+  Tag,
+} from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import {
   bookableDates,
   bookedRanges,
   createReservation,
   drinkFee,
-  durationOptions,
   freeUnits,
   isSuiteSameDayBlocked,
   lastEndFor,
@@ -30,82 +41,110 @@ const RESERVABLE = ['focus', 'rest', 'suite'];
 
 export default function ReservePage() {
   const { type } = useParams();
-  if (!type) return <TypePicker />;
   if (type === 'cafe') return <CafeNotice />;
   if (!RESERVABLE.includes(type)) return <TypePicker />;
-  return <ReserveForm key={type} type={type} />;
+  return <ReserveWizard key={type} type={type} />;
 }
 
 function TypePicker() {
   return (
-    <div className="container page">
-      <p className="section-label" lang="en">RESERVE</p>
-      <h1 className="page-title">어떤 공간을 예약할까요?</h1>
-      <ul className="type-grid">
-        {RESERVABLE.map((t) => (
-          <li key={t}>
-            <Link className="type-card" to={`/reserve/${t}`}>
-              <SpaceImage space={SPACES[t]} />
-              <span className="type-card__body">
-                <Tag type={t}>{SPACES[t].label}</Tag>
-                <span className="type-card__name" lang="en">{SPACES[t].name}</span>
-                <span className="type-card__meta">시간당 {formatWon(SPACES[t].pricePerHour)} · {SPACES[t].minHours}~{SPACES[t].maxHours}시간</span>
-              </span>
-            </Link>
-          </li>
-        ))}
-      </ul>
-      <p className="note">Flow Cafe는 예약 없이 음료 주문 후 이용합니다. <Link to="/order">음료 주문하기</Link></p>
-    </div>
+    <>
+      <AppBar back title="공간 예약" />
+      <div className="screen-body">
+        <h2 className="screen-title">어떤 공간을<br />예약할까요?</h2>
+        <ul className="type-list">
+          {RESERVABLE.map((t) => (
+            <li key={t}>
+              <Link className="type-row" to={`/reserve/${t}`}>
+                <SpaceImage space={SPACES[t]} />
+                <span className="type-row__body">
+                  <Tag type={t}>{SPACES[t].label}</Tag>
+                  <span className="type-row__name" lang="en">{SPACES[t].name}</span>
+                  <span className="type-row__meta">{formatWon(SPACES[t].pricePerHour)}/시간 · {SPACES[t].minHours}~{SPACES[t].maxHours}시간</span>
+                </span>
+                <Icon name="chevron" size={18} className="list-row__chev" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+        <Link to="/order" className="notice-row">
+          <Icon name="cup" size={20} />
+          <span>Flow Cafe는 예약 없이 음료 주문 후 이용해요</span>
+          <Icon name="chevron" size={18} />
+        </Link>
+      </div>
+    </>
   );
 }
 
 function CafeNotice() {
   return (
-    <div className="container page">
-      <h1 className="page-title">Flow Cafe는 예약이 없어요</h1>
-      <p className="lead">{SPACES.cafe.summary}</p>
-      <Link className="button button--primary" to="/order">음료 주문하기</Link>
-    </div>
+    <>
+      <AppBar back title="Flow Cafe" />
+      <div className="screen-body center-state">
+        <h2 className="screen-title">Flow Cafe는<br />예약이 없어요</h2>
+        <p className="muted">{SPACES.cafe.summary}</p>
+      </div>
+      <BottomBar><Link className="button button--primary button--block" to="/order">음료 주문하기</Link></BottomBar>
+    </>
   );
 }
 
-function ReserveForm({ type }) {
+const DRINK_TITLE = { included: <>기본 음료를<br />골라 주세요</>, required: <>이용 전 음료를<br />골라 주세요</> };
+
+function ReserveWizard({ type }) {
   const space = SPACES[type];
   const now = useNow();
   const navigate = useNavigate();
   const { reservations, addReservation } = useAppData();
   const dates = useMemo(() => bookableDates(now), [now]);
 
+  const steps = type === 'suite'
+    ? ['날짜', '시간', '공간', '음료', '확인']
+    : ['날짜', '시간', type === 'rest' ? '음료·요청' : '음료', '확인'];
+  const [step, setStep] = useState(0);
   const [storeId, setStoreId] = useState(STORES.value[0].id);
   const [date, setDate] = useState(dates[0]);
   const [start, setStart] = useState(null);
-  const [hours, setHours] = useState(null);
+  const [hours, setHours] = useState(space.minHours);
   const [unit, setUnit] = useState(null);
   const [drinkId, setDrinkId] = useState(null);
   const [requests, setRequests] = useState([]);
   const [errors, setErrors] = useState([]);
 
-  const slot = { storeId, type, date };
-  const free = (s, h) => freeUnits({ ...slot, start: s, hours: h }, reservations);
-
-  // 상위 선택이 바뀌면 하위 선택을 초기화한다
-  const pickStore = (v) => { setStoreId(v); setStart(null); setHours(null); setUnit(null); };
-  const pickDate = (v) => { setDate(v); setStart(null); setHours(null); setUnit(null); };
-  const pickStart = (v) => { setStart(v); setHours(null); setUnit(null); };
-  const pickHours = (v) => { setHours(v); setUnit(null); };
-
+  const free = (s, h) => freeUnits({ storeId, type, date, start: s, hours: h }, reservations);
   const starts = startOptions(type, date, now);
-  const durations = durationOptions(type, start);
-  const freeNow = start != null && hours != null ? free(start, hours) : [];
   const suiteBlocked = type === 'suite' && isSuiteSameDayBlocked(date, now);
 
-  const fee = hours ? reservationFee(type, hours) : 0;
-  const drinkCost = drinkId ? drinkFee(type, drinkId) : 0;
-  const ready = start != null && hours != null && drinkId && (type !== 'suite' || unit != null);
+  // 시작 시간 기준으로 마감과 빈 좌석을 함께 고려한 최대 이용 시간
+  const maxHoursFor = (s) => {
+    let max = 0;
+    for (let h = space.minHours; h <= space.maxHours; h += 1) {
+      if (s + h * 60 > lastEndFor(type) || free(s, h).length === 0) break;
+      max = h;
+    }
+    return max;
+  };
+  const maxHours = start != null ? maxHoursFor(start) : space.maxHours;
+  const freeNow = start != null ? free(start, hours) : [];
 
-  const submit = (e) => {
-    e.preventDefault();
+  const clearTime = () => { setStart(null); setHours(space.minHours); setUnit(null); setErrors([]); };
+
+  const fee = start != null ? reservationFee(type, hours) : 0;
+  const drinkCost = drinkId ? drinkFee(type, drinkId) : 0;
+  const stepName = steps[step];
+  const canNext = {
+    날짜: true,
+    시간: start != null && maxHours >= space.minHours,
+    공간: unit != null,
+    음료: drinkId != null,
+    '음료·요청': drinkId != null,
+    확인: true,
+  }[stepName];
+
+  const go = (next) => { setStep(next); window.scrollTo(0, 0); };
+
+  const submit = () => {
     const result = createReservation(
       { type, storeId, date, start, hours, unit: type === 'suite' ? unit : null, drinkId, requests },
       reservations,
@@ -116,175 +155,179 @@ function ReserveForm({ type }) {
       return;
     }
     addReservation(result.reservation);
-    navigate(`/reservations/${result.reservation.id}`);
+    navigate(`/reservations/${result.reservation.id}?new=1`, { replace: true });
   };
 
-  const lastEndProvisional = type === 'suite' ? HOURS.suiteLastEnd : HOURS.focusRestLastEnd;
+  const store = STORES.value.find((s) => s.id === storeId);
+  const endLabel = start != null ? formatTime(start + hours * 60) : '';
 
   return (
-    <div className="container page">
-      <Link className="back-link" to="/reserve">← 공간 다시 고르기</Link>
-      <div className="reserve-head">
-        <Tag type={type}>{space.label} · {space.category}</Tag>
-        <h1 className="page-title" lang="en">{space.name}</h1>
-        <p className="lead">{space.headline}</p>
-      </div>
+    <>
+      <AppBar back={step > 0 ? () => go(step - 1) : true} title={space.name} />
+      <StepProgress steps={steps} current={step} label="예약 진행" />
+      <div className="screen-body has-bottom-bar">
+        {stepName === '날짜' && (
+          <>
+            <h2 className="screen-title">언제 방문하세요?</h2>
+            <section className="block">
+              <p className="group-title">매장 <Provisional note={STORES.note} /></p>
+              <Segmented
+                label="매장"
+                name="store"
+                value={storeId}
+                onChange={(v) => { setStoreId(v); clearTime(); }}
+                options={STORES.value.map((s) => ({ value: s.id, label: s.name }))}
+              />
+              <p className="group-hint">{space.unitName} {store.units[type]}개 운영</p>
+            </section>
+            <section className="block">
+              <fieldset className="option-group">
+                <legend className="group-title">날짜 <Provisional note={BOOKING_WINDOW_DAYS.note} /></legend>
+                <div className="date-strip">
+                  {dates.map((d, i) => {
+                    const [, m, day, dow] = formatDate(d).match(/(\d+)월 (\d+)일 \((.)\)/);
+                    return (
+                      <label key={d} className="date-chip" data-weekend={dow === '토' || dow === '일' || undefined}>
+                        <input type="radio" name="date" value={d} checked={date === d} onChange={() => { setDate(d); clearTime(); }} aria-label={formatDate(d)} />
+                        <span className="date-chip__dow" aria-hidden="true">{i === 0 ? '오늘' : dow}</span>
+                        <span className="date-chip__day" aria-hidden="true">{day}</span>
+                        <span className="date-chip__month" aria-hidden="true">{m}월</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                <p className="group-hint">옆으로 밀어 오늘부터 {BOOKING_WINDOW_DAYS.value}일 후까지 고를 수 있어요</p>
+              </fieldset>
+            </section>
+          </>
+        )}
 
-      <form className="reserve-layout" onSubmit={submit} noValidate>
-        <div className="reserve-steps">
-          <section className="panel">
-            <ChoiceGroup
-              legend="매장"
-              name="store"
-              value={storeId}
-              onChange={pickStore}
-              options={STORES.value.map((s) => ({
-                value: s.id,
-                label: s.name,
-                detail: `${space.unitName} ${s.units[type]}개`,
-              }))}
-              hint={<><Provisional note={STORES.note} /> 데모 매장입니다.</>}
-            />
-          </section>
-
-          <section className="panel">
-            <ChoiceGroup
-              legend="날짜"
-              name="date"
-              value={date}
-              onChange={pickDate}
-              columns={4}
-              options={dates.map((d, i) => {
-                const [, m, day, dow] = formatDate(d).match(/(\d+)월 (\d+)일 \((.)\)/);
-                return { value: d, label: i === 0 ? '오늘' : `${m}/${day}`, detail: i === 0 ? `${m}/${day} ${dow}` : dow };
-              })}
-              hint={<>오늘부터 {BOOKING_WINDOW_DAYS.value}일 후까지 <Provisional note={BOOKING_WINDOW_DAYS.note} /></>}
-            />
-          </section>
-
-          <section className="panel">
-            <ChoiceGroup
+        {stepName === '시간' && (
+          <>
+            <h2 className="screen-title">몇 시부터<br />이용하세요?</h2>
+            <p className="muted">{formatDate(date)} · {store.name}</p>
+            <ChipGrid
               legend="시작 시간"
               name="start"
               value={start}
-              onChange={pickStart}
-              columns={4}
+              onChange={(v) => { setStart(v); setHours(space.minHours); setUnit(null); }}
               options={starts.map((s) => {
-                const anyFree = free(s, space.minHours).length > 0;
-                return { value: s, label: formatTime(s), disabled: !anyFree, detail: anyFree ? undefined : '마감' };
+                const ok = free(s, space.minHours).length > 0;
+                return { value: s, label: formatTime(s), disabled: !ok, detail: ok ? undefined : '마감' };
               })}
-              hint={<>
-                1시간 단위 · {formatTime(lastEndFor(type))} 종료까지 <Provisional note={lastEndProvisional.note} />
-                {' '}· 오픈 {formatTime(HOURS.open.value)} <Provisional note={HOURS.open.note} />
-              </>}
-              disabledText={suiteBlocked
-                ? '마감까지 3시간 이하가 남아 오늘은 Suite 신규 예약을 받지 않습니다. 다른 날짜를 선택해 주세요.'
-                : '오늘 예약 가능한 시간이 지났습니다. 다른 날짜를 선택해 주세요.'}
+              hint={<>1시간 단위 · {formatTime(lastEndFor(type))} 종료까지 <Provisional note={(type === 'suite' ? HOURS.suiteLastEnd : HOURS.focusRestLastEnd).note} /></>}
+              empty={suiteBlocked
+                ? '마감까지 3시간 이하가 남아 오늘은 Suite 신규 예약을 받지 않아요. 날짜를 바꿔 주세요.'
+                : '오늘은 예약 가능한 시간이 지났어요. 날짜를 바꿔 주세요.'}
             />
-          </section>
+            {start != null && (
+              <section className="duration-card" aria-labelledby="duration-title">
+                <div>
+                  <p id="duration-title" className="group-title">이용 시간</p>
+                  <p className="duration-card__range">{formatTime(start)} – {endLabel}</p>
+                  <p className="group-hint">최소 {space.minHours}시간 · 최대 {space.maxHours}시간</p>
+                </div>
+                <Stepper
+                  label="이용 시간"
+                  value={hours}
+                  onChange={(v) => { setHours(v); setUnit(null); }}
+                  min={space.minHours}
+                  max={maxHours}
+                  format={(v) => `${v}시간`}
+                />
+              </section>
+            )}
+            {start != null && type !== 'suite' && (
+              <p className="inline-status"><Icon name="check" size={16} />남은 {space.unitName} {freeNow.length}개 · 빈 {space.unitName}이 자동 배정돼요</p>
+            )}
+          </>
+        )}
 
-          {start != null && (
-            <section className="panel">
-              <ChoiceGroup
-                legend="이용 시간"
-                name="hours"
-                value={hours}
-                onChange={pickHours}
-                columns={5}
-                options={durations.map((h) => {
-                  const ok = free(start, h).length > 0;
-                  return { value: h, label: `${h}시간`, detail: ok ? `~${formatTime(start + h * 60)}` : '예약 불가', disabled: !ok };
-                })}
-                hint={`최소 ${space.minHours}시간, 최대 ${space.maxHours}시간 · 시간당 ${formatWon(space.pricePerHour)}`}
-              />
-              {hours != null && type !== 'suite' && (
-                <p className="field-status">남은 {space.unitName} {freeNow.length}개 · 예약 시 빈 {space.unitName}이 자동 배정됩니다.</p>
-              )}
-            </section>
-          )}
+        {stepName === '공간' && (
+          <>
+            <h2 className="screen-title">어느 Suite를<br />사용할까요?</h2>
+            <p className="muted">{formatDate(date)} · {formatTime(start)}–{endLabel}</p>
+            <SuiteRooms storeId={storeId} date={date} start={start} hours={hours} value={unit} onChange={setUnit} free={freeNow} reservations={reservations} />
+          </>
+        )}
 
-          {type === 'suite' && hours != null && (
-            <section className="panel">
-              <SuiteRooms
-                storeId={storeId}
-                date={date}
-                start={start}
-                hours={hours}
-                value={unit}
-                onChange={setUnit}
-                free={freeNow}
-                reservations={reservations}
-              />
-            </section>
-          )}
-
-          <section className="panel">
-            <ChoiceGroup
-              legend={space.drink === 'included' ? '기본 음료 (이용료에 포함)' : '이용 전 음료 (필수, 별도 결제)'}
+        {(stepName === '음료' || stepName === '음료·요청') && (
+          <>
+            <h2 className="screen-title">{DRINK_TITLE[space.drink]}</h2>
+            <p className="muted">
+              {space.drink === 'included'
+                ? '이용료에 포함돼요. 1회 무료 리필, 이후 정상가 주문 다음 주문은 50% 할인.'
+                : '방문 후 이용료와 함께 결제해요. 이용 중 추가 음료는 50% 할인.'}
+            </p>
+            <OptionList
+              legend={<>음료 <Provisional note={MENU.note} /></>}
               name="drink"
               value={drinkId}
               onChange={setDrinkId}
-              columns={2}
               options={MENU.value.map((d) => ({
                 value: d.id,
                 label: d.name,
-                detail: space.drink === 'included' ? '포함' : formatWon(d.price),
+                trailing: space.drink === 'included' ? '포함' : formatWon(d.price),
               }))}
-              hint={<>
-                {space.drink === 'included'
-                  ? '1회 무료 리필, 이후 정상가 주문 후 다음 주문 50% 할인'
-                  : '이용 중 추가 음료는 50% 할인'}
-                {' '}<Provisional note={MENU.note} />
-              </>}
             />
-          </section>
-
-          {space.requests.length > 0 && (
-            <section className="panel">
-              <fieldset className="choice-group">
-                <legend>무료 요청</legend>
-                <div className="choice-list" style={{ '--columns': 2 }}>
+            {space.requests.length > 0 && (
+              <section className="block">
+                <p className="group-title">무료 요청</p>
+                <div className="list-card">
                   {space.requests.map((r) => (
-                    <label key={r.id} className="choice">
-                      <input
-                        type="checkbox"
-                        checked={requests.includes(r.id)}
-                        onChange={(e) => setRequests((prev) => (e.target.checked ? [...prev, r.id] : prev.filter((x) => x !== r.id)))}
-                      />
-                      <span className="choice__label">{r.label}</span>
-                    </label>
+                    <SwitchRow
+                      key={r.id}
+                      label={r.label}
+                      detail="무료"
+                      checked={requests.includes(r.id)}
+                      onChange={(on) => setRequests((prev) => (on ? [...prev, r.id] : prev.filter((x) => x !== r.id)))}
+                    />
                   ))}
                 </div>
-              </fieldset>
-            </section>
-          )}
-        </div>
+              </section>
+            )}
+          </>
+        )}
 
-        <aside className="summary panel" aria-labelledby="summary-title">
-          <h2 id="summary-title">예약 요약</h2>
-          <dl className="spec">
-            <dt>매장</dt><dd>{STORES.value.find((s) => s.id === storeId)?.name}</dd>
-            <dt>일시</dt>
-            <dd>{formatDate(date)}{start != null && ` ${formatTime(start)}`}{hours != null && `–${formatTime(start + hours * 60)}`}</dd>
-            {type === 'suite' && <><dt>공간</dt><dd>{unit != null ? `${unit}번 Suite` : '—'}</dd></>}
-            <dt>이용료</dt><dd>{hours ? `${formatWon(space.pricePerHour)} × ${hours}시간 = ${formatWon(fee)}` : '—'}</dd>
-            <dt>음료</dt><dd>{drinkId ? `${MENU.value.find((d) => d.id === drinkId).name} · ${space.drink === 'included' ? '포함' : formatWon(drinkCost)}` : '—'}</dd>
-            <dt>결제 예정</dt><dd className="spec__total">{formatWon(fee + drinkCost)}</dd>
-          </dl>
-          <p className="note">{PAYMENT_POLICY}</p>
-          <p className="note">{CANCEL_POLICY}</p>
-          {errors.length > 0 && (
-            <div className="form-errors" role="alert">
-              <ul>{errors.map((e) => <li key={e}>{e}</li>)}</ul>
-            </div>
-          )}
-          <button className="button button--primary button--block" type="submit" disabled={!ready}>
-            예약하기 (데모)
-          </button>
-          {!ready && <p className="note">시간{type === 'suite' ? ', 공간' : ''}, 음료를 선택하면 예약할 수 있어요.</p>}
-        </aside>
-      </form>
-    </div>
+        {stepName === '확인' && (
+          <>
+            <h2 className="screen-title">예약 내용을<br />확인해 주세요</h2>
+            <dl className="kv summary-card">
+              <div><dt>공간</dt><dd>{space.name}{type === 'suite' ? ` ${unit}번` : ''}</dd></div>
+              <div><dt>매장</dt><dd>{store.name}</dd></div>
+              <div><dt>일시</dt><dd>{formatDate(date)}<br />{formatTime(start)}–{endLabel} ({hours}시간)</dd></div>
+              <div><dt>이용료</dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
+              <div><dt>음료</dt><dd>{MENU.value.find((d) => d.id === drinkId)?.name} · {space.drink === 'included' ? '포함' : formatWon(drinkCost)}</dd></div>
+              {requests.length > 0 && <div><dt>무료 요청</dt><dd>{requests.map((id) => space.requests.find((r) => r.id === id).label).join(', ')}</dd></div>}
+              <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(fee + drinkCost)}</dd></div>
+            </dl>
+            <ul className="note-list">
+              <li>{PAYMENT_POLICY}</li>
+              <li>{CANCEL_POLICY}</li>
+              <li>{space.extension}</li>
+            </ul>
+            {errors.length > 0 && (
+              <div className="form-errors" role="alert">
+                <Icon name="alert" size={20} />
+                <ul>{errors.map((e) => <li key={e}>{e}</li>)}</ul>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+
+      <BottomBar>
+        <div className="price">
+          <span className="price__label">결제 예정</span>
+          <span className="price__value">{formatWon(fee + drinkCost)}</span>
+        </div>
+        {stepName === '확인' ? (
+          <button type="button" className="button button--primary" onClick={submit}>예약하기</button>
+        ) : (
+          <button type="button" className="button button--primary" disabled={!canNext} onClick={() => go(step + 1)}>다음</button>
+        )}
+      </BottomBar>
+    </>
   );
 }
 
@@ -292,22 +335,24 @@ function ReserveForm({ type }) {
 function SuiteRooms({ storeId, date, start, hours, value, onChange, free, reservations }) {
   const open = HOURS.open.value;
   const end = HOURS.suiteLastEnd.value;
-  const span = end - open;
-  const pct = (m) => `${((m - open) / span) * 100}%`;
+  const pct = (m) => `${((m - open) / (end - open)) * 100}%`;
 
   return (
-    <fieldset className="choice-group">
-      <legend>Suite 공간 선택</legend>
-      <p className="field-hint">막대의 진한 구간은 이미 예약된 시간, 테두리 구간은 선택한 시간입니다.</p>
-      <div className="room-list">
+    <fieldset className="option-group">
+      <legend className="group-title">Suite 공간</legend>
+      <p className="group-hint">막대의 진한 구간은 이미 예약된 시간, 테두리는 선택한 시간이에요.</p>
+      <div className="option-list">
         {unitIds(storeId, 'suite').map((room) => {
           const booked = bookedRanges({ storeId, type: 'suite', date, unit: room }, reservations);
           const available = free.includes(room);
           return (
-            <label key={room} className="room" data-disabled={!available || undefined}>
+            <label key={room} className="option-row room-row" data-disabled={!available || undefined}>
               <input type="radio" name="room" value={room} checked={value === room} disabled={!available} onChange={() => onChange(room)} />
-              <span className="room__name">{room}번 Suite</span>
-              <span className="room__state">{available ? '선택 가능' : '선택한 시간에 예약 있음'}</span>
+              <span className="option-row__text">
+                <span className="option-row__label">{room}번 Suite</span>
+                <span className="option-row__detail">{available ? '선택 가능' : '선택한 시간에 예약 있음'}</span>
+              </span>
+              <span className="option-row__check" aria-hidden="true"><Icon name="check" size={18} /></span>
               <span className="timeline" aria-hidden="true">
                 {booked.map((b) => <span key={b.start} className="timeline__booked" style={{ left: pct(b.start), width: `calc(${pct(b.end)} - ${pct(b.start)})` }} />)}
                 <span className="timeline__pick" style={{ left: pct(start), width: `calc(${pct(start + hours * 60)} - ${pct(start)})` }} />
@@ -319,9 +364,7 @@ function SuiteRooms({ storeId, date, start, hours, value, onChange, free, reserv
           );
         })}
       </div>
-      <div className="timeline-scale" aria-hidden="true">
-        <span>{formatTime(open)}</span><span>{formatTime(end)}</span>
-      </div>
+      <div className="timeline-scale" aria-hidden="true"><span>{formatTime(open)}</span><span>{formatTime(end)}</span></div>
     </fieldset>
   );
 }
