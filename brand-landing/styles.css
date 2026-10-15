@@ -26,6 +26,7 @@
   /* 02 / Typography */
   --font-ko: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-en: "Manrope", var(--font-ko);
+  --font-logo: "Fraunces", Georgia, "Times New Roman", serif; /* 로고 워드마크 전용 */
   --fs-display: clamp(2.75rem, 1.6rem + 5vw, 4rem);    /* 44 → 64px */
   --fs-section: clamp(1.75rem, 1.4rem + 1.6vw, 2.25rem); /* 28 → 36px */
   --fs-lead: 1.125rem;
@@ -196,10 +197,11 @@ h2 {
 }
 .brand {
   grid-area: brand;
-  font-family: var(--font-en);
-  font-size: 1.625rem;
+  font-family: var(--font-logo);
+  font-size: 1.75rem;
   font-weight: 600;
-  letter-spacing: -0.04em;
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
   text-decoration: none;
   line-height: 44px;
 }

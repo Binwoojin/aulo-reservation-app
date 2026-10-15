@@ -21,6 +21,7 @@
 
   --font-ko: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-en: "Manrope", var(--font-ko);
+  --font-logo: "Fraunces", Georgia, "Times New Roman", serif; /* 로고 워드마크 전용 */
 
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 48px;
@@ -94,7 +95,8 @@ a { color: inherit; text-decoration: none; }
 .app-bar__side--end { justify-content: flex-end; }
 .app-bar__brand {
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 var(--space-3);
-  font-family: var(--font-en); font-size: 1.375rem; font-weight: 600; letter-spacing: -0.04em;
+  font-family: var(--font-logo); font-size: 1.5rem; font-weight: 600; letter-spacing: -0.02em;
+  font-optical-sizing: auto;
 }
 .app-bar__title { font-size: 1rem; font-weight: 600; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px; }
 .icon-button {
