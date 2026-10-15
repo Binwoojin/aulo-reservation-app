@@ -61,7 +61,8 @@ export function AppBar({ title, back, transparent = false, children }) {
           <Link to="/" className="app-bar__brand" aria-label="Aulo 홈">aulo</Link>
         ) : null}
       </div>
-      {title && <h1 className="app-bar__title">{title}</h1>}
+      {/* 제목이 없어도 가운데 칸을 유지해야 메뉴 버튼이 오른쪽 끝에 고정된다 */}
+      {title ? <h1 className="app-bar__title">{title}</h1> : <span aria-hidden="true" />}
       <div className="app-bar__side app-bar__side--end">
         {children}
         <button type="button" className="icon-button" onClick={openMenu} aria-label="메뉴 열기" aria-haspopup="dialog">
