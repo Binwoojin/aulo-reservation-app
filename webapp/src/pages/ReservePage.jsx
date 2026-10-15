@@ -49,7 +49,7 @@ export default function ReservePage() {
 function TypePicker() {
   return (
     <>
-      <AppBar back title="공간 예약" />
+      <AppBar title="공간 예약" />
       <div className="screen-body">
         <h2 className="screen-title">어떤 공간을<br />예약할까요?</h2>
         <ul className="type-list">

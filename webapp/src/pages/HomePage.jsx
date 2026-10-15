@@ -7,13 +7,6 @@ import { SpaceImage, Tag } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { formatWon } from '../lib/time.js';
 
-const QUICK = [
-  { to: '/recommend', icon: 'compass', label: '공간 추천' },
-  { to: '/reserve', icon: 'calendar', label: '예약하기' },
-  { to: '/order', icon: 'cup', label: '음료 주문' },
-  { to: '/my/reservations', icon: 'receipt', label: '내 예약' },
-];
-
 export default function HomePage() {
   const { reservations } = useAppData();
   const now = useNow();
@@ -39,19 +32,6 @@ export default function HomePage() {
           </span>
           <span className="hero-card__go" aria-hidden="true"><Icon name="chevron" size={20} /></span>
         </Link>
-
-        <nav aria-label="바로가기">
-          <ul className="quick-grid">
-            {QUICK.map((q) => (
-              <li key={q.to}>
-                <Link to={q.to} className="quick">
-                  <span className="quick__icon"><Icon name={q.icon} /></span>
-                  <span>{q.label}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
 
         {next && (
           <section aria-labelledby="next-title" className="block">

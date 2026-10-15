@@ -17,7 +17,7 @@ export default function RecommendPage() {
   const [step, setStep] = useState(0);
   const done = step >= QUESTIONS.length;
 
-  const back = step > 0 ? () => setStep((s) => s - 1) : true;
+  const back = step > 0 ? () => setStep((s) => s - 1) : false;
 
   if (done) {
     const result = recommend(answers);

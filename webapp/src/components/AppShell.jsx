@@ -7,6 +7,16 @@ import { minutesOfDay, toDateString } from '../lib/time.js';
 
 const MenuContext = createContext(() => {});
 
+// 주 메뉴: 하단 탭바 (최상위 화면에서만 표시)
+export const TABS = [
+  { to: '/', icon: 'home', label: '홈', end: true },
+  { to: '/recommend', icon: 'compass', label: '추천' },
+  { to: '/reserve', icon: 'calendar', label: '예약' },
+  { to: '/order', icon: 'cup', label: '주문' },
+  { to: '/my/reservations', icon: 'receipt', label: '내 예약' },
+];
+const TAB_PATHS = TABS.map((t) => t.to);
+
 export function isUpcoming(r, now) {
   const today = toDateString(now);
   return r.date > today || (r.date === today && reservationEnd(r) > minutesOfDay(now));
@@ -17,6 +27,7 @@ export default function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { pathname } = useLocation();
   const mainRef = useRef(null);
+  const showTabs = TAB_PATHS.includes(pathname);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -26,9 +37,10 @@ export default function AppShell() {
 
   return (
     <MenuContext.Provider value={useCallback(() => setMenuOpen(true), [])}>
-      <div id="main" ref={mainRef} tabIndex={-1} className="screen">
+      <div id="main" ref={mainRef} tabIndex={-1} className="screen" data-tabs={showTabs || undefined}>
         <Outlet />
       </div>
+      {showTabs && <TabBar />}
       <MenuDrawer open={menuOpen} onClose={() => setMenuOpen(false)} />
     </MenuContext.Provider>
   );
@@ -45,9 +57,9 @@ export function AppBar({ title, back, transparent = false, children }) {
           <button type="button" className="icon-button" onClick={onBack} aria-label="뒤로 가기">
             <Icon name="back" />
           </button>
-        ) : (
+        ) : !title ? (
           <Link to="/" className="app-bar__brand" aria-label="Aulo 홈">aulo</Link>
-        )}
+        ) : null}
       </div>
       {title && <h1 className="app-bar__title">{title}</h1>}
       <div className="app-bar__side app-bar__side--end">
@@ -70,12 +82,27 @@ export function BottomBar({ children, note }) {
   );
 }
 
+function TabBar() {
+  return (
+    <nav className="tab-bar" aria-label="주요 메뉴">
+      <ul>
+        {TABS.map((t) => (
+          <li key={t.to}>
+            <NavLink to={t.to} end={t.end} className="tab">
+              <Icon name={t.icon} />
+              <span>{t.label}</span>
+            </NavLink>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+// 보조 메뉴: 햄버거 서랍 (주 메뉴는 탭바에 있으므로 반복하지 않는다)
 const MENU = [
-  { title: '서비스', items: [
-    { to: '/', icon: 'home', label: '홈', end: true },
-    { to: '/recommend', icon: 'compass', label: '공간 추천' },
-    { to: '/reserve', icon: 'calendar', label: '공간 예약' },
-    { to: '/order', icon: 'cup', label: '음료 주문' },
+  { title: '마이', items: [
+    { to: '/my/orders', icon: 'receipt', label: '주문 내역' },
   ] },
   { title: '안내', items: [
     { to: '/info', icon: 'info', label: '이용 안내·정책' },
@@ -127,13 +154,6 @@ function MenuDrawer({ open, onClose }) {
           </Link>
         </div>
 
-        <nav aria-label="마이 페이지">
-          <p className="drawer__section">마이</p>
-          <ul className="menu-list">
-            <li><NavLink to="/my/reservations" className="menu-row"><Icon name="calendar" /><span>내 예약</span><Icon name="chevron" size={18} className="menu-row__chev" /></NavLink></li>
-            <li><NavLink to="/my/orders" className="menu-row"><Icon name="receipt" /><span>주문 내역</span><Icon name="chevron" size={18} className="menu-row__chev" /></NavLink></li>
-          </ul>
-        </nav>
         {MENU.map((group) => (
           <nav key={group.title} aria-label={group.title}>
             <p className="drawer__section">{group.title}</p>

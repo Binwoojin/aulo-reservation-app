@@ -89,7 +89,7 @@ export default function OrderPage() {
 
   return (
     <>
-      <AppBar back title="음료 주문" />
+      <AppBar title="음료 주문" />
       <div className="screen-body has-bottom-bar">
         <Segmented label="주문 유형" name="kind" value={kind} onChange={(v) => { setKind(v); setReservationId(null); }} options={KINDS} />
         <p className="group-hint">{KIND_HINT[kind]}</p>

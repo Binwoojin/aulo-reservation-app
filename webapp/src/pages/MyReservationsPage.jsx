@@ -16,7 +16,7 @@ export default function MyReservationsPage() {
 
   return (
     <>
-      <AppBar back title="내 예약" />
+      <AppBar title="내 예약" />
       <div className="screen-body">
         <Segmented
           label="예약 구분"

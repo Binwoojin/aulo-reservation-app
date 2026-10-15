@@ -24,7 +24,7 @@ npm run build    # dist/ 정적 빌드 (어느 경로에 올려도 동작)
 | `src/lib/reservation.js` | 시작·이용 시간, 마감 제한, 충돌 방지, 요금 |
 | `src/lib/order.js` | 주문 유형별 할인 (추가 음료 50%, Suite 리필 순서) |
 | `src/lib/recommend.js` | 목적·시간·환경 응답 기반 공간 추천 |
-| `src/components/AppShell.jsx` | 앱 바, 햄버거 메뉴(마이 페이지), 하단 액션 바 |
+| `src/components/AppShell.jsx` | 앱 바, 하단 탭바(주 메뉴), 햄버거 서랍(마이·보조 메뉴), 하단 액션 바 |
 | `src/pages/` | 홈, 공간 추천(질문 3단계), 예약(단계형), 예약 상세, 음료 주문, 내 예약, 주문 내역, 이용 안내 |
 
 ## 임시값
