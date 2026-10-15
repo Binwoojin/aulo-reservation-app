@@ -49,7 +49,9 @@ export default function AppShell() {
 export function AppBar({ title, back, transparent = false, children }) {
   const openMenu = useContext(MenuContext);
   const navigate = useNavigate();
-  const onBack = typeof back === 'function' ? back : () => (window.history.length > 1 ? navigate(-1) : navigate('/'));
+  const location = useLocation();
+  // 앱 안에서 이동해 온 기록이 없으면(첫 화면) 홈으로 간다
+  const onBack = typeof back === 'function' ? back : () => (location.key === 'default' ? navigate('/') : navigate(-1));
   return (
     <header className="app-bar" data-transparent={transparent || undefined}>
       <div className="app-bar__side">

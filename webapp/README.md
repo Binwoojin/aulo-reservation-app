@@ -14,6 +14,7 @@ npm install
 npm run dev      # 개발 서버 http://localhost:5173
 npm test         # 정책 단위 테스트 (Vitest)
 npm run build    # dist/ 정적 빌드 (어느 경로에 올려도 동작)
+npm run build:artifact  # dist-artifact/ 게시용 빌드 (주소창을 쓰지 않는 메모리 라우터)
 ```
 
 ## 구조
