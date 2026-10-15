@@ -198,6 +198,8 @@ a { color: inherit; text-decoration: none; }
   font-size: 0.75rem; font-weight: 600; letter-spacing: 0.3px;
   color: var(--tag-fg); background: var(--tag-bg);
 }
+/* 세로로 쌓이는 곳에서는 왼쪽 위에 붙고(위 규칙), 가로 행 안에서는 행의 가운데에 맞춘다 */
+:is(.list-row, .ticket__head, .info-card__head) > .tag { align-self: center; }
 [data-service="cafe"] { --tag-fg: var(--cafe-fg); --tag-bg: var(--cafe-bg); }
 [data-service="focus"] { --tag-fg: var(--focus-fg); --tag-bg: var(--focus-bg); }
 [data-service="rest"] { --tag-fg: var(--rest-fg); --tag-bg: var(--rest-bg); }
