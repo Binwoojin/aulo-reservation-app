@@ -10,7 +10,7 @@ export default function ReservationDonePage() {
 
   if (!reservation) {
     return (
-      <div className="container page narrow">
+      <div className="container page">
         <h1 className="page-title">예약을 찾을 수 없어요</h1>
         <p className="lead">이 브라우저에 저장된 예약만 볼 수 있습니다.</p>
         <Link className="button button--primary" to="/reserve">예약하러 가기</Link>
@@ -20,7 +20,7 @@ export default function ReservationDonePage() {
 
   const space = SPACES[reservation.type];
   return (
-    <div className="container page narrow">
+    <div className="container page">
       <p className="section-label" lang="en">RESERVED</p>
       <h1 className="page-title">예약이 완료되었어요</h1>
       <p className="lead">방문하시면 매장에서 결제 후 이용을 시작합니다.</p>

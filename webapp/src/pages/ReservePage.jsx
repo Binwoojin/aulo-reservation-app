@@ -62,7 +62,7 @@ function TypePicker() {
 
 function CafeNotice() {
   return (
-    <div className="container page narrow">
+    <div className="container page">
       <h1 className="page-title">Flow Cafe는 예약이 없어요</h1>
       <p className="lead">{SPACES.cafe.summary}</p>
       <Link className="button button--primary" to="/order">음료 주문하기</Link>

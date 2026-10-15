@@ -6,7 +6,7 @@ export function SpaceImage({ space, eager = false, className = '' }) {
       <img
         src={`images/${space.image}-768.webp`}
         srcSet={`images/${space.image}-768.webp 768w, images/${space.image}-1536.webp 1536w`}
-        sizes="(min-width: 768px) 50vw, 100vw"
+        sizes="390px"
         width="1536"
         height="1024"
         alt=""

@@ -57,7 +57,7 @@ export default function OrderPage() {
 
   if (placed) {
     return (
-      <div className="container page narrow">
+      <div className="container page">
         <p className="section-label" lang="en">ORDER PLACED</p>
         <h1 className="page-title">주문이 접수되었어요 (데모)</h1>
         <p className="lead">
