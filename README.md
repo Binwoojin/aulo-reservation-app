@@ -5,6 +5,12 @@ Aulo는 사용자의 목적에 따라 좌석을 추천하고,
 현재는 Java 기초 학습 단계에 맞춰
 콘솔 기반 프로그램부터 개발을 시작합니다.
 
+## 구성
+
+- `java-basic/` — Java 기초 학습 콘솔 프로그램
+- `brand-landing/` — 브랜드 랜딩페이지 (정적 HTML/CSS/JS)
+- `webapp/` — 공간 추천·예약·음료 주문 데모 웹앱 (React + Vite) → [실행 방법](./webapp/README.md)
+
 ---
 
 ## 개발 기록
