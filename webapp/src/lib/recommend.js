@@ -1,5 +1,8 @@
 // 목적·시간·프라이버시 응답으로 공간을 추천한다 (규칙 기반).
 
+import { SPACES } from '../config/policy.js';
+import { formatWon } from './time.js';
+
 export const QUESTIONS = [
   {
     id: 'purpose',
@@ -58,6 +61,6 @@ export const recommend = ({ purpose, duration, privacy }) => {
   return {
     primary: 'focus',
     alternatives: privacy === 'open' ? ['cafe'] : ['suite'],
-    reason: '가림막이 있는 개인 좌석에서 집중할 수 있어요. 시간당 1,500원, 최대 4시간.',
+    reason: `가림막이 있는 개인 좌석에서 집중할 수 있어요. 시간당 ${formatWon(SPACES.focus.pricePerHour)}, 최대 4시간.`,
   };
 };

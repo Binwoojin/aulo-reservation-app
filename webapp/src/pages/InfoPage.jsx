@@ -1,6 +1,6 @@
-import { CANCEL_POLICY, CLOSING_NOTICES, PAYMENT_POLICY, PROVISIONAL_NOTES, SPACES, SPACE_TYPES } from '../config/policy.js';
+import { CANCEL_POLICY, CLOSING_NOTICES, PAYMENT_POLICY, PROVISIONAL_NOTES, SEAT_PRICES, SPACES, SPACE_TYPES } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
-import { Tag } from '../components/ui.jsx';
+import { Provisional, Tag } from '../components/ui.jsx';
 import { formatWon } from '../lib/time.js';
 
 export default function InfoPage() {
@@ -21,7 +21,7 @@ export default function InfoPage() {
                   </div>
                   {s.reservable ? (
                     <ul className="note-list">
-                      <li>{formatWon(s.pricePerHour)}/시간 · 1시간 단위 · {s.minHours}~{s.maxHours}시간</li>
+                      <li>{formatWon(s.pricePerHour)}/시간 <Provisional note={SEAT_PRICES.note} /> · 1시간 단위 · {s.minHours}~{s.maxHours}시간</li>
                       {s.features.map((f) => <li key={f}>{f}</li>)}
                       <li>{s.extension}</li>
                     </ul>

@@ -26,6 +26,15 @@ export const BOOKING_WINDOW_DAYS = p(14, '예약 가능 기간 미확정 — 임
 
 export const SPACE_TYPES = ['cafe', 'focus', 'rest', 'suite'];
 
+// 좌석 가격: 2026-10-16 사용자 요청으로 국내 유사 업종 시장 평균가에 맞춰 임의 설정 (기존 확정가 1,500/3,000/8,000원 대체)
+// - Focus: 스터디카페 1인 좌석 평균 약 2,000원/시간
+// - Rest: 수면·리클라이너 카페 5,000~8,000원/시간의 중간값
+// - Suite: 1인 독립 오피스·소형 스터디룸 약 10,000~12,000원/시간의 평균
+export const SEAT_PRICES = p(
+  { focus: 2000, rest: 6500, suite: 11000 },
+  '좌석 가격은 유사 업종 시장 평균으로 임의 설정 — Focus 2,000원 · Rest 6,500원 · Suite 11,000원/시간',
+);
+
 export const SPACES = {
   cafe: {
     id: 'cafe',
@@ -46,7 +55,7 @@ export const SPACES = {
     image: 'flow-focus',
     reservable: true,
     unitName: '좌석',
-    pricePerHour: 1500,
+    pricePerHour: SEAT_PRICES.value.focus,
     minHours: 1,
     maxHours: 4,
     drink: 'required', // 이용 전 음료 별도 주문
@@ -64,7 +73,7 @@ export const SPACES = {
     image: 'flow-rest',
     reservable: true,
     unitName: '리클라이너',
-    pricePerHour: 3000,
+    pricePerHour: SEAT_PRICES.value.rest,
     minHours: 1,
     maxHours: 4,
     drink: 'required',
@@ -85,7 +94,7 @@ export const SPACES = {
     image: 'flow-suite',
     reservable: true,
     unitName: '공간',
-    pricePerHour: 8000,
+    pricePerHour: SEAT_PRICES.value.suite,
     minHours: 3,
     maxHours: 9,
     drink: 'included', // 기본 음료 포함, 예약 시 선택
@@ -95,15 +104,19 @@ export const SPACES = {
   },
 };
 
-// 음료 메뉴는 미확정. java-basic/DrinkMenu.java의 메뉴와 가격을 임시로 사용한다.
+// 음료 메뉴는 미확정. 메뉴 구성은 java-basic/DrinkMenu.java를 따르고,
+// 가격은 2026-10-16 사용자 요청으로 시장 평균가에 맞춰 임의 설정한다.
+// - 아메리카노·카페라떼: 한국소비자원 2024 커피전문점 25개 브랜드 평균(3,001원 · 3,978원)
+// - 바닐라라떼: 카페라떼 평균에 시럽 추가분(약 500원)을 더한 값
+// - 허브티: 공개된 평균 자료가 없어 카페라떼 평균 수준으로 둔다
 export const MENU = p(
   [
-    { id: 'americano', name: '아메리카노', price: 3500 },
-    { id: 'latte', name: '카페라떼', price: 4500 },
-    { id: 'vanilla-latte', name: '바닐라라떼', price: 5000 },
+    { id: 'americano', name: '아메리카노', price: 3000 },
+    { id: 'latte', name: '카페라떼', price: 4000 },
+    { id: 'vanilla-latte', name: '바닐라라떼', price: 4500 },
     { id: 'herb-tea', name: '허브티', price: 4000 },
   ],
-  '음료 메뉴·가격 미확정 — java-basic/DrinkMenu.java 값을 임시 사용',
+  '음료 메뉴·가격 미확정 — 메뉴는 java-basic/DrinkMenu.java, 가격은 시장 평균으로 임의 설정',
 );
 
 // 매장과 좌석·공간 수는 미확정. Suite 공간 수는 매장마다 다르다는 확정 정책만 반영한다.

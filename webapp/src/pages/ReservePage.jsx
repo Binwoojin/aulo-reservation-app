@@ -6,6 +6,7 @@ import {
   HOURS,
   MENU,
   PAYMENT_POLICY,
+  SEAT_PRICES,
   SPACES,
   STORES,
 } from '../config/policy.js';
@@ -296,7 +297,7 @@ function ReserveWizard({ type }) {
               <div><dt>공간</dt><dd>{space.name}{type === 'suite' ? ` ${unit}번` : ''}</dd></div>
               <div><dt>매장</dt><dd>{store.name}</dd></div>
               <div><dt>일시</dt><dd>{formatDate(date)}<br />{formatTime(start)}–{endLabel} ({hours}시간)</dd></div>
-              <div><dt>이용료</dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
+              <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
               <div><dt>음료</dt><dd>{MENU.value.find((d) => d.id === drinkId)?.name} · {space.drink === 'included' ? '포함' : formatWon(drinkCost)}</dd></div>
               {requests.length > 0 && <div><dt>무료 요청</dt><dd>{requests.map((id) => space.requests.find((r) => r.id === id).label).join(', ')}</dd></div>}
               <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(fee + drinkCost)}</dd></div>

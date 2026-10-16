@@ -8,26 +8,26 @@ const focus = { id: 'f1', type: 'focus', drinkId: 'americano' };
 describe('음료 주문 요금', () => {
   it('카페 주문은 정상가', () => {
     const r = priceOrder({ kind: 'cafe', items: { americano: 2 } });
-    expect(r.total).toBe(7000);
+    expect(r.total).toBe(6000);
     expect(r.discount).toBe(0);
   });
 
   it('Focus·Rest 추가 주문은 50% 할인', () => {
     const r = priceOrder({ kind: orderKindFor(focus), items: { latte: 1, 'herb-tea': 1 }, reservation: focus });
     expect(r.benefit).toBe('half');
-    expect(r.total).toBe(4250);
+    expect(r.total).toBe(4000);
   });
 
   it('Suite 첫 주문은 기본 음료 1잔 무료 리필, 다른 메뉴는 정상가', () => {
     const r = priceOrder({ kind: 'suite', items: { latte: 2, americano: 1 }, reservation: suite });
     expect(r.benefit).toBe('refill');
-    expect(r.total).toBe(4500 + 3500);
+    expect(r.total).toBe(4000 + 3000);
   });
 
   it('Suite 순서: 리필 → 정상가 → 50% → (임시) 교대', () => {
     expect([0, 1, 2, 3, 4].map(suiteBenefit)).toEqual(['refill', 'normal', 'half', 'normal', 'half']);
     const prev = [{ reservationId: 's1' }, { reservationId: 's1' }, { reservationId: 'other' }];
-    expect(priceOrder({ kind: 'suite', items: { latte: 1 }, reservation: suite, previousOrders: prev }).total).toBe(2250);
+    expect(priceOrder({ kind: 'suite', items: { latte: 1 }, reservation: suite, previousOrders: prev }).total).toBe(2000);
   });
 });
 

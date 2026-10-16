@@ -70,11 +70,11 @@ describe('Suite 마감 임박 제한', () => {
 describe('예약 생성과 충돌 방지', () => {
   it('요금은 시간당 단가 × 시간, Suite 기본 음료는 포함', () => {
     const { reservation } = make({ type: 'suite', start: 10 * 60, hours: 3, unit: 1 });
-    expect(reservation.fee).toBe(24000);
+    expect(reservation.fee).toBe(33000);
     expect(reservation.drinkFee).toBe(0);
     const focus = make({ type: 'focus', start: 10 * 60, hours: 2 }).reservation;
-    expect(focus.fee).toBe(3000);
-    expect(focus.drinkFee).toBe(3500);
+    expect(focus.fee).toBe(4000);
+    expect(focus.drinkFee).toBe(3000);
   });
 
   it('같은 Suite 공간의 겹치는 시간은 거절하고, 다른 공간은 허용한다', () => {
