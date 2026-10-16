@@ -51,7 +51,7 @@ export default function ReservationDetailPage() {
             <li>{PAYMENT_POLICY}</li>
             {space.drink === 'required' && <li>이용 전 음료는 방문 후 함께 결제해요. 이용 중 추가 음료는 50% 할인돼요.</li>}
             {space.drink === 'included' && <li>기본 음료는 이용료에 포함돼요. 공간 번호({reservation.unit}번)로 음료를 배달 주문할 수 있어요.</li>}
-            <li>{extensionStatus(reservation)}</li>
+            <li>{extensionStatus(reservation, reservations)}</li>
             <li>{CANCEL_POLICY} 취소 기능은 준비 중이에요.</li>
             {CLOSING_NOTICES.filter((n) => reservation.type === 'suite' || !n.startsWith('Suite')).map((n) => <li key={n}>{n}</li>)}
           </ul>

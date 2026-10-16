@@ -4,6 +4,7 @@ import {
   createReservation,
   durationOptions,
   extensionFee,
+  extensionRange,
   extensionUnitPrice,
   maxExtensionMinutes,
   freeUnits,
@@ -136,5 +137,16 @@ describe('현장 연장 요금', () => {
     expect(maxExtensionMinutes(r('rest', 20, 2))).toBe(0); // 22:00 종료 → 연장 불가
     expect(maxExtensionMinutes(r('rest', 21, 2))).toBe(0); // 23:00 종료 → 연장 불가
     expect(extensionFee(r('focus', 18.5, 3), 40)).toBeNull();
+  });
+
+  it('같은 좌석의 다음 예약과 겹치면 다음 예약이 우선이다', () => {
+    const seat = { storeId: 'seongsu', date: TOMORROW, unit: 3 };
+    const mine = { id: 'm', ...seat, ...r('focus', 12, 2) }; // 14:00 종료
+    const next = (start, extra = {}) => ({ id: 'n', ...seat, ...r('focus', start, 1), ...extra });
+    expect(extensionRange(mine, [mine, next(14)])).toEqual({ max: 0, reason: 'next' });
+    expect(extensionRange(mine, [mine, next(14.5)])).toEqual({ max: 30, reason: null });
+    expect(extensionFee(mine, 40, [mine, next(14.5)])).toBeNull();
+    expect(maxExtensionMinutes(mine, [mine, next(14, { unit: 4 })])).toBe(60); // 다른 좌석은 무관
+    expect(maxExtensionMinutes(mine, [mine, next(10)])).toBe(60); // 앞 예약은 무관
   });
 });

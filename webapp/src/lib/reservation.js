@@ -81,31 +81,49 @@ export const extensionUnitPrice = (type) => {
 // 연장은 폐점 1시간 전까지만 (23:00 마감 → 22:00)
 export const extensionDeadline = () => HOURS.close - EXTENSION.cutoffBeforeCloseMinutes;
 
-// 이 예약이 연장할 수 있는 최대 분(10분 단위). 0이면 연장 불가
-export const maxExtensionMinutes = (r) => {
-  if (!SPACES[r.type].extendable) return 0;
-  const { unitMinutes, maxMinutes } = EXTENSION;
-  const room = Math.floor((extensionDeadline() - reservationEnd(r)) / unitMinutes) * unitMinutes;
-  return Math.max(0, Math.min(maxMinutes, room));
+// 같은 좌석·공간의 다음 예약 시작 시각 (없으면 null). 다음 예약이 연장보다 우선한다
+export const nextReservationStart = (r, existing = []) => {
+  const starts = existing
+    .filter((x) => x.id !== r.id && x.storeId === r.storeId && x.type === r.type && x.date === r.date && x.unit === r.unit && x.start >= reservationEnd(r))
+    .map((x) => x.start);
+  return starts.length ? Math.min(...starts) : null;
 };
 
-export const extensionFee = (r, minutes) => {
-  if (minutes <= 0 || minutes % EXTENSION.unitMinutes || minutes > maxExtensionMinutes(r)) return null;
+// 연장 가능 범위: 최대 1시간, 폐점 1시간 전까지, 다음 예약 시작 전까지 (10분 단위)
+// reason: 'none'(연장 없는 공간) | 'deadline'(폐점 1시간 전 이후) | 'next'(다음 예약과 겹침) | null(가능)
+export const extensionRange = (r, existing = []) => {
+  if (!SPACES[r.type].extendable) return { max: 0, reason: 'none' };
+  const { unitMinutes, maxMinutes } = EXTENSION;
+  const end = reservationEnd(r);
+  const next = nextReservationStart(r, existing);
+  const byDeadline = extensionDeadline() - end;
+  const byNext = next === null ? Infinity : next - end;
+  const room = Math.floor(Math.min(maxMinutes, byDeadline, byNext) / unitMinutes) * unitMinutes;
+  if (room > 0) return { max: room, reason: null };
+  return { max: 0, reason: byNext <= byDeadline ? 'next' : 'deadline' };
+};
+
+export const maxExtensionMinutes = (r, existing = []) => extensionRange(r, existing).max;
+
+export const extensionFee = (r, minutes, existing = []) => {
+  if (minutes <= 0 || minutes % EXTENSION.unitMinutes || minutes > maxExtensionMinutes(r, existing)) return null;
   return extensionUnitPrice(r.type) * (minutes / EXTENSION.unitMinutes);
 };
 
 export const extensionNote = (type) => {
   const unit = extensionUnitPrice(type);
   if (unit === null) return SPACES[type].extension;
-  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원이며, 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 연장할 수 있습니다.`;
+  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원이며, 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 연장할 수 있습니다. 다음 예약과 겹치면 다음 예약이 우선이라 연장할 수 없습니다.`;
 };
 
 // 예약별 연장 안내: 가능한 범위, 또는 연장 불가
-export const extensionStatus = (r) => {
-  if (!SPACES[r.type].extendable) return SPACES[r.type].extension;
-  const max = maxExtensionMinutes(r);
-  if (max === 0) return `폐점 1시간 전(${formatTime(extensionDeadline())}) 이후로는 연장할 수 없어 이 예약은 연장이 불가해요.`;
-  return `현장에서 ${formatTime(reservationEnd(r) + max)}까지 최대 ${max}분 연장할 수 있어요. 10분당 ${extensionUnitPrice(r.type).toLocaleString('ko-KR')}원.`;
+export const extensionStatus = (r, existing = []) => {
+  const { max, reason } = extensionRange(r, existing);
+  if (reason === 'none') return SPACES[r.type].extension;
+  if (reason === 'deadline') return `폐점 1시간 전(${formatTime(extensionDeadline())}) 이후로는 연장할 수 없어 이 예약은 연장이 불가해요.`;
+  if (reason === 'next') return '바로 다음 시간에 이 좌석의 다른 예약이 있어 연장이 불가해요. 다음 예약이 우선이에요.';
+  const capped = nextReservationStart(r, existing) === reservationEnd(r) + max ? '다음 예약 전인 ' : '';
+  return `현장에서 ${capped}${formatTime(reservationEnd(r) + max)}까지 최대 ${max}분 연장할 수 있어요. 10분당 ${extensionUnitPrice(r.type).toLocaleString('ko-KR')}원.`;
 };
 
 export const drinkFee = (type, drinkId) => {
