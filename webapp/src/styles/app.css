@@ -462,3 +462,24 @@ a.ticket__link:active { background: var(--color-bg); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition-duration: 0.01ms !important; }
 }
+
+/* ---------- 예약 확인 할인 쿠폰 ---------- */
+.coupon {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-4); border: 1px dashed var(--color-olive); border-radius: var(--radius-lg);
+  background: var(--color-olive-light);
+}
+.coupon__icon {
+  display: grid; place-items: center; flex: none; width: 36px; height: 36px;
+  border-radius: var(--radius-pill); background: var(--color-olive); color: var(--color-surface);
+}
+.coupon__text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.coupon__text strong { font-size: 0.9375rem; }
+.coupon__text span { font-size: 0.8125rem; color: var(--color-text-sub); }
+.coupon__state { flex: none; font-size: 0.75rem; font-weight: 700; color: var(--color-olive-hover); }
+.coupon-cta {
+  display: flex; flex-direction: column; gap: var(--space-3); margin-top: 0;
+  padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); border: 1px solid var(--color-border);
+  font-size: 0.875rem;
+}
+.coupon-cta p { margin: 0; }

@@ -5,7 +5,7 @@ import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, orderKindFor, priceOrder } from '../lib/order.js';
+import { BENEFIT_LABEL, couponFor, orderKindFor, priceOrder } from '../lib/order.js';
 import { getDrink, getStore, reservationEnd } from '../lib/reservation.js';
 import { formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
 
@@ -17,8 +17,8 @@ const KINDS = [
 
 const KIND_HINT = {
   cafe: '준비되면 카운터에서 픽업해요 · 정상가',
-  extra: 'Focus·Rest 이용 중 추가 음료 50% 할인',
-  suite: '공간 번호로 배달해요',
+  extra: 'Focus·Rest 예약을 확인하면 재주문 50% 할인 쿠폰을 드려요',
+  suite: '공간 번호로 배달해요 · 예약을 확인하면 할인 쿠폰을 드려요',
 };
 
 export default function OrderPage() {
@@ -41,6 +41,9 @@ export default function OrderPage() {
   const reservation = linkable.find((r) => r.id === reservationId) ?? (linkable.length === 1 ? linkable[0] : null);
   const needsReservation = kind !== 'cafe';
   const quote = priceOrder({ kind, items, reservation, previousOrders: orders });
+  const coupon = couponFor(kind, reservation, orders);
+  // 카페 주문을 고른 사람에게 오늘 이용 중인 좌석 예약이 있으면 쿠폰을 받을 수 있다고 알린다
+  const seatToday = kind === 'cafe' ? active[0] : null;
   const count = Object.values(items).reduce((a, b) => a + b, 0);
   const canOrder = count > 0 && (!needsReservation || reservation);
 
@@ -53,6 +56,7 @@ export default function OrderPage() {
       items,
       total: quote.total,
       benefit: quote.benefit,
+      coupon: coupon?.title ?? null,
       createdAt: new Date().toISOString(),
     };
     addOrder(order);
@@ -94,6 +98,15 @@ export default function OrderPage() {
         <Segmented label="주문 유형" name="kind" value={kind} onChange={(v) => { setKind(v); setReservationId(null); }} options={KINDS} />
         <p className="group-hint">{KIND_HINT[kind]}</p>
 
+        {seatToday && (
+          <div className="coupon-cta">
+            <p>오늘 {SPACES[seatToday.type].name} 예약이 있어요. 예약을 확인하면 할인 쿠폰으로 주문할 수 있어요.</p>
+            <button type="button" className="button button--secondary" onClick={() => { setKind(orderKindFor(seatToday)); setReservationId(seatToday.id); }}>
+              예약 확인하고 쿠폰 받기
+            </button>
+          </div>
+        )}
+
         {needsReservation && (
           <section className="block">
             <OptionList
@@ -112,6 +125,24 @@ export default function OrderPage() {
                 <Link className="text-link" to={`/reserve/${kind === 'suite' ? 'suite' : 'focus'}`}>예약하러 가기</Link>
               </>}
             />
+          </section>
+        )}
+
+        {needsReservation && reservation && (
+          <section className="block" aria-labelledby="coupon-title">
+            <p id="coupon-title" className="group-title">할인 쿠폰</p>
+            {coupon ? (
+              <div className="coupon">
+                <span className="coupon__icon" aria-hidden="true"><Icon name="check" size={20} /></span>
+                <span className="coupon__text">
+                  <strong>{coupon.title}</strong>
+                  <span>{coupon.detail}</span>
+                </span>
+                <span className="coupon__state">적용됨</span>
+              </div>
+            ) : (
+              <p className="group-hint">이번 주문은 정상가예요. 다음 주문에 50% 할인 쿠폰이 발급돼요.</p>
+            )}
           </section>
         )}
 
@@ -138,7 +169,7 @@ export default function OrderPage() {
       </div>
 
       <BottomBar note={(!needsReservation || reservation) && (
-        <>이번 주문 혜택 <strong>{BENEFIT_LABEL[quote.benefit]}</strong>
+        <>{quote.benefit === 'normal' ? '이번 주문' : '쿠폰 적용'} <strong>{BENEFIT_LABEL[quote.benefit]}</strong>
           {quote.benefit === 'refill' && reservation && ` · ${getDrink(reservation.drinkId)?.name}`}</>
       )}>
         <div className="price">
@@ -160,7 +191,7 @@ function OrderLines({ quote }) {
           <dd>{l.total !== l.listPrice && <s>{formatWon(l.listPrice)}</s>} {formatWon(l.total)}</dd>
         </div>
       ))}
-      {quote.discount > 0 && <div><dt>할인</dt><dd>−{formatWon(quote.discount)}</dd></div>}
+      {quote.discount > 0 && <div><dt>쿠폰 할인</dt><dd>−{formatWon(quote.discount)}</dd></div>}
       <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(quote.total)}</dd></div>
     </dl>
   );

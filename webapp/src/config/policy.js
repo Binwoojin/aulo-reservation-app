@@ -119,13 +119,14 @@ export const MENU = p(
   '음료 메뉴·가격 미확정 — 메뉴는 java-basic/DrinkMenu.java, 가격은 시장 평균으로 임의 설정',
 );
 
-// 매장과 좌석·공간 수는 미확정. Suite 공간 수는 매장마다 다르다는 확정 정책만 반영한다.
+// 매장: 2026-10-16 사용자 요청으로 임시 설정. 성수·연남 두 곳 모두 대형 카페로
+// Cafe·Focus·Rest·Suite 네 가지 공간을 모두 운영한다. Suite 공간 수가 매장마다 다르다는 확정 정책과 맞는다.
 export const STORES = p(
   [
-    { id: 'seongsu', name: 'Aulo 성수', units: { focus: 8, rest: 4, suite: 3 } },
-    { id: 'yeonnam', name: 'Aulo 연남', units: { focus: 6, rest: 3, suite: 2 } },
+    { id: 'seongsu', name: 'Aulo 성수', units: { focus: 24, rest: 18, suite: 16 } },
+    { id: 'yeonnam', name: 'Aulo 연남', units: { focus: 30, rest: 20, suite: 12 } },
   ],
-  '매장 목록과 좌석·공간 수 미확정 — 데모 매장 2곳 임시 구성',
+  '매장 임시 설정 — 성수·연남 대형 카페 2곳, 4가지 공간 모두 운영 (성수 Focus 24 · Rest 18 · Suite 16, 연남 Focus 30 · Rest 20 · Suite 12)',
 );
 
 // Suite 음료: 무료 리필 1회 → 정상가 주문 → 다음 주문 50% 할인 (확정)

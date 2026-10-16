@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { orderKindFor, priceOrder, suiteBenefit } from './order.js';
+import { couponFor, orderKindFor, priceOrder, suiteBenefit } from './order.js';
 import { recommend } from './recommend.js';
 
 const suite = { id: 's1', type: 'suite', drinkId: 'latte' };
@@ -41,5 +41,23 @@ describe('공간 추천', () => {
 
   it('Focus 최대 4시간을 넘는 작업은 Suite', () => {
     expect(recommend({ purpose: 'work', duration: 'long', privacy: 'open' }).primary).toBe('suite');
+  });
+});
+
+describe('예약 확인 할인 쿠폰', () => {
+  it('카페 주문이나 예약 없는 주문에는 쿠폰이 없다', () => {
+    expect(couponFor('cafe', null)).toBeNull();
+    expect(couponFor('extra', null)).toBeNull();
+  });
+
+  it('Focus·Rest 예약이 확인되면 재주문마다 50% 할인 쿠폰', () => {
+    const prev = [{ reservationId: 'f1' }, { reservationId: 'f1' }];
+    expect(couponFor('extra', focus, prev).benefit).toBe('half');
+  });
+
+  it('Suite는 리필 쿠폰 → 쿠폰 없음(정상가) → 50% 할인 쿠폰', () => {
+    expect(couponFor('suite', suite, []).benefit).toBe('refill');
+    expect(couponFor('suite', suite, [{ reservationId: 's1' }])).toBeNull();
+    expect(couponFor('suite', suite, [{ reservationId: 's1' }, { reservationId: 's1' }]).benefit).toBe('half');
   });
 });

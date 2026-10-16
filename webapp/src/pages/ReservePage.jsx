@@ -257,8 +257,8 @@ function ReserveWizard({ type }) {
             <h2 className="screen-title">{DRINK_TITLE[space.drink]}</h2>
             <p className="muted">
               {space.drink === 'included'
-                ? '이용료에 포함돼요. 1회 무료 리필, 이후 정상가 주문 다음 주문은 50% 할인.'
-                : '방문 후 이용료와 함께 결제해요. 이용 중 추가 음료는 50% 할인.'}
+                ? '이용료에 포함돼요. 예약이 확인되면 재주문 때 무료 리필 쿠폰, 정상가 주문 다음에는 50% 할인 쿠폰을 드려요.'
+                : '방문 후 이용료와 함께 결제해요. 예약이 확인되면 이용 중 재주문에 50% 할인 쿠폰을 드려요.'}
             </p>
             <OptionList
               legend={<>음료 <Provisional note={MENU.note} /></>}
