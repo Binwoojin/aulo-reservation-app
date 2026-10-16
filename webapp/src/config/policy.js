@@ -16,9 +16,9 @@ const h = (hour, minute = 0) => hour * 60 + minute;
 export const HOURS = {
   open: p(h(9), '매장 오픈 시간 미확정 — 임시로 09:00 오픈'),
   close: h(23), // 데모 마감 23:00 (확정)
-  suiteCheckout: h(22, 50), // Suite 22:50 퇴실 (확정)
+  checkout: h(22, 50), // 모든 좌석 22:50 퇴실 = 폐점 10분 전 (Suite 확정, Focus·Rest 2026-10-16 결정)
   suiteLastEnd: p(h(22), 'Suite 마지막 종료 슬롯 미확정 — 1시간 단위와 22:50 퇴실을 맞추기 위해 임시로 22:00 종료까지만 예약'),
-  focusRestLastEnd: p(h(23), 'Focus·Rest 마지막 종료 시각 미확정 — 임시로 마감 23:00까지 예약'),
+  focusRestLastEnd: p(h(22), 'Focus·Rest 퇴실 22:50 확정 — 1시간 단위 예약이라 임시로 22:00 종료까지만 예약(22:50에 끝나는 마지막 50분 슬롯 허용 여부는 미정)'),
   suiteNewBookingCutoffHours: 3, // 마감까지 3시간 이하면 Suite 신규 예약 제한 (확정)
 };
 
@@ -147,7 +147,7 @@ export const SUITE_ORDER_RULE = p(
 export const CLOSING_NOTICES = [
   '22:30 앱 알림으로 마감을 안내합니다.',
   '22:45에도 이용 중이면 직원이 방문해 안내합니다.',
-  'Suite는 22:50까지 정리 후 퇴실해야 합니다.',
+  '모든 좌석은 폐점 10분 전인 22:50까지 반드시 퇴실해야 합니다.',
 ];
 
 export const CANCEL_POLICY = '예약 취소는 이용 예정일 전날까지 가능하며, 당일 취소는 불가합니다.';

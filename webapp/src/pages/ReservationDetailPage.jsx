@@ -53,7 +53,7 @@ export default function ReservationDetailPage() {
             {space.drink === 'included' && <li>기본 음료는 이용료에 포함돼요. 공간 번호({reservation.unit}번)로 음료를 배달 주문할 수 있어요.</li>}
             <li>{extensionStatus(reservation, reservations)}</li>
             <li>{CANCEL_POLICY} 취소 기능은 준비 중이에요.</li>
-            {CLOSING_NOTICES.filter((n) => reservation.type === 'suite' || !n.startsWith('Suite')).map((n) => <li key={n}>{n}</li>)}
+            {CLOSING_NOTICES.map((n) => <li key={n}>{n}</li>)}
           </ul>
         </section>
       </div>

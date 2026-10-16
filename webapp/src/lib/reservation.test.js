@@ -25,10 +25,10 @@ const make = (input, existing = [], now = NOW) =>
   createReservation({ ...base, ...input }, existing, now, () => `r${++seq}`);
 
 describe('시작 시간', () => {
-  it('Focus는 정시 단위, 최소 1시간을 23:00 전에 채울 수 있어야 한다', () => {
+  it('Focus는 정시 단위, 22:50 퇴실 전(22:00 종료)까지 최소 1시간을 채울 수 있어야 한다', () => {
     const opts = startOptions('focus', TOMORROW, NOW).map(formatTime);
     expect(opts[0]).toBe('09:00');
-    expect(opts.at(-1)).toBe('22:00');
+    expect(opts.at(-1)).toBe('21:00');
   });
 
   it('Suite는 최소 3시간이고 임시 마지막 종료 22:00까지라 19:00이 마지막 시작이다', () => {
@@ -49,8 +49,9 @@ describe('이용 시간', () => {
     expect(durationOptions('rest', 9 * 60)).toEqual([1, 2, 3, 4]);
   });
 
-  it('마감을 넘는 시간은 제외한다', () => {
-    expect(durationOptions('focus', 21 * 60)).toEqual([1, 2]);
+  it('22:50 퇴실을 넘는 시간은 제외한다', () => {
+    expect(durationOptions('focus', 20 * 60)).toEqual([1, 2]);
+    expect(durationOptions('focus', 21 * 60)).toEqual([1]);
   });
 
   it('Suite는 3~9시간이고 22:00 이후 종료는 제외한다', () => {
