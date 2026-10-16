@@ -17,17 +17,11 @@ export const bookableDates = (now) => {
   return Array.from({ length: BOOKING_WINDOW_DAYS.value + 1 }, (_, i) => addDays(today, i));
 };
 
-// Suite: 마감까지 3시간 이하가 남으면 '오늘' 신규 예약을 제한한다.
-// 미래 날짜는 해당 이용 시간 기준으로 판단하므로 이 제한을 적용하지 않는다.
-export const isSuiteSameDayBlocked = (date, now) =>
-  date === toDateString(now) &&
-  HOURS.close - minutesOfDay(now) <= HOURS.suiteNewBookingCutoffHours * 60;
-
-// 선택 가능한 시작 시각 (정시, 최소 이용 시간을 마감 전에 채울 수 있어야 함)
+// 선택 가능한 시작 시각 (정시, 최소 이용 시간을 22:00 종료 전에 채울 수 있어야 함)
+// Suite는 최소 3시간이라 19:00 이후 시작은 자연히 막힌다(별도 '마감 3시간 전' 제한은 두지 않음).
 export const startOptions = (type, date, now) => {
   const space = SPACES[type];
   if (!space?.reservable) return [];
-  if (type === 'suite' && isSuiteSameDayBlocked(date, now)) return [];
   const isToday = date === toDateString(now);
   const latestStart = lastEndFor(type) - space.minHours * 60;
   const options = [];
@@ -140,9 +134,6 @@ export const validateReservation = (input, existing, now) => {
   if (!space?.reservable) return ['예약할 수 없는 공간입니다.'];
   if (!getStore(input.storeId)) errors.push('매장을 선택해 주세요.');
   if (!bookableDates(now).includes(input.date)) errors.push('예약 가능한 날짜가 아닙니다.');
-  if (input.type === 'suite' && isSuiteSameDayBlocked(input.date, now)) {
-    errors.push('마감까지 3시간 이하가 남아 오늘 Suite 신규 예약이 제한됩니다.');
-  }
   if (!startOptions(input.type, input.date, now).includes(input.start)) {
     errors.push('선택할 수 없는 시작 시간입니다.');
   } else if (!durationOptions(input.type, input.start).includes(input.hours)) {

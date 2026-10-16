@@ -18,7 +18,6 @@ export const HOURS = {
   close: h(23), // 데모 마감 23:00 (확정)
   checkout: h(22, 50), // 모든 좌석 22:50 퇴실 = 폐점 10분 전 (Suite 확정, Focus·Rest 2026-10-16 결정)
   lastEnd: h(22), // 마지막 슬롯은 22:00 종료 (1시간 단위와 22:50 퇴실을 맞춤, 2026-10-16 확정)
-  suiteNewBookingCutoffHours: 3, // 마감까지 3시간 이하면 Suite 신규 예약 제한 (확정)
 };
 
 export const BOOKING_WINDOW_DAYS = p(14, '예약 가능 기간 미확정 — 임시로 오늘부터 14일 후까지');

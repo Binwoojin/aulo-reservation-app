@@ -8,7 +8,6 @@ import {
   extensionUnitPrice,
   maxExtensionMinutes,
   freeUnits,
-  isSuiteSameDayBlocked,
   startOptions,
   validateReservation,
 } from './reservation.js';
@@ -60,16 +59,14 @@ describe('이용 시간', () => {
   });
 });
 
-describe('Suite 마감 임박 제한', () => {
-  it('오늘 마감까지 3시간 이하면 신규 예약을 막는다', () => {
-    expect(isSuiteSameDayBlocked(TODAY, at(2026, 10, 14, 20, 0))).toBe(true);
-    expect(isSuiteSameDayBlocked(TODAY, at(2026, 10, 14, 19, 59))).toBe(false);
+describe('Suite 당일 마감 (최소 3시간 · 22:00 종료)', () => {
+  it('오늘 19:00 시작이 지나면 Suite는 예약할 시간이 없다', () => {
+    expect(startOptions('suite', TODAY, at(2026, 10, 14, 18, 30)).map(formatTime)).toEqual(['19:00']);
+    expect(startOptions('suite', TODAY, at(2026, 10, 14, 19, 0))).toEqual([]);
   });
 
-  it('미래 날짜에는 예약 생성 시각과 무관하게 적용하지 않는다', () => {
-    const late = at(2026, 10, 14, 22, 0);
-    expect(isSuiteSameDayBlocked(TOMORROW, late)).toBe(false);
-    expect(startOptions('suite', TOMORROW, late).length).toBeGreaterThan(0);
+  it('미래 날짜는 예약하는 시각과 무관하게 예약할 수 있다', () => {
+    expect(startOptions('suite', TOMORROW, at(2026, 10, 14, 22, 0)).length).toBeGreaterThan(0);
   });
 });
 

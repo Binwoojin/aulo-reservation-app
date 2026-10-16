@@ -31,7 +31,6 @@ import {
   drinkFee,
   extensionNote,
   freeUnits,
-  isSuiteSameDayBlocked,
   lastEndFor,
   reservationFee,
   startOptions,
@@ -116,7 +115,6 @@ function ReserveWizard({ type }) {
 
   const free = (s, h) => freeUnits({ storeId, type, date, start: s, hours: h }, reservations);
   const starts = startOptions(type, date, now);
-  const suiteBlocked = type === 'suite' && isSuiteSameDayBlocked(date, now);
 
   // 시작 시간 기준으로 마감과 빈 좌석을 함께 고려한 최대 이용 시간
   const maxHoursFor = (s) => {
@@ -218,8 +216,8 @@ function ReserveWizard({ type }) {
                 return { value: s, label: formatTime(s), disabled: !ok, detail: ok ? undefined : '마감' };
               })}
               hint={<>1시간 단위 · {formatTime(lastEndFor(type))} 종료까지 · {formatTime(HOURS.checkout)} 퇴실</>}
-              empty={suiteBlocked
-                ? '마감까지 3시간 이하가 남아 오늘은 Suite 신규 예약을 받지 않아요. 날짜를 바꿔 주세요.'
+              empty={space.minHours > 1
+                ? `최소 ${space.minHours}시간을 ${formatTime(lastEndFor(type))} 종료 전에 채울 수 없어 오늘은 예약할 수 없어요. 날짜를 바꿔 주세요.`
                 : '오늘은 예약 가능한 시간이 지났어요. 날짜를 바꿔 주세요.'}
             />
             {start != null && (
