@@ -26,7 +26,8 @@ export const BOOKING_WINDOW_DAYS = p(14, '예약 가능 기간 미확정 — 임
 
 // 현장 연장 (Focus·Rest): 10분 단위, 최대 1시간 (확정)
 // 10분 요금 = 시간당 이용료 ÷ 6을 100원 단위로 버림해 10의 자리를 항상 0으로 맞춘다 (2026-10-16 결정)
-export const EXTENSION = { unitMinutes: 10, maxMinutes: 60, roundDownTo: 100 };
+// 연장은 폐점 1시간 전(23:00 마감 → 22:00)까지만 가능하고, 그 이후로는 연장 불가로 안내한다 (2026-10-16 결정)
+export const EXTENSION = { unitMinutes: 10, maxMinutes: 60, roundDownTo: 100, cutoffBeforeCloseMinutes: 60 };
 
 export const SPACE_TYPES = ['cafe', 'focus', 'rest', 'suite'];
 

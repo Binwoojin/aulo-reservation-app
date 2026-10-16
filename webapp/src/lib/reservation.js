@@ -1,5 +1,5 @@
 import { BOOKING_WINDOW_DAYS, EXTENSION, HOURS, MENU, SPACES, STORES } from '../config/policy.js';
-import { addDays, minutesOfDay, rangesOverlap, toDateString } from './time.js';
+import { addDays, formatTime, minutesOfDay, rangesOverlap, toDateString } from './time.js';
 
 export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
 export const getDrink = (drinkId) => MENU.value.find((d) => d.id === drinkId);
@@ -78,16 +78,34 @@ export const extensionUnitPrice = (type) => {
   return Math.floor((SPACES[type].pricePerHour * unitMinutes) / 60 / roundDownTo) * roundDownTo;
 };
 
-export const extensionFee = (type, minutes) => {
-  const unit = extensionUnitPrice(type);
-  if (unit === null || minutes <= 0 || minutes > EXTENSION.maxMinutes || minutes % EXTENSION.unitMinutes) return null;
-  return unit * (minutes / EXTENSION.unitMinutes);
+// 연장은 폐점 1시간 전까지만 (23:00 마감 → 22:00)
+export const extensionDeadline = () => HOURS.close - EXTENSION.cutoffBeforeCloseMinutes;
+
+// 이 예약이 연장할 수 있는 최대 분(10분 단위). 0이면 연장 불가
+export const maxExtensionMinutes = (r) => {
+  if (!SPACES[r.type].extendable) return 0;
+  const { unitMinutes, maxMinutes } = EXTENSION;
+  const room = Math.floor((extensionDeadline() - reservationEnd(r)) / unitMinutes) * unitMinutes;
+  return Math.max(0, Math.min(maxMinutes, room));
+};
+
+export const extensionFee = (r, minutes) => {
+  if (minutes <= 0 || minutes % EXTENSION.unitMinutes || minutes > maxExtensionMinutes(r)) return null;
+  return extensionUnitPrice(r.type) * (minutes / EXTENSION.unitMinutes);
 };
 
 export const extensionNote = (type) => {
   const unit = extensionUnitPrice(type);
   if (unit === null) return SPACES[type].extension;
-  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원입니다.`;
+  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원이며, 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 연장할 수 있습니다.`;
+};
+
+// 예약별 연장 안내: 가능한 범위, 또는 연장 불가
+export const extensionStatus = (r) => {
+  if (!SPACES[r.type].extendable) return SPACES[r.type].extension;
+  const max = maxExtensionMinutes(r);
+  if (max === 0) return `폐점 1시간 전(${formatTime(extensionDeadline())}) 이후로는 연장할 수 없어 이 예약은 연장이 불가해요.`;
+  return `현장에서 ${formatTime(reservationEnd(r) + max)}까지 최대 ${max}분 연장할 수 있어요. 10분당 ${extensionUnitPrice(r.type).toLocaleString('ko-KR')}원.`;
 };
 
 export const drinkFee = (type, drinkId) => {

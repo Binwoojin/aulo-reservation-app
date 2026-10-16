@@ -5,6 +5,7 @@ import {
   durationOptions,
   extensionFee,
   extensionUnitPrice,
+  maxExtensionMinutes,
   freeUnits,
   isSuiteSameDayBlocked,
   startOptions,
@@ -119,11 +120,21 @@ describe('현장 연장 요금', () => {
     expect(extensionUnitPrice('suite')).toBeNull();
   });
 
+  const r = (type, start, hours) => ({ type, start: start * 60, hours });
+
   it('10분 단위로 최대 1시간까지만 계산한다', () => {
-    expect(extensionFee('focus', 30)).toBe(900);
-    expect(extensionFee('rest', 60)).toBe(6000);
-    expect(extensionFee('focus', 70)).toBeNull();
-    expect(extensionFee('focus', 15)).toBeNull();
-    expect(extensionFee('suite', 10)).toBeNull();
+    expect(extensionFee(r('focus', 10, 2), 30)).toBe(900);
+    expect(extensionFee(r('rest', 10, 2), 60)).toBe(6000);
+    expect(extensionFee(r('focus', 10, 2), 70)).toBeNull();
+    expect(extensionFee(r('focus', 10, 2), 15)).toBeNull();
+    expect(extensionFee(r('suite', 10, 3), 10)).toBeNull();
+  });
+
+  it('폐점 1시간 전(22:00)까지만 연장할 수 있다', () => {
+    expect(maxExtensionMinutes(r('focus', 19, 2))).toBe(60); // 21:00 종료 → 22:00까지
+    expect(maxExtensionMinutes(r('focus', 18.5, 3))).toBe(30); // 21:30 종료 → 30분
+    expect(maxExtensionMinutes(r('rest', 20, 2))).toBe(0); // 22:00 종료 → 연장 불가
+    expect(maxExtensionMinutes(r('rest', 21, 2))).toBe(0); // 23:00 종료 → 연장 불가
+    expect(extensionFee(r('focus', 18.5, 3), 40)).toBeNull();
   });
 });
