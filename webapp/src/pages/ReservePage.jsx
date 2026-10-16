@@ -217,7 +217,7 @@ function ReserveWizard({ type }) {
                 const ok = free(s, space.minHours).length > 0;
                 return { value: s, label: formatTime(s), disabled: !ok, detail: ok ? undefined : '마감' };
               })}
-              hint={<>1시간 단위 · {formatTime(lastEndFor(type))} 종료까지 <Provisional note={(type === 'suite' ? HOURS.suiteLastEnd : HOURS.focusRestLastEnd).note} /></>}
+              hint={<>1시간 단위 · {formatTime(lastEndFor(type))} 종료까지 · {formatTime(HOURS.checkout)} 퇴실</>}
               empty={suiteBlocked
                 ? '마감까지 3시간 이하가 남아 오늘은 Suite 신규 예약을 받지 않아요. 날짜를 바꿔 주세요.'
                 : '오늘은 예약 가능한 시간이 지났어요. 날짜를 바꿔 주세요.'}
@@ -336,7 +336,7 @@ function ReserveWizard({ type }) {
 // Suite 공간별 가능 시간 조회
 function SuiteRooms({ storeId, date, start, hours, value, onChange, free, reservations }) {
   const open = HOURS.open.value;
-  const end = HOURS.suiteLastEnd.value;
+  const end = HOURS.lastEnd;
   const pct = (m) => `${((m - open) / (end - open)) * 100}%`;
 
   return (

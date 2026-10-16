@@ -4,8 +4,8 @@ import { addDays, formatTime, minutesOfDay, rangesOverlap, toDateString } from '
 export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
 export const getDrink = (drinkId) => MENU.value.find((d) => d.id === drinkId);
 
-export const lastEndFor = (type) =>
-  type === 'suite' ? HOURS.suiteLastEnd.value : HOURS.focusRestLastEnd.value;
+// 모든 공간 공통: 마지막 슬롯 22:00 종료
+export const lastEndFor = () => HOURS.lastEnd;
 
 export const unitIds = (storeId, type) => {
   const count = getStore(storeId)?.units[type] ?? 0;

@@ -31,7 +31,7 @@ describe('시작 시간', () => {
     expect(opts.at(-1)).toBe('21:00');
   });
 
-  it('Suite는 최소 3시간이고 임시 마지막 종료 22:00까지라 19:00이 마지막 시작이다', () => {
+  it('Suite는 최소 3시간이고 마지막 종료 22:00까지라 19:00이 마지막 시작이다', () => {
     expect(startOptions('suite', TOMORROW, NOW).map(formatTime).at(-1)).toBe('19:00');
   });
 
