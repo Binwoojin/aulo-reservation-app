@@ -36,7 +36,7 @@ import {
   startOptions,
   unitIds,
 } from '../lib/reservation.js';
-import { formatDate, formatTime, formatWon } from '../lib/time.js';
+import { formatDate, formatTime, formatWon, toDateString } from '../lib/time.js';
 
 const RESERVABLE = ['focus', 'rest', 'suite'];
 
@@ -98,11 +98,12 @@ function ReserveWizard({ type }) {
   const now = useNow();
   const navigate = useNavigate();
   const { reservations, addReservation } = useAppData();
-  const dates = useMemo(() => bookableDates(now), [now]);
+  const dates = useMemo(() => bookableDates(now, type), [now, type]);
+  const today = toDateString(now);
 
   const steps = type === 'suite'
     ? ['날짜', '시간', '공간', '음료', '확인']
-    : ['날짜', '시간', type === 'rest' ? '음료·요청' : '음료', '확인'];
+    : ['날짜', '시간', '좌석', type === 'rest' ? '음료·요청' : '음료', '확인'];
   const [step, setStep] = useState(0);
   const [storeId, setStoreId] = useState(STORES.value[0].id);
   const [date, setDate] = useState(dates[0]);
@@ -137,6 +138,7 @@ function ReserveWizard({ type }) {
     날짜: true,
     시간: start != null && maxHours >= space.minHours,
     공간: unit != null,
+    좌석: unit != null,
     음료: drinkId != null,
     '음료·요청': drinkId != null,
     확인: true,
@@ -146,7 +148,7 @@ function ReserveWizard({ type }) {
 
   const submit = () => {
     const result = createReservation(
-      { type, storeId, date, start, hours, unit: type === 'suite' ? unit : null, drinkId, requests },
+      { type, storeId, date, start, hours, unit, drinkId, requests },
       reservations,
       new Date(),
     );
@@ -189,14 +191,17 @@ function ReserveWizard({ type }) {
                     return (
                       <label key={d} className="date-chip" data-weekend={dow === '토' || dow === '일' || undefined}>
                         <input type="radio" name="date" value={d} checked={date === d} onChange={() => { setDate(d); clearTime(); }} aria-label={formatDate(d)} />
-                        <span className="date-chip__dow" aria-hidden="true">{i === 0 ? '오늘' : dow}</span>
+                        <span className="date-chip__dow" aria-hidden="true">{d === today ? '오늘' : dow}</span>
                         <span className="date-chip__day" aria-hidden="true">{day}</span>
                         <span className="date-chip__month" aria-hidden="true">{m}월</span>
                       </label>
                     );
                   })}
                 </div>
-                <p className="group-hint">옆으로 밀어 오늘부터 {BOOKING_WINDOW_DAYS.value}일 후까지 고를 수 있어요</p>
+                <p className="group-hint">
+                  옆으로 밀어 {space.sameDayApp ? '오늘' : '내일'}부터 {formatDate(dates.at(-1))}까지 고를 수 있어요
+                  {!space.sameDayApp && <><br />{space.name}는 앱에서 당일 예약이 안 돼요. 오늘 이용은 매장에 방문하면 빈 {space.unitName}을 배정해 드려요.</>}
+                </p>
               </fieldset>
             </section>
           </>
@@ -238,7 +243,7 @@ function ReserveWizard({ type }) {
               </section>
             )}
             {start != null && type !== 'suite' && (
-              <p className="inline-status"><Icon name="check" size={16} />남은 {space.unitName} {freeNow.length}개 · 빈 {space.unitName}이 자동 배정돼요</p>
+              <p className="inline-status"><Icon name="check" size={16} />남은 {space.unitName} {freeNow.length}개 · 다음 단계에서 {space.unitName}을 골라요</p>
             )}
           </>
         )}
@@ -248,6 +253,24 @@ function ReserveWizard({ type }) {
             <h2 className="screen-title">어느 Suite를<br />사용할까요?</h2>
             <p className="muted">{formatDate(date)} · {formatTime(start)}–{endLabel}</p>
             <SuiteRooms storeId={storeId} date={date} start={start} hours={hours} value={unit} onChange={setUnit} free={freeNow} reservations={reservations} />
+          </>
+        )}
+
+        {stepName === '좌석' && (
+          <>
+            <h2 className="screen-title">어느 {space.unitName}에<br />앉을까요?</h2>
+            <p className="muted">{formatDate(date)} · {formatTime(start)}–{endLabel} · {store.name}</p>
+            <ChipGrid
+              legend={`${space.unitName} 번호`}
+              name="seat"
+              value={unit}
+              onChange={setUnit}
+              hint={`남은 ${space.unitName} ${freeNow.length}개 / 전체 ${store.units[type]}개 · 앱 예약은 직접 고르고, 매장 방문은 자동 배정돼요`}
+              options={unitIds(storeId, type).map((n) => {
+                const ok = freeNow.includes(n);
+                return { value: n, label: `${n}번`, disabled: !ok, detail: ok ? undefined : '예약됨' };
+              })}
+            />
           </>
         )}
 
@@ -293,7 +316,7 @@ function ReserveWizard({ type }) {
           <>
             <h2 className="screen-title">예약 내용을<br />확인해 주세요</h2>
             <dl className="kv summary-card">
-              <div><dt>공간</dt><dd>{space.name}{type === 'suite' ? ` ${unit}번` : ''}</dd></div>
+              <div><dt>공간</dt><dd>{space.name} {unit}번</dd></div>
               <div><dt>매장</dt><dd>{store.name}</dd></div>
               <div><dt>일시</dt><dd>{formatDate(date)}<br />{formatTime(start)}–{endLabel} ({hours}시간)</dd></div>
               <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>

@@ -12,9 +12,11 @@ export const unitIds = (storeId, type) => {
   return Array.from({ length: count }, (_, i) => i + 1);
 };
 
-export const bookableDates = (now) => {
+// 앱 예약 가능 날짜. Focus·Rest는 당일 앱 예약이 안 되고(매장 방문으로 이용) 내일부터, Suite는 오늘부터
+export const bookableDates = (now, type) => {
   const today = toDateString(now);
-  return Array.from({ length: BOOKING_WINDOW_DAYS.value + 1 }, (_, i) => addDays(today, i));
+  const first = type && !SPACES[type].sameDayApp ? 1 : 0;
+  return Array.from({ length: BOOKING_WINDOW_DAYS.value + 1 - first }, (_, i) => addDays(today, i + first));
 };
 
 // 선택 가능한 시작 시각 (정시, 최소 이용 시간을 22:00 종료 전에 채울 수 있어야 함)
@@ -133,7 +135,9 @@ export const validateReservation = (input, existing, now) => {
   const space = SPACES[input.type];
   if (!space?.reservable) return ['예약할 수 없는 공간입니다.'];
   if (!getStore(input.storeId)) errors.push('매장을 선택해 주세요.');
-  if (!bookableDates(now).includes(input.date)) errors.push('예약 가능한 날짜가 아닙니다.');
+  if (!space.sameDayApp && input.date === toDateString(now)) {
+    errors.push(`${space.name}는 앱에서 당일 예약할 수 없어요. 당일 이용은 매장에 방문해 주세요.`);
+  } else if (!bookableDates(now, input.type).includes(input.date)) errors.push('예약 가능한 날짜가 아닙니다.');
   if (!startOptions(input.type, input.date, now).includes(input.start)) {
     errors.push('선택할 수 없는 시작 시간입니다.');
   } else if (!durationOptions(input.type, input.start).includes(input.hours)) {

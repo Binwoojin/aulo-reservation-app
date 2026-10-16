@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  bookableDates,
   getStore,
   createReservation,
   durationOptions,
@@ -152,5 +153,25 @@ describe('현장 연장 요금', () => {
     expect(extensionFee(mine, 40, [mine, next(14.5)])).toBeNull();
     expect(maxExtensionMinutes(mine, [mine, next(14, { unit: 4 })])).toBe(60); // 다른 좌석은 무관
     expect(maxExtensionMinutes(mine, [mine, next(10)])).toBe(60); // 앞 예약은 무관
+  });
+});
+
+describe('앱 당일 예약과 좌석 선택', () => {
+  it('Focus·Rest는 앱 당일 예약이 안 되고 내일부터, Suite는 오늘부터', () => {
+    expect(bookableDates(NOW, 'focus')[0]).toBe(TOMORROW);
+    expect(bookableDates(NOW, 'rest')[0]).toBe(TOMORROW);
+    expect(bookableDates(NOW, 'suite')[0]).toBe(TODAY);
+    expect(bookableDates(NOW, 'focus').at(-1)).toBe(bookableDates(NOW, 'suite').at(-1));
+  });
+
+  it('Focus 당일 예약은 매장 방문 안내와 함께 거절한다', () => {
+    const errors = validateReservation({ ...base, date: TODAY, type: 'focus', start: 15 * 60, hours: 1 }, [], NOW);
+    expect(errors[0]).toMatch('매장에 방문');
+  });
+
+  it('앱 예약은 고른 좌석으로 저장하고, 이미 예약된 좌석은 거절한다', () => {
+    const first = make({ type: 'rest', start: 10 * 60, hours: 2, unit: 7 });
+    expect(first.reservation.unit).toBe(7);
+    expect(make({ type: 'rest', start: 11 * 60, hours: 1, unit: 7 }, [first.reservation]).errors).toContain('이미 예약된 시간입니다.');
   });
 });
