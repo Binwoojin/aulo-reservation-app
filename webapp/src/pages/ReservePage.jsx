@@ -29,6 +29,7 @@ import {
   bookedRanges,
   createReservation,
   drinkFee,
+  extensionNote,
   freeUnits,
   isSuiteSameDayBlocked,
   lastEndFor,
@@ -305,7 +306,7 @@ function ReserveWizard({ type }) {
             <ul className="note-list">
               <li>{PAYMENT_POLICY}</li>
               <li>{CANCEL_POLICY}</li>
-              <li>{space.extension}</li>
+              <li>{extensionNote(type)}</li>
             </ul>
             {errors.length > 0 && (
               <div className="form-errors" role="alert">

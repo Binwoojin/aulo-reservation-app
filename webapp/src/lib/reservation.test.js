@@ -3,6 +3,8 @@ import {
   getStore,
   createReservation,
   durationOptions,
+  extensionFee,
+  extensionUnitPrice,
   freeUnits,
   isSuiteSameDayBlocked,
   startOptions,
@@ -107,5 +109,21 @@ describe('예약 생성과 충돌 방지', () => {
   it('Rest 요청 옵션은 정의된 것만 저장한다', () => {
     const { reservation } = make({ type: 'rest', start: 600, hours: 1, requests: ['blanket', 'hack'] });
     expect(reservation.requests).toEqual(['blanket']);
+  });
+});
+
+describe('현장 연장 요금', () => {
+  it('10분 단가는 시간당 요금 ÷ 6을 100원 단위로 버린다', () => {
+    expect(extensionUnitPrice('focus')).toBe(300); // 2,000 ÷ 6 = 333.3
+    expect(extensionUnitPrice('rest')).toBe(1000); // 6,500 ÷ 6 = 1,083.3
+    expect(extensionUnitPrice('suite')).toBeNull();
+  });
+
+  it('10분 단위로 최대 1시간까지만 계산한다', () => {
+    expect(extensionFee('focus', 30)).toBe(900);
+    expect(extensionFee('rest', 60)).toBe(6000);
+    expect(extensionFee('focus', 70)).toBeNull();
+    expect(extensionFee('focus', 15)).toBeNull();
+    expect(extensionFee('suite', 10)).toBeNull();
   });
 });

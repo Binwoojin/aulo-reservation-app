@@ -4,6 +4,7 @@ import { AppBar, BottomBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
+import { extensionNote } from '../lib/reservation.js';
 
 // 예약 완료(?new=1)와 예약 상세를 함께 보여준다
 export default function ReservationDetailPage() {
@@ -50,7 +51,7 @@ export default function ReservationDetailPage() {
             <li>{PAYMENT_POLICY}</li>
             {space.drink === 'required' && <li>이용 전 음료는 방문 후 함께 결제해요. 이용 중 추가 음료는 50% 할인돼요.</li>}
             {space.drink === 'included' && <li>기본 음료는 이용료에 포함돼요. 공간 번호({reservation.unit}번)로 음료를 배달 주문할 수 있어요.</li>}
-            <li>{space.extension}</li>
+            <li>{extensionNote(reservation.type)}</li>
             <li>{CANCEL_POLICY} 취소 기능은 준비 중이에요.</li>
             {CLOSING_NOTICES.filter((n) => reservation.type === 'suite' || !n.startsWith('Suite')).map((n) => <li key={n}>{n}</li>)}
           </ul>

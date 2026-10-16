@@ -1,4 +1,4 @@
-import { BOOKING_WINDOW_DAYS, HOURS, MENU, SPACES, STORES } from '../config/policy.js';
+import { BOOKING_WINDOW_DAYS, EXTENSION, HOURS, MENU, SPACES, STORES } from '../config/policy.js';
 import { addDays, minutesOfDay, rangesOverlap, toDateString } from './time.js';
 
 export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
@@ -70,6 +70,25 @@ export const bookedRanges = ({ storeId, type, date, unit }, existing) =>
     .sort((a, b) => a.start - b.start);
 
 export const reservationFee = (type, hours) => SPACES[type].pricePerHour * hours;
+
+// 현장 연장 요금: 10분 단가(100원 단위 버림) × 10분 단위 수. 연장이 없는 공간은 null
+export const extensionUnitPrice = (type) => {
+  if (!SPACES[type].extendable) return null;
+  const { unitMinutes, roundDownTo } = EXTENSION;
+  return Math.floor((SPACES[type].pricePerHour * unitMinutes) / 60 / roundDownTo) * roundDownTo;
+};
+
+export const extensionFee = (type, minutes) => {
+  const unit = extensionUnitPrice(type);
+  if (unit === null || minutes <= 0 || minutes > EXTENSION.maxMinutes || minutes % EXTENSION.unitMinutes) return null;
+  return unit * (minutes / EXTENSION.unitMinutes);
+};
+
+export const extensionNote = (type) => {
+  const unit = extensionUnitPrice(type);
+  if (unit === null) return SPACES[type].extension;
+  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원입니다.`;
+};
 
 export const drinkFee = (type, drinkId) => {
   if (SPACES[type].drink === 'included') return 0;

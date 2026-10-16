@@ -24,6 +24,10 @@ export const HOURS = {
 
 export const BOOKING_WINDOW_DAYS = p(14, '예약 가능 기간 미확정 — 임시로 오늘부터 14일 후까지');
 
+// 현장 연장 (Focus·Rest): 10분 단위, 최대 1시간 (확정)
+// 10분 요금 = 시간당 이용료 ÷ 6을 100원 단위로 버림해 10의 자리를 항상 0으로 맞춘다 (2026-10-16 결정)
+export const EXTENSION = { unitMinutes: 10, maxMinutes: 60, roundDownTo: 100 };
+
 export const SPACE_TYPES = ['cafe', 'focus', 'rest', 'suite'];
 
 // 좌석 가격: 2026-10-16 사용자 요청으로 국내 유사 업종 시장 평균가에 맞춰 임의 설정 (기존 확정가 1,500/3,000/8,000원 대체)
@@ -62,6 +66,7 @@ export const SPACES = {
     extraDrinkDiscount: 0.5,
     requests: [],
     features: ['가림막이 있는 반폐쇄형 개인 좌석', '좌석별 사물함', '추가 음료 50% 할인'],
+    extendable: true,
     extension: '앱으로 사전 예약하면 현장에서 10분 단위로 최대 1시간 연장할 수 있습니다.',
   },
   rest: {
@@ -83,6 +88,7 @@ export const SPACES = {
       { id: 'earphones', label: 'OTT 시청용 이어폰' },
     ],
     features: ['실내 반폐쇄형 1인 리클라이너', '사물함', '담요·이어폰 무료 요청', '추가 음료 50% 할인'],
+    extendable: true,
     extension: '앱으로 사전 예약하면 현장에서 10분 단위로 최대 1시간 연장할 수 있습니다.',
   },
   suite: {
@@ -100,6 +106,7 @@ export const SPACES = {
     drink: 'included', // 기본 음료 포함, 예약 시 선택
     requests: [],
     features: ['문으로 분리된 독립형 오피스', '보관함·공기청정기·냉난방·4구 콘센트', '공간 번호로 음료 배달 주문'],
+    extendable: false,
     extension: '현장 예약과 연장은 할 수 없습니다.',
   },
 };
