@@ -139,6 +139,12 @@ describe('현장 연장 요금', () => {
     expect(extensionFee(r('focus', 18.5, 3), 40)).toBeNull();
   });
 
+  it('최대 예약 시간(4시간)으로 예약하면 연장할 수 없다', () => {
+    expect(extensionRange(r('focus', 10, 4))).toEqual({ max: 0, reason: 'max' });
+    expect(extensionRange(r('rest', 10, 3))).toEqual({ max: 60, reason: null });
+    expect(extensionFee(r('rest', 10, 4), 10)).toBeNull();
+  });
+
   it('같은 좌석의 다음 예약과 겹치면 다음 예약이 우선이다', () => {
     const seat = { storeId: 'seongsu', date: TOMORROW, unit: 3 };
     const mine = { id: 'm', ...seat, ...r('focus', 12, 2) }; // 14:00 종료

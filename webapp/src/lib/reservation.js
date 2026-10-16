@@ -90,9 +90,11 @@ export const nextReservationStart = (r, existing = []) => {
 };
 
 // 연장 가능 범위: 최대 1시간, 폐점 1시간 전까지, 다음 예약 시작 전까지 (10분 단위)
-// reason: 'none'(연장 없는 공간) | 'deadline'(폐점 1시간 전 이후) | 'next'(다음 예약과 겹침) | null(가능)
+// 최대 예약 시간(Focus·Rest 4시간)으로 예약했다면 연장할 수 없다
+// reason: 'none'(연장 없는 공간) | 'max'(최대 시간 예약) | 'deadline'(폐점 1시간 전 이후) | 'next'(다음 예약과 겹침) | null(가능)
 export const extensionRange = (r, existing = []) => {
   if (!SPACES[r.type].extendable) return { max: 0, reason: 'none' };
+  if (r.hours >= SPACES[r.type].maxHours) return { max: 0, reason: 'max' };
   const { unitMinutes, maxMinutes } = EXTENSION;
   const end = reservationEnd(r);
   const next = nextReservationStart(r, existing);
@@ -113,13 +115,14 @@ export const extensionFee = (r, minutes, existing = []) => {
 export const extensionNote = (type) => {
   const unit = extensionUnitPrice(type);
   if (unit === null) return SPACES[type].extension;
-  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원이며, 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 연장할 수 있습니다. 다음 예약과 겹치면 다음 예약이 우선이라 연장할 수 없습니다.`;
+  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원이며, 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 연장할 수 있습니다. 다음 예약과 겹치거나 최대 ${SPACES[type].maxHours}시간으로 예약한 경우에는 연장할 수 없습니다.`;
 };
 
 // 예약별 연장 안내: 가능한 범위, 또는 연장 불가
 export const extensionStatus = (r, existing = []) => {
   const { max, reason } = extensionRange(r, existing);
   if (reason === 'none') return SPACES[r.type].extension;
+  if (reason === 'max') return `최대 이용 시간(${SPACES[r.type].maxHours}시간)으로 예약해 연장이 불가해요.`;
   if (reason === 'deadline') return `폐점 1시간 전(${formatTime(extensionDeadline())}) 이후로는 연장할 수 없어 이 예약은 연장이 불가해요.`;
   if (reason === 'next') return '바로 다음 시간에 이 좌석의 다른 예약이 있어 연장이 불가해요. 다음 예약이 우선이에요.';
   const capped = nextReservationStart(r, existing) === reservationEnd(r) + max ? '다음 예약 전인 ' : '';
