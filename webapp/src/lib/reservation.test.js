@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getStore,
   createReservation,
   durationOptions,
   freeUnits,
@@ -86,7 +87,8 @@ describe('예약 생성과 충돌 방지', () => {
 
   it('Focus는 빈 좌석을 자동 배정하고, 모두 차면 거절한다', () => {
     const existing = [];
-    for (let i = 0; i < 8; i += 1) {
+    const seats = getStore('seongsu').units.focus;
+    for (let i = 0; i < seats; i += 1) {
       const { reservation, errors } = make({ type: 'focus', start: 14 * 60, hours: 1 }, existing);
       expect(errors).toEqual([]);
       expect(reservation.unit).toBe(i + 1);
