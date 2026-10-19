@@ -1,4 +1,4 @@
-import { BOOKING_WINDOW_DAYS, EXTENSION, HOURS, MENU, SPACES, STORES } from '../config/policy.js';
+import { BOOKING_WINDOW_DAYS, EXTENSION, HOURS, MENU, PENALTY, SPACES, STORES } from '../config/policy.js';
 import { addDays, formatTime, minutesOfDay, rangesOverlap, toDateString } from './time.js';
 
 export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
@@ -178,4 +178,24 @@ export const createReservation = (input, existing, now, makeId = () => crypto.ra
       createdAt: now.toISOString(),
     },
   };
+};
+
+// 취소: 이용 전날 23:59까지 (당일 취소 불가)
+export const canCancel = (r, now) => toDateString(now) < r.date;
+
+// 노쇼·1시간 이상 지각 판정 시각: 이 시각까지 도착(체크인)하지 않으면 강제 취소
+export const forfeitAt = (r) => r.start + PENALTY.lateLimitMinutes;
+
+// 페널티 상태. penalties: [{ at: ISO 문자열 }]
+// - 유효 페널티: 받은 지 1년 이내
+// - 제한: 가장 최근 페널티부터 1주일
+// - 영구 제한: 유효 페널티가 5회 이상 쌓인 적이 있으면 (permanent 플래그로 기록, 이후 만료되지 않음)
+export const penaltyStatus = (penalties, now, permanent = false) => {
+  const day = 24 * 60 * 60 * 1000;
+  const times = penalties.map((p) => new Date(p.at).getTime()).sort((a, b) => a - b);
+  const active = times.filter((t) => now.getTime() - t < PENALTY.validDays * day);
+  const isPermanent = permanent || active.length >= PENALTY.permanentAt;
+  const last = times.at(-1);
+  const blockedUntil = last !== undefined && now.getTime() < last + PENALTY.banDays * day ? new Date(last + PENALTY.banDays * day) : null;
+  return { activeCount: active.length, permanent: isPermanent, blockedUntil, canReserve: !isPermanent && !blockedUntil };
 };

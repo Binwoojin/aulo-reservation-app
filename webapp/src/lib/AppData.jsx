@@ -14,21 +14,30 @@ const useStoredList = (key) => {
       }),
     [key],
   );
+  const remove = useCallback(
+    (id) =>
+      setList((prev) => {
+        const next = prev.filter((item) => item.id !== id);
+        saveList(key, next);
+        return next;
+      }),
+    [key],
+  );
   // 다른 탭에서 바뀐 예약도 반영 (충돌 검사 정확도)
   useEffect(() => {
     const onStorage = (e) => e.key === key && setList(loadList(key));
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, [key]);
-  return [list, add];
+  return [list, add, remove];
 };
 
 export function AppDataProvider({ children }) {
-  const [reservations, addReservation] = useStoredList(KEYS.reservations);
+  const [reservations, addReservation, removeReservation] = useStoredList(KEYS.reservations);
   const [orders, addOrder] = useStoredList(KEYS.orders);
   const value = useMemo(
-    () => ({ reservations, addReservation, orders, addOrder }),
-    [reservations, addReservation, orders, addOrder],
+    () => ({ reservations, addReservation, removeReservation, orders, addOrder }),
+    [reservations, addReservation, removeReservation, orders, addOrder],
   );
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

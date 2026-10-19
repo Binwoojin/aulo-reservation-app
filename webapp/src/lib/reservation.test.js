@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
+  canCancel,
+  penaltyStatus,
   bookableDates,
   getStore,
   createReservation,
@@ -171,5 +173,26 @@ describe('앱 당일 예약과 좌석 선택', () => {
     const first = make({ type: 'rest', start: 10 * 60, hours: 2, unit: 7 });
     expect(first.reservation.unit).toBe(7);
     expect(make({ type: 'rest', start: 11 * 60, hours: 1, unit: 7 }, [first.reservation]).errors).toContain('이미 예약된 시간입니다.');
+  });
+});
+
+describe('취소와 노쇼 페널티', () => {
+  it('취소는 이용 전날 23:59까지, 당일은 불가', () => {
+    const r = { date: TOMORROW };
+    expect(canCancel(r, at(2026, 10, 14, 23, 59))).toBe(true);
+    expect(canCancel(r, at(2026, 10, 15, 0, 0))).toBe(false);
+  });
+
+  it('페널티를 받으면 1주일 동안 예약할 수 없다', () => {
+    const p = [{ at: at(2026, 10, 1, 12).toISOString() }];
+    expect(penaltyStatus(p, at(2026, 10, 8, 11)).canReserve).toBe(false);
+    expect(penaltyStatus(p, at(2026, 10, 8, 12)).canReserve).toBe(true);
+  });
+
+  it('유효기간 1년, 유효 페널티 5회 이상이면 영구 제한', () => {
+    const p = [1, 3, 5, 7, 9].map((m) => ({ at: at(2026, m, 1, 12).toISOString() }));
+    expect(penaltyStatus(p, at(2026, 10, 1, 12))).toMatchObject({ activeCount: 5, permanent: true, canReserve: false });
+    const old = [{ at: at(2025, 1, 1, 12).toISOString() }, ...p.slice(1)];
+    expect(penaltyStatus(old, at(2026, 10, 1, 12))).toMatchObject({ activeCount: 4, permanent: false, canReserve: true });
   });
 });

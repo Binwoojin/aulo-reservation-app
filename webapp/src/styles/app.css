@@ -483,3 +483,4 @@ a.ticket__link:active { background: var(--color-bg); }
   font-size: 0.875rem;
 }
 .coupon-cta p { margin: 0; }
+.cancel-button { margin-top: var(--space-3); color: var(--color-error); border-color: var(--color-error); }
