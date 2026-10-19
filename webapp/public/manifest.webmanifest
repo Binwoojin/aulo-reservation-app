@@ -1,0 +1,16 @@
+{
+  "name": "Aulo — 공간 예약",
+  "short_name": "Aulo",
+  "description": "Aulo 공간 추천·예약·음료 주문 데모 앱",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F6F2EB",
+  "theme_color": "#F6F2EB",
+  "lang": "ko",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

@@ -31,11 +31,11 @@ export default function MyPage() {
           <div className="reward-grid">
             <div className="stat">
               <span className="stat__value">{stampCount(myOrders, myReservations, now)}개</span>
-              <span className="stat__label">스탬프 · 음료 1잔당 1개</span>
+              <span className="stat__label">스탬프</span>
             </div>
             <div className="stat">
               <span className="stat__value">{pointBalance(myReservations, now).toLocaleString('ko-KR')}P</span>
-              <span className="stat__label">포인트 · 좌석 이용료에 사용</span>
+              <span className="stat__label">보유 포인트</span>
             </div>
           </div>
           <ul className="note-list">{REWARD_POLICY.map((n) => <li key={n}>{n}</li>)}</ul>
