@@ -76,7 +76,7 @@ export default function ReservationDetailPage() {
                 <button type="button" className="button button--secondary button--block cancel-button" onClick={cancel}>예약 취소하기</button>
               </>
             ) : (
-              <p className="muted">이용 당일이라 취소할 수 없어요. 늦을 것 같으면 미리 매장에 연락해 주세요.</p>
+              <p className="muted">이용 당일에는 앱에서 취소할 수 없어요. 급한 사정이 있으면 매장에 연락해 주세요. 사유가 확인되면 페널티를 면제해요.</p>
             )}
           </section>
         )}
