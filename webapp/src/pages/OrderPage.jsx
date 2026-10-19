@@ -1,226 +1,37 @@
-import { useEffect, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { BEST_MENU, MENU, SPACES } from '../config/policy.js';
-import { AppBar, BottomBar } from '../components/AppShell.jsx';
+import { Link } from 'react-router-dom';
+import { MENU } from '../config/policy.js';
+import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import { NoticeDialog, OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
-import { useAppData, useNow } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, couponFor, HALF_LIMIT, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits } from '../lib/order.js';
-import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
-import { formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
+import { useAppData } from '../lib/AppData.jsx';
+import { formatWon } from '../lib/time.js';
 
-const CART_KEY = 'aulo.cart.v1';
-
-const KINDS = [
-  { value: 'cafe', label: '카페' },
-  { value: 'extra', label: '추가 주문' },
-  { value: 'suite', label: 'Suite 배달' },
-];
-
-const KIND_HINT = {
-  cafe: '준비되면 카운터에서 픽업해요 · 정상가',
-  extra: `이용 시작부터 재주문 50% 할인 쿠폰을 예약당 최대 ${HALF_LIMIT}회 드려요`,
-  suite: '공간 번호로 배달해요 · 아메리카노·카페라떼 무료 리필 1회, 이후 50% 할인 최대 2회',
-};
-
+// 주문 탭: 메뉴와 가격만 보여 준다. 메뉴를 누르면 상세로, 상세의 '주문하기'로 장바구니에 담긴다.
 export default function OrderPage() {
-  const now = useNow();
-  const [params] = useSearchParams();
-  const { user, myReservations: reservations, orders, addOrder } = useAppData();
-  const navigate = useNavigate();
-  // 메뉴 보기와 담기는 누구나, '주문하기'는 로그인 후. 비로그인으로 누르면 안내창을 띄우고 진행을 막는다.
-  const [loginOpen, setLoginOpen] = useState(false);
-  const goLogin = () => navigate(`/login?redirect=${encodeURIComponent('/order')}`);
-  const today = toDateString(now);
-
-  // 재주문은 좌석 이용 시작과 함께 가능: 지금 이용 중인 예약만 주문에 연결한다
-  const active = reservations.filter((r) => isInUse(r, now));
-  const waiting = reservations.filter((r) => r.date === today && r.start > minutesOfDay(now));
-  const preset = reservations.find((r) => r.id === params.get('reservation'));
-
-  const [kind, setKind] = useState(preset ? orderKindFor(preset) : 'cafe');
-  const [reservationId, setReservationId] = useState(preset?.id ?? null);
-  // 담은 음료는 로그인하러 다녀와도 남도록 이 탭(sessionStorage)에 잠시 보관한다
-  const [items, setItems] = useState(() => {
-    const add = params.get('add');
-    let saved = {};
-    try { saved = JSON.parse(sessionStorage.getItem(CART_KEY)) ?? {}; } catch { /* 저장소를 못 쓰면 빈 장바구니 */ }
-    return add && MENU.value.some((d) => d.id === add) ? { ...saved, [add]: (saved[add] ?? 0) + 1 } : saved;
-  });
-  useEffect(() => {
-    try { sessionStorage.setItem(CART_KEY, JSON.stringify(items)); } catch { /* 무시 */ }
-  }, [items]);
-  // ?add=로 담은 뒤에는 주소에서 지워 새로고침해도 다시 담기지 않게 한다
-  useEffect(() => {
-    if (params.get('add')) navigate('/order', { replace: true });
-  }, [params, navigate]);
-  const [placed, setPlaced] = useState(null);
-
-  const linkable = kind === 'cafe' ? [] : active.filter((r) => orderKindFor(r) === kind);
-  const nextStart = waiting.filter((r) => orderKindFor(r) === kind).sort((a, b) => a.start - b.start)[0];
-  const reservation = linkable.find((r) => r.id === reservationId) ?? (linkable.length === 1 ? linkable[0] : null);
-  const needsReservation = kind !== 'cafe';
-  const quote = priceOrder({ kind, items, reservation, previousOrders: orders });
-  const coupon = couponFor(kind, reservation, orders, items);
-  const left = remainingBenefits(kind, reservation, orders);
-  // 카페 주문을 고른 사람에게 오늘 이용 중인 좌석 예약이 있으면 쿠폰을 받을 수 있다고 알린다
-  const seatToday = kind === 'cafe' ? active[0] : null;
-  const count = Object.values(items).reduce((a, b) => a + b, 0);
-  const canOrder = count > 0 && (!needsReservation || reservation);
-
-  const submit = () => {
-    if (!canOrder) return;
-    const order = {
-      id: crypto.randomUUID(),
-      kind,
-      reservationId: reservation?.id ?? null,
-      items,
-      total: quote.total,
-      benefit: quote.benefit,
-      coupon: coupon?.title ?? null,
-      createdAt: new Date().toISOString(),
-    };
-    addOrder(order);
-    setPlaced({ order, quote, reservation });
-    setItems({});
-    window.scrollTo(0, 0);
-  };
-
-  if (placed) {
-    const r = placed.reservation;
-    return (
-      <>
-        <AppBar title="" />
-        <div className="screen-body has-bottom-bar">
-          <div className="success-head">
-            <span className="success-head__icon" aria-hidden="true"><Icon name="check" size={32} /></span>
-            <h2 className="screen-title">주문이 접수되었어요</h2>
-            <p className="muted">
-              {placed.order.kind === 'suite' && `${r.unit}번 Suite로 배달해 드려요.`}
-              {placed.order.kind === 'extra' && `${SPACES[r.type].name} ${r.unit}번 ${SPACES[r.type].unitName}에서 받아 가세요.`}
-              {placed.order.kind === 'cafe' && '준비되면 카운터에서 픽업해 주세요.'}
-              {' '}결제는 매장에서 해요. 스탬프 {Object.values(placed.order.items).reduce((a, b) => a + b, 0)}개가 적립됐어요.
-            </p>
-          </div>
-          <OrderLines quote={placed.quote} />
-        </div>
-        <BottomBar>
-          <button className="button button--secondary" type="button" onClick={() => setPlaced(null)}>더 주문하기</button>
-          <Link className="button button--primary" to="/my/orders">주문 내역</Link>
-        </BottomBar>
-      </>
-    );
-  }
+  const { cart } = useAppData();
+  const count = Object.values(cart.items).reduce((a, b) => a + b, 0);
 
   return (
     <>
-      <AppBar title="음료 주문" />
-      <div className="screen-body has-bottom-bar">
-        <Segmented label="주문 유형" name="kind" value={kind} onChange={(v) => { setKind(v); setReservationId(null); }} options={KINDS} />
-        <p className="group-hint">{KIND_HINT[kind]}</p>
-
-
-        {seatToday && (
-          <div className="coupon-cta">
-            <p>오늘 {SPACES[seatToday.type].name} 예약이 있어요. 예약을 확인하면 할인 쿠폰으로 주문할 수 있어요.</p>
-            <button type="button" className="button button--secondary" onClick={() => { setKind(orderKindFor(seatToday)); setReservationId(seatToday.id); }}>
-              예약 확인하고 쿠폰 받기
-            </button>
-          </div>
-        )}
-
-        {needsReservation && (
-          <section className="block">
-            <OptionList
-              legend={kind === 'suite' ? '이용 중인 Suite' : '이용 중인 좌석'}
-              name="reservation"
-              value={reservation?.id ?? null}
-              onChange={setReservationId}
-              options={linkable.map((r) => ({
-                value: r.id,
-                label: `${SPACES[r.type].name} ${r.unit}번`,
-                detail: `${getStore(r.storeId)?.name} · ${formatTime(r.start)}–${formatTime(reservationEnd(r))}`,
-              }))}
-              empty={nextStart ? (
-                <p>{SPACES[nextStart.type].name} 예약은 이용 시작 시각인 {formatTime(nextStart.start)}부터 재주문할 수 있어요.</p>
-              ) : <>
-                <p>지금 이용 중인 {kind === 'suite' ? 'Suite' : 'Focus·Rest'} 예약이 없어요.</p>
-                <Link className="text-link" to={`/reserve/${kind === 'suite' ? 'suite' : 'focus'}`}>예약하러 가기</Link>
-              </>}
-            />
-          </section>
-        )}
-
-        {needsReservation && reservation && (
-          <section className="block" aria-labelledby="coupon-title">
-            <p id="coupon-title" className="group-title">할인 쿠폰</p>
-            {coupon ? (
-              <div className="coupon">
-                <span className="coupon__icon" aria-hidden="true"><Icon name="check" size={20} /></span>
-                <span className="coupon__text">
-                  <strong>{coupon.title}</strong>
-                  <span>{coupon.detail}</span>
-                </span>
-                <span className="coupon__state">적용됨</span>
-              </div>
-            ) : (
-              <p className="group-hint">이 예약의 할인 쿠폰을 모두 사용했어요. 이번 주문은 정상가예요.</p>
-            )}
-          </section>
-        )}
-
-        <section className="block" aria-labelledby="menu-title">
-          <p id="menu-title" className="group-title">메뉴 <Provisional note={MENU.note} /></p>
-          <p className="group-hint">1잔당 스탬프 1개 적립 · 포인트는 음료 주문에 쓸 수 없어요</p>
-          <ul className="list-card">
-            {MENU.value.map((d) => {
-              const isBase = kind === 'suite' && reservation?.drinkId === d.id;
-              const refillable = left.refill > 0 && REFILL_DRINKS.includes(d.id);
-              return (
-                <li key={d.id} className="menu-row-item">
-                  <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
-                  <span className="option-row__text">
-                    <span className="option-row__label">{d.name}{isBase && <span className="badge">기본 음료</span>}{refillable && <span className="badge">리필 가능</span>}{BEST_MENU.includes(d.id) && <span className="badge badge--best">베스트</span>}</span>
-                    <span className="option-row__detail">{formatWon(d.price)}</span>
-                  </span>
-                  <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [d.id]: q }))} />
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        {count > 0 && <OrderLines quote={quote} />}
+      <AppBar title="음료 주문">
+        <Link to="/cart" className="icon-button cart-button" aria-label={`장바구니 ${count}잔`}>
+          <Icon name="bag" />
+          {count > 0 && <span className="cart-button__count" aria-hidden="true">{count}</span>}
+        </Link>
+      </AppBar>
+      <div className="screen-body">
+        <ul className="list-card" aria-label="메뉴">
+          {MENU.value.map((d) => (
+            <li key={d.id}>
+              <Link to={`/menu/${d.id}`} className="menu-link">
+                <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
+                <span className="menu-link__name">{d.name}</span>
+                <span className="menu-link__price">{formatWon(d.price)}</span>
+                <Icon name="chevron" size={18} className="list-row__chev" />
+              </Link>
+            </li>
+          ))}
+        </ul>
       </div>
-
-      <BottomBar note={(!needsReservation || reservation) && (
-        <>{quote.benefit === 'normal' ? '이번 주문' : '쿠폰 적용'} <strong>{BENEFIT_LABEL[quote.benefit]}</strong>
-          </>
-      )}>
-        <div className="price">
-          <span className="price__label">{count}잔</span>
-          <span className="price__value">{formatWon(quote.total)}</span>
-        </div>
-        <button className="button button--primary" type="button" disabled={!canOrder} onClick={() => (user ? submit() : setLoginOpen(true))}>주문하기</button>
-      </BottomBar>
-      <NoticeDialog open={loginOpen} title="로그인이 필요해요" confirmLabel="로그인하기" onConfirm={goLogin} onClose={() => setLoginOpen(false)}>
-        음료 주문은 스탬프 적립과 연결돼 로그인해야 이용할 수 있어요. 담은 음료는 로그인 후에도 그대로 남아 있어요.
-      </NoticeDialog>
     </>
-  );
-}
-
-function OrderLines({ quote }) {
-  return (
-    <dl className="kv summary-card">
-      {quote.lines.map((l) => (
-        <div key={l.drinkId}>
-          <dt>{l.name} × {l.quantity}</dt>
-          <dd>{l.total !== l.listPrice && <s>{formatWon(l.listPrice)}</s>} {formatWon(l.total)}</dd>
-        </div>
-      ))}
-      {quote.discount > 0 && <div><dt>쿠폰 할인</dt><dd>−{formatWon(quote.discount)}</dd></div>}
-      <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(quote.total)}</dd></div>
-    </dl>
   );
 }

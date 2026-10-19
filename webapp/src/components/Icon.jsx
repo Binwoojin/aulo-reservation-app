@@ -17,6 +17,7 @@ const PATHS = {
   pin: <><path d="M12 20s6-5.4 6-10a6 6 0 0 0-12 0c0 4.6 6 10 6 10z" /><circle cx="12" cy="10" r="2.2" /></>,
   home: <><path d="M4.5 10.5L12 4l7.5 6.5" /><path d="M6.5 9v10h11V9" /></>,
   door: <><path d="M6 20V4.5h10V20" /><path d="M4 20h16" /><path d="M13 12h.01" /></>,
+  bag: <><path d="M5.5 8h13l-1 11.5h-11z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></>,
   alert: <><path d="M12 4l9 16H3z" /><path d="M12 10v4" /><path d="M12 17h.01" /></>,
 };
 

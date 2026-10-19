@@ -13,7 +13,7 @@ import { formatDate } from '../lib/time.js';
 export default function ReservationDetailPage() {
   const { id } = useParams();
   const [params] = useSearchParams();
-  const { reservations, removeReservation } = useAppData();
+  const { reservations, removeReservation, setCartReservation } = useAppData();
   const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const now = useNow();
@@ -87,7 +87,7 @@ export default function ReservationDetailPage() {
       </div>
       <BottomBar>
         {inUse && (
-          <Link className="button button--primary" to={`/order?reservation=${reservation.id}`}>
+          <Link className="button button--primary" to="/order" onClick={() => setCartReservation(reservation.id)}>
             {space.drink === 'included' ? '음료 배달 주문' : '추가 음료 주문'}
           </Link>
         )}

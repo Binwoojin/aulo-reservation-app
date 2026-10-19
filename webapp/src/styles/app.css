@@ -54,8 +54,8 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 /* 화면마다 세로 스크롤바가 생겼다 없어지면 가운데 정렬된 앱이 좌우로 밀린다.
-   스크롤바 자리를 양쪽에 같은 폭으로 늘 확보해 화면을 옮겨도 앱 위치와 고정 바 위치가 같게 한다 */
-html { background: var(--frame-bg); -webkit-text-size-adjust: 100%; overscroll-behavior-y: none; overflow-y: scroll; scrollbar-gutter: stable both-edges; }
+   스크롤바를 늘 두어 화면을 옮겨도 앱과 고정 바 위치가 같게 한다 (휴대폰의 겹쳐 보이는 스크롤바는 자리를 차지하지 않는다) */
+html { background: var(--frame-bg); -webkit-text-size-adjust: 100%; overscroll-behavior-y: none; overflow-y: scroll; }
 body {
   margin: 0;
   background: var(--frame-bg);
@@ -598,3 +598,16 @@ a.ticket__link:active { background: var(--color-bg); }
 .drink-head .badge { margin-left: 0; }
 .drink-price { font-family: var(--font-en); font-size: 1.25rem; font-weight: 700; }
 .drink-desc { color: var(--color-text-sub); font-size: 0.9375rem; }
+
+/* ---------- 주문 탭 메뉴 목록 · 장바구니 버튼 ---------- */
+.menu-link { display: flex; align-items: center; gap: var(--space-3); min-height: 68px; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); transition: background-color var(--press) var(--ease); }
+.list-card > li:last-child > .menu-link { border-bottom: 0; }
+.menu-link:active { background: var(--color-bg); }
+.menu-link__name { flex: 1; min-width: 0; font-weight: 600; }
+.menu-link__price { font-family: var(--font-en); font-weight: 600; color: var(--color-text-sub); }
+.cart-button { position: relative; }
+.cart-button__count {
+  position: absolute; top: 4px; right: 2px; min-width: 18px; height: 18px; padding: 0 5px;
+  border-radius: var(--radius-pill); background: var(--color-olive); color: #FFFFFF;
+  font-size: 0.6875rem; font-weight: 700; line-height: 18px; text-align: center;
+}

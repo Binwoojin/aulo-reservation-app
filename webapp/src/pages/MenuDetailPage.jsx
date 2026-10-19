@@ -3,14 +3,16 @@ import { BEST_MENU, MENU } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { Provisional } from '../components/ui.jsx';
+import { useAppData } from '../lib/AppData.jsx';
 import { REFILL_DRINKS } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 import NotFoundPage from './NotFoundPage.jsx';
 
-// 음료 상세: 누구나 볼 수 있다. '주문 담기'를 누르면 주문 화면으로 가서 이 음료 1잔이 담긴다.
+// 음료 상세: 누구나 볼 수 있다. '주문하기'를 누르면 이 음료 1잔을 장바구니에 담고 장바구니로 넘어간다.
 export default function MenuDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { addToCart } = useAppData();
   const drink = MENU.value.find((d) => d.id === id);
   if (!drink) return <NotFoundPage />;
 
@@ -33,7 +35,7 @@ export default function MenuDetailPage() {
         </ul>
       </div>
       <BottomBar>
-        <button type="button" className="button button--primary" onClick={() => navigate(`/order?add=${drink.id}`)}>주문 담기</button>
+        <button type="button" className="button button--primary" onClick={() => { addToCart(drink.id); navigate('/cart'); }}>주문하기</button>
       </BottomBar>
     </>
   );
