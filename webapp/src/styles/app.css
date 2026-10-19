@@ -787,7 +787,19 @@ a.ticket__link:active { background: var(--color-bg); }
 .chat-send:disabled { background: var(--color-bg-sub); color: var(--color-text-sub); }
 .help-link { color: var(--color-text); }
 .help-link span { font-size: 0.875rem; }
-.home-help { margin-top: var(--space-2); padding-block: var(--space-3); }
-.home-help__text { display: flex; flex-direction: column; gap: 2px; }
-.home-help__text strong { font-size: 0.9375rem; font-weight: 700; }
-.home-help__text small { font-size: 0.8125rem; color: var(--color-text-sub); line-height: 1.4; }
+/* 홈 이용 도우미 고정 버튼: 앱 폭 기준 오른쪽 아래, 탭바 위 */
+.screen[data-tabs] .screen-body.has-fab { padding-bottom: calc(var(--tab-h) + var(--space-8) + 72px + var(--safe-bottom)); }
+.help-fab {
+  position: fixed; z-index: 30;
+  right: calc((100vw - min(100vw, var(--app-width))) / 2 + var(--gutter));
+  bottom: calc(var(--tab-h) + var(--safe-bottom) + var(--space-4));
+  display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
+  background: var(--color-surface); color: var(--color-olive-hover);
+  border: 1px solid var(--color-hairline); box-shadow: var(--shadow-float);
+  animation: fab-in var(--motion-reveal, 640ms) var(--ease-settle, ease) 240ms both;
+  transition: transform 160ms var(--ease-out);
+}
+.help-fab:active { transform: scale(0.94); }
+.help-fab:focus-visible { outline: 2px solid var(--color-olive); outline-offset: 3px; }
+@keyframes fab-in { from { opacity: 0; transform: translateY(8px) scale(0.92); } }
+@media (prefers-reduced-motion: reduce) { .help-fab { animation: none; } }

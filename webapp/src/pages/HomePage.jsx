@@ -17,7 +17,7 @@ export default function HomePage() {
   return (
     <>
       <AppBar />
-      <div className="screen-body">
+      <div className="screen-body has-fab">
         <p className="demo-pill">데모 · 실제 예약·결제 없음</p>
         <section className="home-greeting" aria-labelledby="home-title">
           <p className="eyebrow" lang="en">SPACE FOR YOUR NOW</p>
@@ -87,16 +87,12 @@ export default function HomePage() {
           </ul>
         </section>
 
-        {/* 보조 기능이라 홈 맨 아래에 한 줄로만 둔다 (필수 규칙 6·7) */}
-        <Link to="/help" className="notice-row help-link home-help">
-          <Icon name="chat" size={20} />
-          <span className="home-help__text">
-            <strong>이용 도우미</strong>
-            <small>연장·취소·지각 규칙, 내 예약 기준으로 답해요</small>
-          </span>
-          <Icon name="chevron" size={18} />
-        </Link>
       </div>
+
+      {/* 이용 도우미: 오른쪽 아래 고정 버튼. 탭바 위에 떠서 스크롤해도 늘 보인다 */}
+      <Link to="/help" className="help-fab" aria-label="이용 도우미 열기">
+        <Icon name="chat" size={24} />
+      </Link>
     </>
   );
 }
