@@ -611,3 +611,12 @@ a.ticket__link:active { background: var(--color-bg); }
   border-radius: var(--radius-pill); background: var(--color-olive); color: #FFFFFF;
   font-size: 0.6875rem; font-weight: 700; line-height: 18px; text-align: center;
 }
+
+/* ---------- 장바구니 담은 메뉴: 작은 수량 버튼 + 넉넉한 행 높이 ---------- */
+/* 버튼은 보이는 크기만 30% 줄이고(44→31px), 눌리는 영역은 ::after로 44px을 유지한다 */
+.menu-row-item { min-height: 84px; padding: var(--space-5) var(--space-4); gap: var(--space-4); }
+.menu-row-item .stepper { gap: 2px; }
+.menu-row-item .stepper button { position: relative; width: 31px; height: 31px; }
+.menu-row-item .stepper button .icon { width: 16px; height: 16px; }
+.menu-row-item .stepper button::after { content: ""; position: absolute; inset: -7px; }
+.menu-row-item .stepper output { min-width: 26px; font-size: 0.9375rem; }
