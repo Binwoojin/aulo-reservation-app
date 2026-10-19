@@ -3,7 +3,7 @@ import { MENU, SPACES } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL } from '../lib/order.js';
+import { BENEFIT_LABEL, SERVE_LABEL } from '../lib/order.js';
 import { formatDateTime, formatWon } from '../lib/time.js';
 
 const KIND_LABEL = { cafe: '카페 주문', extra: '추가 주문', suite: 'Suite 배달' };
@@ -27,7 +27,7 @@ export default function MyOrdersPage() {
                 <li key={o.id} className="order-card">
                   <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
                   <div className="order-card__main">
-                    <p className="order-card__kind">{KIND_LABEL[o.kind]}{r && ` · ${SPACES[r.type].name} ${r.unit}번`}</p>
+                    <p className="order-card__kind">{KIND_LABEL[o.kind]}{o.kind === 'cafe' && o.serve && ` · ${SERVE_LABEL[o.serve]}`}{r && ` · ${SPACES[r.type].name} ${r.unit}번`}</p>
                     <p className="order-card__items">{names}</p>
                     <p className="order-card__meta">{formatOrderedAt(o.createdAt)} · {BENEFIT_LABEL[o.benefit]}</p>
                   </div>

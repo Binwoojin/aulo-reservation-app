@@ -5,7 +5,7 @@ import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { DrinkThumb, NoticeDialog, OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, couponFor, HALF_LIMIT, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits } from '../lib/order.js';
+import { BENEFIT_LABEL, SERVE_OPTIONS, couponFor, HALF_LIMIT, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits } from '../lib/order.js';
 import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
 import { formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
 
@@ -25,7 +25,7 @@ const KIND_HINT = {
 // 주문 유형·이용 중 예약 연결·쿠폰·수량 조절과 최종 주문이 여기서 이뤄진다.
 export default function CartPage() {
   const now = useNow();
-  const { user, myReservations: reservations, orders, addOrder, cart, setCartQty, setCartReservation, clearCart } = useAppData();
+  const { user, myReservations: reservations, orders, addOrder, cart, setCartQty, setCartReservation, setCartServe, clearCart } = useAppData();
   const items = cart.items;
   const navigate = useNavigate();
   // 메뉴 보기와 담기는 누구나, '주문하기'는 로그인 후. 비로그인으로 누르면 안내창을 띄우고 진행을 막는다.
@@ -60,6 +60,7 @@ export default function CartPage() {
     const order = {
       id: crypto.randomUUID(),
       kind,
+      serve: kind === 'cafe' ? cart.serve : 'dine-in',
       reservationId: reservation?.id ?? null,
       items,
       total: quote.total,
@@ -85,7 +86,7 @@ export default function CartPage() {
             <p className="muted">
               {placed.order.kind === 'suite' && `${r.unit}번 Suite로 배달해 드려요.`}
               {placed.order.kind === 'extra' && `${SPACES[r.type].name} ${r.unit}번 ${SPACES[r.type].unitName}에서 받아 가세요.`}
-              {placed.order.kind === 'cafe' && '준비되면 카운터에서 픽업해 주세요.'}
+              {placed.order.kind === 'cafe' && `${placed.order.serve === 'takeout' ? '테이크아웃' : '매장'} 주문이에요. 준비되면 카운터에서 픽업해 주세요.`}
               {' '}결제는 매장에서 해요. 스탬프 {Object.values(placed.order.items).reduce((a, b) => a + b, 0)}개가 적립됐어요.
             </p>
           </div>
@@ -106,6 +107,16 @@ export default function CartPage() {
         <Segmented label="주문 유형" name="kind" value={kind} onChange={(v) => { setKind(v); setReservationId(null); }} options={KINDS} />
         <p className="group-hint">{KIND_HINT[kind]}</p>
 
+
+        {kind === 'cafe' && (
+          <OptionList
+            legend="이용 방법"
+            name="serve"
+            value={cart.serve}
+            onChange={setCartServe}
+            options={SERVE_OPTIONS}
+          />
+        )}
 
         {seatToday && (
           <div className="coupon-cta">

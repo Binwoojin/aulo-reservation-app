@@ -49,8 +49,9 @@ const useSession = () => {
 
 // 장바구니: 로그인하러 다녀와도 남도록 이 탭(sessionStorage)에 보관한다
 // items: { [drinkId]: 잔 수 }, reservationId: 쿠폰을 받을 이용 중 예약 (예약 상세에서 들어오면 미리 연결)
+// serve: 카페 주문의 이용 방법 'dine-in'(매장) | 'takeout'(테이크아웃)
 const CART_KEY = 'aulo.cart.v2';
-const EMPTY_CART = { items: {}, reservationId: null };
+const EMPTY_CART = { items: {}, reservationId: null, serve: 'dine-in' };
 const readCart = () => {
   try { return { ...EMPTY_CART, ...JSON.parse(sessionStorage.getItem(CART_KEY)) }; } catch { return EMPTY_CART; }
 };
@@ -66,8 +67,9 @@ const useCart = () => {
     return { ...c, items };
   }), []);
   const setCartReservation = useCallback((reservationId) => setCart((c) => ({ ...c, reservationId })), []);
+  const setCartServe = useCallback((serve) => setCart((c) => ({ ...c, serve })), []);
   const clearCart = useCallback(() => setCart(EMPTY_CART), []);
-  return useMemo(() => ({ cart, addToCart, setCartQty, setCartReservation, clearCart }), [cart, addToCart, setCartQty, setCartReservation, clearCart]);
+  return useMemo(() => ({ cart, addToCart, setCartQty, setCartReservation, setCartServe, clearCart }), [cart, addToCart, setCartQty, setCartReservation, setCartServe, clearCart]);
 };
 
 // 예약·주문에는 owner(이메일)를 붙인다. owner가 없는 예전 데모 기록은 누구의 것으로도 본다.

@@ -90,3 +90,10 @@ export const orderKindFor = (reservation) => {
   if (!reservation) return 'cafe';
   return SPACES[reservation.type].drink === 'included' ? 'suite' : 'extra';
 };
+
+// 카페 주문만 매장/테이크아웃을 고른다. 좌석 추가 주문과 Suite 배달은 이용 중인 공간에서 마시므로 매장 이용
+export const SERVE_OPTIONS = [
+  { value: 'dine-in', label: '매장에서 마실게요', detail: '매장용 컵에 담아 드려요' },
+  { value: 'takeout', label: '테이크아웃할게요', detail: '일회용 컵에 담아 드려요' },
+];
+export const SERVE_LABEL = { 'dine-in': '매장', takeout: '테이크아웃' };
