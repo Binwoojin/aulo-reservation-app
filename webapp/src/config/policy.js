@@ -157,10 +157,10 @@ export const MENU = p(
 
 // 음료 옵션 (2026-10-19): 상세의 '주문하기' 옵션 창에서 고른다
 // - 샷 추가: 커피만, 최대 2회. 가격 미정 → 임시로 1회 500원
-// - 개인컵: 모든 음료. 할인 기준 미정 → 지금은 할인 없음
+// - 개인컵(텀블러): 모든 음료, 1잔당 300원 할인 (2026-10-19 확정)
 export const SHOT_PRICE = p(500, '샷 추가 가격 미정 — 임시로 1회 500원');
 export const MAX_SHOTS = 2;
-export const OWN_CUP_DISCOUNT = p(0, '개인컵 할인 기준 미정 — 지금은 할인 없이 개인컵에 담아 드림');
+export const OWN_CUP_DISCOUNT = 300;
 
 // 홈 '베스트': 주문 데이터가 쌓이기 전에는 운영자가 고른 대표 메뉴 (2026-10-19 확정). 순위·판매량 숫자는 표시하지 않는다.
 export const BEST_MENU = ['americano', 'latte', 'caramel-macchiato', 'hot-chocolate'];

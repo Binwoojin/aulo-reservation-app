@@ -1,4 +1,4 @@
-import { MENU, SHOT_PRICE, SPACES } from '../config/policy.js';
+import { MENU, OWN_CUP_DISCOUNT, SHOT_PRICE, SPACES } from '../config/policy.js';
 
 // 주문 유형
 // - cafe:  일반 주문, 정상가
@@ -49,11 +49,11 @@ export const parseKey = (key) => {
   return { id, temp, shot, ownCup: opts.includes('cup') };
 };
 // 옵션 설명 (예: '샷 1회 추가 · 개인컵'), 없으면 ''
-export const optionsText = ({ shot, ownCup }) => [shot ? `샷 ${shot}회 추가` : '', ownCup ? '개인컵' : ''].filter(Boolean).join(' · ');
-// 1잔 가격 = 음료 가격 + 샷 추가 금액
+export const optionsText = ({ shot, ownCup }) => [shot ? `샷 ${shot}회 추가` : '', ownCup ? `텀블러 −${OWN_CUP_DISCOUNT.toLocaleString('ko-KR')}원` : ''].filter(Boolean).join(' · ');
+// 1잔 가격 = 음료 가격 + 샷 추가 금액 − 텀블러 할인(300원)
 export const unitPriceOf = (key) => {
-  const { id, shot } = parseKey(key);
-  return (MENU.value.find((d) => d.id === id)?.price ?? 0) + shot * SHOT_PRICE.value;
+  const { id, shot, ownCup } = parseKey(key);
+  return (MENU.value.find((d) => d.id === id)?.price ?? 0) + shot * SHOT_PRICE.value - (ownCup ? OWN_CUP_DISCOUNT : 0);
 };
 // '아이스 아메리카노'처럼 온도를 붙인 이름
 export const drinkLabel = (id, temp) => {
@@ -95,8 +95,8 @@ export const priceOrder = ({ kind, items, reservation, previousOrders = [] }) =>
       const quantity = items[key];
       const listUnit = unitPriceOf(key);
       const unitPrice = benefit === 'half' ? Math.round(listUnit / 2) : listUnit;
-      // 무료 리필은 음료 1잔 값만 빼고, 샷 추가 금액은 받는다
-      const refillDiscount = key === refillKey ? drink.price : 0;
+      // 무료 리필 잔은 샷 추가 금액만 받는다 (이미 무료라 텀블러 할인은 겹쳐 주지 않는다)
+      const refillDiscount = key === refillKey ? listUnit - opts.shot * SHOT_PRICE.value : 0;
       return {
         key,
         drinkId: drink.id,

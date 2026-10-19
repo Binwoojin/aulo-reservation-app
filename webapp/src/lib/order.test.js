@@ -89,17 +89,22 @@ describe('아이스·핫 담기', () => {
 });
 
 describe('음료 옵션', () => {
-  it('샷 추가는 1회 500원(임시), 개인컵은 할인 없음, 옵션이 다르면 다른 줄', () => {
+  it('샷 추가는 1회 500원(임시), 텀블러는 300원 할인, 옵션이 다르면 다른 줄', () => {
     const shot = itemKey('latte', 'ice', { shot: 2, ownCup: true });
     expect(shot).toBe('latte@ice+shot2+cup');
     expect(parseKey(shot)).toEqual({ id: 'latte', temp: 'ice', shot: 2, ownCup: true });
     const r = priceOrder({ kind: 'cafe', items: { [shot]: 1, 'latte@ice': 1 } });
-    expect(r.lines.map((l) => [l.name, l.options])).toEqual([['아이스 카페라떼', '샷 2회 추가 · 개인컵'], ['아이스 카페라떼', '']]);
-    expect(r.total).toBe(5000 + 4000);
+    expect(r.lines.map((l) => [l.name, l.options])).toEqual([['아이스 카페라떼', '샷 2회 추가 · 텀블러 −300원'], ['아이스 카페라떼', '']]);
+    expect(r.total).toBe(4700 + 4000);
   });
 
-  it('Suite 무료 리필은 음료값만 빼고 샷 추가 금액은 받는다', () => {
-    const r = priceOrder({ kind: 'suite', items: { 'latte@hot+shot1': 1 }, reservation: suite });
-    expect(r.total).toBe(500);
+  it('Suite 무료 리필 잔은 샷 추가 금액만 받고 텀블러 할인은 겹치지 않는다', () => {
+    expect(priceOrder({ kind: 'suite', items: { 'latte@hot+shot1': 1 }, reservation: suite }).total).toBe(500);
+    expect(priceOrder({ kind: 'suite', items: { 'latte@hot+cup': 1 }, reservation: suite }).total).toBe(0);
+  });
+
+  it('텀블러 할인 후에 50% 쿠폰을 적용한다', () => {
+    const focus = { id: 'f9', type: 'focus', drinkId: 'americano' };
+    expect(priceOrder({ kind: 'extra', items: { 'americano@ice+cup': 1 }, reservation: focus }).total).toBe(1350);
   });
 });

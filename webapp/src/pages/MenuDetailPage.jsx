@@ -9,7 +9,7 @@ import { formatWon } from '../lib/time.js';
 import NotFoundPage from './NotFoundPage.jsx';
 
 // 음료 상세: 누구나 볼 수 있다. '주문하기'를 누르면 옵션 창이 열리고,
-// 온도(커피 필수)·샷 추가(커피)·개인컵·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
+// 온도(커피 필수)·샷 추가(커피)·텀블러(300원 할인)·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
 export default function MenuDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -49,6 +49,7 @@ export default function MenuDetailPage() {
         </section>
         <ul className="note-list">
           {isCoffee && <li>아이스·핫과 샷 추가는 주문할 때 골라요.</li>}
+          <li>텀블러·개인컵으로 주문하면 1잔당 {formatWon(OWN_CUP_DISCOUNT)} 할인돼요.</li>
           <li>1잔당 스탬프 1개가 적립돼요.</li>
           <li>포인트는 음료 주문에 쓸 수 없어요.</li>
           <li>Focus·Rest 이용 중에는 재주문 50% 할인 쿠폰을 최대 2회 쓸 수 있어요.</li>
@@ -85,9 +86,8 @@ export default function MenuDetailPage() {
           </section>
         )}
         <section className="sheet-section list-card" aria-label="컵">
-          <SwitchRow label="개인컵 사용" detail="텀블러 등 가져온 컵에 담아 드려요" checked={ownCup} onChange={setOwnCup} />
+          <SwitchRow label={`텀블러 사용 · ${formatWon(OWN_CUP_DISCOUNT)} 할인`} detail="가져온 텀블러·개인컵에 담아 드려요" checked={ownCup} onChange={setOwnCup} />
         </section>
-        <p className="group-hint">개인컵 할인은 아직 정해지지 않았어요 <Provisional note={OWN_CUP_DISCOUNT.note} /></p>
         <section className="sheet-section sheet-row" aria-labelledby="opt-qty">
           <span className="option-row__text">
             <span id="opt-qty" className="option-row__label">수량</span>
