@@ -1,13 +1,15 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { BEST_MENU, MENU, SPACES } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import { OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
+import { NoticeDialog, OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { BENEFIT_LABEL, couponFor, HALF_LIMIT, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits } from '../lib/order.js';
 import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
 import { formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
+
+const CART_KEY = 'aulo.cart.v1';
 
 const KINDS = [
   { value: 'cafe', label: '카페' },
@@ -26,8 +28,9 @@ export default function OrderPage() {
   const [params] = useSearchParams();
   const { user, myReservations: reservations, orders, addOrder } = useAppData();
   const navigate = useNavigate();
-  // 메뉴 보기는 누구나, 담기·주문은 로그인 후 (돌아오면 주문 화면으로)
-  const requireLogin = () => navigate(`/login?redirect=${encodeURIComponent('/order')}`);
+  // 메뉴 보기와 담기는 누구나, '주문하기'는 로그인 후. 비로그인으로 누르면 안내창을 띄우고 진행을 막는다.
+  const [loginOpen, setLoginOpen] = useState(false);
+  const goLogin = () => navigate(`/login?redirect=${encodeURIComponent('/order')}`);
   const today = toDateString(now);
 
   // 재주문은 좌석 이용 시작과 함께 가능: 지금 이용 중인 예약만 주문에 연결한다
@@ -37,7 +40,20 @@ export default function OrderPage() {
 
   const [kind, setKind] = useState(preset ? orderKindFor(preset) : 'cafe');
   const [reservationId, setReservationId] = useState(preset?.id ?? null);
-  const [items, setItems] = useState({});
+  // 담은 음료는 로그인하러 다녀와도 남도록 이 탭(sessionStorage)에 잠시 보관한다
+  const [items, setItems] = useState(() => {
+    const add = params.get('add');
+    let saved = {};
+    try { saved = JSON.parse(sessionStorage.getItem(CART_KEY)) ?? {}; } catch { /* 저장소를 못 쓰면 빈 장바구니 */ }
+    return add && MENU.value.some((d) => d.id === add) ? { ...saved, [add]: (saved[add] ?? 0) + 1 } : saved;
+  });
+  useEffect(() => {
+    try { sessionStorage.setItem(CART_KEY, JSON.stringify(items)); } catch { /* 무시 */ }
+  }, [items]);
+  // ?add=로 담은 뒤에는 주소에서 지워 새로고침해도 다시 담기지 않게 한다
+  useEffect(() => {
+    if (params.get('add')) navigate('/order', { replace: true });
+  }, [params, navigate]);
   const [placed, setPlaced] = useState(null);
 
   const linkable = kind === 'cafe' ? [] : active.filter((r) => orderKindFor(r) === kind);
@@ -103,12 +119,6 @@ export default function OrderPage() {
         <Segmented label="주문 유형" name="kind" value={kind} onChange={(v) => { setKind(v); setReservationId(null); }} options={KINDS} />
         <p className="group-hint">{KIND_HINT[kind]}</p>
 
-        {!user && (
-          <div className="coupon-cta">
-            <p>메뉴는 누구나 볼 수 있어요. 담기와 주문은 스탬프·포인트 적립 때문에 로그인 후 이용할 수 있어요.</p>
-            <button type="button" className="button button--secondary" onClick={requireLogin}>로그인하기</button>
-          </div>
-        )}
 
         {seatToday && (
           <div className="coupon-cta">
@@ -173,7 +183,7 @@ export default function OrderPage() {
                     <span className="option-row__label">{d.name}{isBase && <span className="badge">기본 음료</span>}{refillable && <span className="badge">리필 가능</span>}{BEST_MENU.includes(d.id) && <span className="badge badge--best">베스트</span>}</span>
                     <span className="option-row__detail">{formatWon(d.price)}</span>
                   </span>
-                  <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => (user ? setItems((prev) => ({ ...prev, [d.id]: q })) : requireLogin())} />
+                  <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [d.id]: q }))} />
                 </li>
               );
             })}
@@ -191,10 +201,11 @@ export default function OrderPage() {
           <span className="price__label">{count}잔</span>
           <span className="price__value">{formatWon(quote.total)}</span>
         </div>
-        {user
-          ? <button className="button button--primary" type="button" disabled={!canOrder} onClick={submit}>주문하기</button>
-          : <button className="button button--primary" type="button" onClick={requireLogin}>로그인하고 주문</button>}
+        <button className="button button--primary" type="button" disabled={!canOrder} onClick={() => (user ? submit() : setLoginOpen(true))}>주문하기</button>
       </BottomBar>
+      <NoticeDialog open={loginOpen} title="로그인이 필요해요" confirmLabel="로그인하기" onConfirm={goLogin} onClose={() => setLoginOpen(false)}>
+        음료 주문은 스탬프 적립과 연결돼 로그인해야 이용할 수 있어요. 담은 음료는 로그인 후에도 그대로 남아 있어요.
+      </NoticeDialog>
     </>
   );
 }

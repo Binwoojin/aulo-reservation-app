@@ -11,8 +11,9 @@ const MenuContext = createContext(() => {});
 export const TABS = [
   { to: '/', icon: 'home', label: '홈', end: true },
   { to: '/recommend', icon: 'compass', label: '추천' },
+  // 주문을 가운데에 두고 강조한다 (2026-10-19 사용자 요청)
+  { to: '/order', icon: 'cup', label: '주문', primary: true },
   { to: '/reserve', icon: 'calendar', label: '예약' },
-  { to: '/order', icon: 'cup', label: '주문' },
   { to: '/my', icon: 'user', label: '마이', end: true },
 ];
 const TAB_PATHS = TABS.map((t) => t.to);
@@ -91,7 +92,7 @@ function TabBar() {
       <ul>
         {TABS.map((t) => (
           <li key={t.to}>
-            <NavLink to={t.to} end={t.end} className="tab">
+            <NavLink to={t.to} end={t.end} className={t.primary ? 'tab tab--primary' : 'tab'}>
               <Icon name={t.icon} />
               <span>{t.label}</span>
             </NavLink>

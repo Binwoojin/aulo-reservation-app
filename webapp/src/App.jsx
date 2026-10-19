@@ -11,6 +11,7 @@ import InfoPage from './pages/InfoPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage, { RequireLogin } from './pages/LoginPage.jsx';
 import MyPage from './pages/MyPage.jsx';
+import MenuDetailPage from './pages/MenuDetailPage.jsx';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="reserve/:type" element={<RequireLogin><ReservePage /></RequireLogin>} />
         <Route path="reservations/:id" element={<RequireLogin><ReservationDetailPage /></RequireLogin>} />
         <Route path="order" element={<OrderPage />} />
+        <Route path="menu/:id" element={<MenuDetailPage />} />
         <Route path="login" element={<LoginPage />} />
         <Route path="my" element={<MyPage />} />
         <Route path="my/reservations" element={<RequireLogin><MyReservationsPage /></RequireLogin>} />

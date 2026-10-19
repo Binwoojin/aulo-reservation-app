@@ -134,12 +134,12 @@ export const SPACES = {
 // - 카라멜 마끼야또: 바닐라라떼와 같은 시럽 음료 수준 / 핫초코: 카페라떼 평균 수준 (모두 임의)
 export const MENU = p(
   [
-    { id: 'americano', name: '아메리카노', price: 3000 },
-    { id: 'latte', name: '카페라떼', price: 4000 },
-    { id: 'vanilla-latte', name: '바닐라라떼', price: 4500 },
-    { id: 'caramel-macchiato', name: '카라멜 마끼야또', price: 4500 },
-    { id: 'hot-chocolate', name: '핫초코', price: 4000 },
-    { id: 'herb-tea', name: '허브티', price: 4000 },
+    { id: 'americano', name: '아메리카노', price: 3000, desc: '에스프레소에 물을 더해 깔끔하게 즐기는 기본 커피예요.' },
+    { id: 'latte', name: '카페라떼', price: 4000, desc: '에스프레소와 데운 우유를 섞은 부드러운 커피예요.' },
+    { id: 'vanilla-latte', name: '바닐라라떼', price: 4500, desc: '카페라떼에 바닐라 시럽을 더해 달콤하게 만든 커피예요.' },
+    { id: 'caramel-macchiato', name: '카라멜 마끼야또', price: 4500, desc: '우유와 에스프레소 위에 카라멜 소스를 올린 달콤한 커피예요.' },
+    { id: 'hot-chocolate', name: '핫초코', price: 4000, desc: '초콜릿과 데운 우유로 만든 커피 없는 음료예요.' },
+    { id: 'herb-tea', name: '허브티', price: 4000, desc: '카페인 없이 편하게 마실 수 있는 허브 차예요.' },
   ],
   '음료 가격은 시장 평균으로 임의 설정 — 아메리카노 3,000 · 카페라떼 4,000 · 바닐라라떼·카라멜 마끼야또 4,500 · 핫초코·허브티 4,000원',
 );

@@ -95,7 +95,7 @@ export default function ReservationDetailPage() {
           {isNew ? '홈으로' : '내 예약'}
         </Link>
       </BottomBar>
-      <NoticeDialog open={confirmOpen} title="예약을 취소할까요?" confirmLabel="예약 취소" onConfirm={cancel} onClose={() => setConfirmOpen(false)}>
+      <NoticeDialog open={confirmOpen} title="예약을 취소할까요?" confirmLabel="예약 취소" danger onConfirm={cancel} onClose={() => setConfirmOpen(false)}>
         {formatDate(reservation.date)} {space.name} {reservation.unit}번 예약을 취소해요. 예약에 쓴 포인트는 돌려받아요.
       </NoticeDialog>
     </>

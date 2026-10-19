@@ -52,7 +52,7 @@ export default function HomePage() {
           <ul className="best-list" aria-label="베스트 메뉴">
             {BEST_MENU.map((id) => MENU.value.find((d) => d.id === id)).map((d) => (
               <li key={d.id}>
-                <Link to="/order" className="best-item">
+                <Link to={`/menu/${d.id}`} className="best-item">
                   <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
                   <span className="best-item__name">{d.name}</span>
                   <span className="best-item__price">{formatWon(d.price)}</span>
