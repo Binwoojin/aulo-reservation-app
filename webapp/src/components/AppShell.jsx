@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './Icon.jsx';
-import { useAppData, useNow } from '../lib/AppData.jsx';
+import { useAppData } from '../lib/AppData.jsx';
 import { reservationEnd } from '../lib/reservation.js';
 import { minutesOfDay, toDateString } from '../lib/time.js';
 
@@ -13,7 +13,7 @@ export const TABS = [
   { to: '/recommend', icon: 'compass', label: '추천' },
   { to: '/reserve', icon: 'calendar', label: '예약' },
   { to: '/order', icon: 'cup', label: '주문' },
-  { to: '/my/reservations', icon: 'receipt', label: '내 예약' },
+  { to: '/my', icon: 'user', label: '마이', end: true },
 ];
 const TAB_PATHS = TABS.map((t) => t.to);
 
@@ -102,11 +102,8 @@ function TabBar() {
   );
 }
 
-// 보조 메뉴: 햄버거 서랍 (주 메뉴는 탭바에 있으므로 반복하지 않는다)
+// 보조 메뉴: 햄버거 서랍 (주 메뉴와 마이는 탭바에 있으므로 반복하지 않는다)
 const MENU = [
-  { title: '마이', items: [
-    { to: '/my/orders', icon: 'receipt', label: '주문 내역' },
-  ] },
   { title: '안내', items: [
     { to: '/info', icon: 'info', label: '이용 안내·정책' },
   ] },
@@ -114,9 +111,7 @@ const MENU = [
 
 function MenuDrawer({ open, onClose }) {
   const ref = useRef(null);
-  const { reservations, orders } = useAppData();
-  const now = useNow();
-  const upcoming = reservations.filter((r) => isUpcoming(r, now)).length;
+  const { user } = useAppData();
 
   // 네이티브 <dialog>: 포커스 가두기·Esc 닫기·배경 비활성화를 브라우저가 처리한다
   useEffect(() => {
@@ -130,7 +125,7 @@ function MenuDrawer({ open, onClose }) {
     <dialog
       ref={ref}
       className="drawer"
-      aria-label="마이 페이지와 메뉴"
+      aria-label="메뉴"
       onClose={onClose}
       onClick={(e) => e.target === ref.current && onClose()}
     >
@@ -138,23 +133,11 @@ function MenuDrawer({ open, onClose }) {
         <div className="drawer__head">
           <span className="avatar" aria-hidden="true"><Icon name="user" /></span>
           <div className="drawer__who">
-            <strong>게스트</strong>
-            <span>데모 계정 · 로그인 준비 중</span>
+            {user ? <><strong>{user.email}</strong><span>로그인됨 · 내 정보는 마이 탭에서</span></> : <><strong>게스트</strong><Link to="/login" className="text-link">로그인하기</Link></>}
           </div>
           <button type="button" className="icon-button" onClick={onClose} aria-label="메뉴 닫기" autoFocus>
             <Icon name="close" />
           </button>
-        </div>
-
-        <div className="drawer__stats">
-          <Link to="/my/reservations" className="stat">
-            <span className="stat__value">{upcoming}</span>
-            <span className="stat__label">다가오는 예약</span>
-          </Link>
-          <Link to="/my/orders" className="stat">
-            <span className="stat__value">{orders.length}</span>
-            <span className="stat__label">주문 내역</span>
-          </Link>
         </div>
 
         {MENU.map((group) => (

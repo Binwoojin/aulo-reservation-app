@@ -1,4 +1,4 @@
-import { useId } from 'react';
+import { useEffect, useId, useRef } from 'react';
 import Icon from './Icon.jsx';
 
 export function SpaceImage({ space, eager = false, className = '' }) {
@@ -135,5 +135,25 @@ export function StepProgress({ steps, current, label = '진행 단계' }) {
         <span style={{ width: `${((current + 1) / steps.length) * 100}%` }} />
       </div>
     </div>
+  );
+}
+
+// 안내창: 앱 프레임 안에서 열리는 작은 모달 (네이티브 <dialog>)
+export function NoticeDialog({ open, title, children, onClose }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+  return (
+    <dialog ref={ref} className="notice" aria-labelledby="notice-title" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
+      <div className="notice__box">
+        <h2 id="notice-title" className="notice__title">{title}</h2>
+        <div className="notice__body">{children}</div>
+        <button type="button" className="button button--primary button--block" onClick={onClose} autoFocus>확인</button>
+      </div>
+    </dialog>
   );
 }

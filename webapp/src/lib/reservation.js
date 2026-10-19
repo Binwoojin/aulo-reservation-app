@@ -216,7 +216,7 @@ export const arrivalOutcome = ({ minutesLate, notice = 'none', reasonAccepted = 
 // - 유효 페널티: 받은 지 1년 이내
 // - 제한: 가장 최근 페널티부터 1주일
 // - 영구 제한: 유효 페널티 5회 이상, 또는 3개월 연속(달력 기준) 매달 페널티 (permanent 플래그로 기록, 이후 만료되지 않음)
-const monthIndex = (t) => { const d = new Date(t); return d.getFullYear() * 12 + d.getMonth(); };
+const monthIndex = (t) => { const [y, m] = toDateString(new Date(t)).split('-').map(Number); return y * 12 + m; };
 export const hasFrequentPenalties = (times) => {
   const months = [...new Set(times.map(monthIndex))].sort((a, b) => a - b);
   let run = 0;

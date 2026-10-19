@@ -6,7 +6,7 @@ import { Segmented } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 
 export default function MyReservationsPage() {
-  const { reservations } = useAppData();
+  const { myReservations: reservations } = useAppData();
   const now = useNow();
   const [tab, setTab] = useState('upcoming');
   const byTime = (a, b) => a.date.localeCompare(b.date) || a.start - b.start;
@@ -16,7 +16,7 @@ export default function MyReservationsPage() {
 
   return (
     <>
-      <AppBar title="내 예약" />
+      <AppBar back title="내 예약" />
       <div className="screen-body">
         <Segmented
           label="예약 구분"

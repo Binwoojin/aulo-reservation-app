@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { MENU, SPACES } from '../config/policy.js';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { BEST_MENU, MENU, SPACES } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
@@ -24,7 +24,10 @@ const KIND_HINT = {
 export default function OrderPage() {
   const now = useNow();
   const [params] = useSearchParams();
-  const { reservations, orders, addOrder } = useAppData();
+  const { user, myReservations: reservations, orders, addOrder } = useAppData();
+  const navigate = useNavigate();
+  // 메뉴 보기는 누구나, 담기·주문은 로그인 후 (돌아오면 주문 화면으로)
+  const requireLogin = () => navigate(`/login?redirect=${encodeURIComponent('/order')}`);
   const today = toDateString(now);
 
   // 재주문은 좌석 이용 시작과 함께 가능: 지금 이용 중인 예약만 주문에 연결한다
@@ -100,6 +103,13 @@ export default function OrderPage() {
         <Segmented label="주문 유형" name="kind" value={kind} onChange={(v) => { setKind(v); setReservationId(null); }} options={KINDS} />
         <p className="group-hint">{KIND_HINT[kind]}</p>
 
+        {!user && (
+          <div className="coupon-cta">
+            <p>메뉴는 누구나 볼 수 있어요. 담기와 주문은 스탬프·포인트 적립 때문에 로그인 후 이용할 수 있어요.</p>
+            <button type="button" className="button button--secondary" onClick={requireLogin}>로그인하기</button>
+          </div>
+        )}
+
         {seatToday && (
           <div className="coupon-cta">
             <p>오늘 {SPACES[seatToday.type].name} 예약이 있어요. 예약을 확인하면 할인 쿠폰으로 주문할 수 있어요.</p>
@@ -159,10 +169,10 @@ export default function OrderPage() {
                 <li key={d.id} className="menu-row-item">
                   <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
                   <span className="option-row__text">
-                    <span className="option-row__label">{d.name}{isBase && <span className="badge">기본 음료</span>}{refillable && <span className="badge">리필 가능</span>}</span>
+                    <span className="option-row__label">{d.name}{isBase && <span className="badge">기본 음료</span>}{refillable && <span className="badge">리필 가능</span>}{BEST_MENU.includes(d.id) && <span className="badge badge--best">베스트</span>}</span>
                     <span className="option-row__detail">{formatWon(d.price)}</span>
                   </span>
-                  <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [d.id]: q }))} />
+                  <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => (user ? setItems((prev) => ({ ...prev, [d.id]: q })) : requireLogin())} />
                 </li>
               );
             })}
@@ -180,7 +190,9 @@ export default function OrderPage() {
           <span className="price__label">{count}잔</span>
           <span className="price__value">{formatWon(quote.total)}</span>
         </div>
-        <button className="button button--primary" type="button" disabled={!canOrder} onClick={submit}>주문하기</button>
+        {user
+          ? <button className="button button--primary" type="button" disabled={!canOrder} onClick={submit}>주문하기</button>
+          : <button className="button button--primary" type="button" onClick={requireLogin}>로그인하고 주문</button>}
       </BottomBar>
     </>
   );

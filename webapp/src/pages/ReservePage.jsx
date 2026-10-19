@@ -98,9 +98,9 @@ function ReserveWizard({ type }) {
   const space = SPACES[type];
   const now = useNow();
   const navigate = useNavigate();
-  const { reservations, addReservation } = useAppData();
+  const { reservations, myReservations, addReservation } = useAppData();
   const dates = useMemo(() => windowDates(now, type), [now, type]);
-  const firstOpen = dates.find((d) => !isHoliday(d) && !hasReservationOn(d, reservations));
+  const firstOpen = dates.find((d) => !isHoliday(d) && !hasReservationOn(d, myReservations));
   const today = toDateString(now);
 
   const steps = type === 'suite'
@@ -137,7 +137,7 @@ function ReserveWizard({ type }) {
   const drinkCost = drinkId ? drinkFee(type, drinkId) : 0;
   const stepName = steps[step];
   const canNext = {
-    날짜: !isHoliday(date) && !hasReservationOn(date, reservations),
+    날짜: !isHoliday(date) && !hasReservationOn(date, myReservations),
     시간: start != null && maxHours >= space.minHours,
     공간: unit != null,
     좌석: unit != null,
@@ -150,7 +150,7 @@ function ReserveWizard({ type }) {
 
   const submit = () => {
     const result = createReservation(
-      { type, storeId, date, start, hours, unit, drinkId, requests, mine: reservations },
+      { type, storeId, date, start, hours, unit, drinkId, requests, mine: myReservations },
       reservations,
       new Date(),
     );
@@ -190,7 +190,7 @@ function ReserveWizard({ type }) {
                 <div className="date-strip">
                   {dates.map((d, i) => {
                     const [, m, day, dow] = formatDate(d).match(/(\d+)월 (\d+)일 \((.)\)/);
-                    const blocked = isHoliday(d) ? '휴무' : hasReservationOn(d, reservations) ? '예약 있음' : null;
+                    const blocked = isHoliday(d) ? '휴무' : hasReservationOn(d, myReservations) ? '예약 있음' : null;
                     return (
                       <label key={d} className="date-chip" data-weekend={dow === '토' || dow === '일' || undefined} data-disabled={blocked || undefined}>
                         <input type="radio" name="date" value={d} checked={date === d} disabled={!!blocked} onChange={() => { setDate(d); clearTime(); }} aria-label={`${formatDate(d)}${blocked ? ` · ${blocked}` : ''}`} />

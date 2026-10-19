@@ -16,9 +16,10 @@ import {
   startOptions,
   validateReservation,
 } from './reservation.js';
-import { formatTime } from './time.js';
+import { addDays, formatTime, minutesOfDay, toDateString } from './time.js';
 
-const at = (y, m, d, hh, mm = 0) => new Date(y, m - 1, d, hh, mm);
+// 한국 시간(KST) 기준 시각
+const at = (y, m, d, hh, mm = 0) => new Date(Date.UTC(y, m - 1, d, hh - 9, mm));
 const NOW = at(2026, 10, 14, 10, 30);
 const TODAY = '2026-10-14';
 const TOMORROW = '2026-10-15';
@@ -216,6 +217,15 @@ describe('취소와 노쇼 페널티', () => {
     expect(penaltyStatus(months([7, 8, 9]), at(2026, 10, 1, 12)).permanent).toBe(true);
     expect(penaltyStatus(months([6, 8, 9]), at(2026, 10, 1, 12)).permanent).toBe(false);
     expect(penaltyStatus(months([11, 12]).concat({ at: at(2027, 1, 5, 12).toISOString() }), at(2027, 2, 1, 12)).permanent).toBe(true); // 해를 넘겨도 연속
+  });
+});
+
+describe('한국 시간 기준', () => {
+  it('기기 시간대와 관계없이 KST로 날짜와 시각을 계산한다', () => {
+    const t = new Date('2026-10-14T15:30:00Z'); // KST 10/15 00:30
+    expect(toDateString(t)).toBe('2026-10-15');
+    expect(minutesOfDay(t)).toBe(30);
+    expect(addDays('2026-12-31', 1)).toBe('2027-01-01');
   });
 });
 

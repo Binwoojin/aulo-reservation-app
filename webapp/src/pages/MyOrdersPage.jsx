@@ -4,17 +4,14 @@ import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { useAppData } from '../lib/AppData.jsx';
 import { BENEFIT_LABEL } from '../lib/order.js';
-import { formatWon } from '../lib/time.js';
+import { formatDateTime, formatWon } from '../lib/time.js';
 
 const KIND_LABEL = { cafe: '카페 주문', extra: '추가 주문', suite: 'Suite 배달' };
 
-const formatOrderedAt = (iso) => {
-  const d = new Date(iso);
-  return `${d.getMonth() + 1}월 ${d.getDate()}일 ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
-};
+const formatOrderedAt = (iso) => formatDateTime(new Date(iso));
 
 export default function MyOrdersPage() {
-  const { orders, reservations } = useAppData();
+  const { myOrders: orders, reservations } = useAppData();
   const list = [...orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   return (

@@ -46,7 +46,7 @@ export const recommend = ({ purpose, duration, privacy }) => {
       alternatives: ['cafe'],
       reason: duration === 'long'
         ? '반폐쇄형 리클라이너에서 쉬어가세요. Rest는 최대 4시간까지 예약할 수 있어요.'
-        : '반폐쇄형 리클라이너에서 담요와 이어폰을 무료로 요청할 수 있어요.',
+        : '반폐쇄형 리클라이너에 OTT 시청용 헤드셋이 기본 제공되고, 담요도 무료로 요청할 수 있어요.',
     };
   }
   if (purpose === 'private' || privacy === 'closed') {

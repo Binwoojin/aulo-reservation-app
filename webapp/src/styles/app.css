@@ -486,3 +486,54 @@ a.ticket__link:active { background: var(--color-bg); }
 .cancel-button { margin-top: var(--space-3); color: var(--color-error); border-color: var(--color-error); }
 .date-chip[data-disabled] { opacity: 0.45; cursor: not-allowed; }
 .date-chip[data-disabled] input { cursor: not-allowed; }
+
+/* ---------- 안내창 (앱 프레임 안 모달) ---------- */
+.notice {
+  position: fixed; inset: 0; left: 50%; transform: translateX(-50%);
+  width: min(100%, var(--app-width)); max-width: none; height: 100dvh; max-height: none;
+  margin: 0; padding: var(--space-6); border: 0;
+  background: rgba(48, 43, 38, 0.42); color: var(--color-text);
+}
+.notice[open] { display: grid; place-items: center; animation: fade 160ms ease-out; }
+.notice::backdrop { background: transparent; }
+.notice__box {
+  display: flex; flex-direction: column; gap: var(--space-3); width: 100%;
+  padding: var(--space-6) var(--space-5) var(--space-5); border-radius: var(--radius-xl);
+  background: var(--color-surface); box-shadow: 0 16px 40px rgba(48, 43, 38, 0.2);
+}
+.notice__title { font-size: 1.125rem; font-weight: 700; }
+.notice__body { font-size: 0.9375rem; color: var(--color-text-sub); margin-bottom: var(--space-2); }
+
+/* ---------- 로그인 ---------- */
+.field { display: flex; flex-direction: column; gap: var(--space-2); }
+.field__label { font-size: 0.875rem; font-weight: 700; }
+.field__input {
+  min-height: 52px; padding: 0 var(--space-4); border: 1px solid var(--color-border-control); border-radius: var(--radius-md);
+  background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 1rem;
+}
+.field__input:focus-visible { outline: 2px solid var(--color-olive); outline-offset: 1px; border-color: var(--color-olive); }
+.field__input[aria-invalid="true"] { border-color: var(--color-error); }
+.field__error { font-size: 0.8125rem; color: var(--color-error); }
+.login-form { display: flex; flex-direction: column; gap: var(--space-4); }
+.login-divider { display: flex; align-items: center; gap: var(--space-3); font-size: 0.8125rem; color: var(--color-text-sub); }
+.login-divider::before, .login-divider::after { content: ""; flex: 1; height: 1px; background: var(--color-border); }
+.button--kakao { background: #FEE500; color: rgba(0, 0, 0, 0.85); }
+.login-note { font-size: 0.8125rem; color: var(--color-text-sub); text-align: center; }
+
+/* ---------- 마이 ---------- */
+.my-head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); border: 1px solid var(--color-border); }
+.my-head strong { display: block; font-size: 1.0625rem; word-break: break-all; }
+.my-head span { font-size: 0.8125rem; color: var(--color-text-sub); }
+.muted-inline { font-size: 0.8125rem; color: var(--color-text-sub); font-weight: 500; }
+.list-card .menu-row { padding: 0 var(--space-4); border-radius: 0; }
+
+/* ---------- 홈 음료 베스트 ---------- */
+.best-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); margin-top: var(--space-3); }
+.best-item {
+  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1);
+  padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); border: 1px solid var(--color-border);
+}
+.best-item:active { background: var(--color-bg-sub); }
+.best-item__name { font-weight: 700; font-size: 0.9375rem; }
+.best-item__price { font-size: 0.8125rem; color: var(--color-text-sub); }
+.badge--best { background: var(--cafe-bg); color: var(--cafe-fg); }

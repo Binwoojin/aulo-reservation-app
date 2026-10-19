@@ -33,7 +33,7 @@ export default function ReservationCard({ reservation: r, link = false, detailed
           <div><dt>이용료</dt><dd>{formatWon(r.fee)}</dd></div>
           <div><dt>{space.drink === 'included' ? '기본 음료' : '이용 전 음료'}</dt><dd>{drink?.name} · {r.drinkFee ? formatWon(r.drinkFee) : '포함'}</dd></div>
           {r.requests.length > 0 && (
-            <div><dt>무료 요청</dt><dd>{r.requests.map((id) => space.requests.find((q) => q.id === id)?.label).join(', ')}</dd></div>
+            <div><dt>무료 요청</dt><dd>{r.requests.map((id) => space.requests.find((q) => q.id === id)?.label).filter(Boolean).join(', ')}</dd></div>
           )}
           <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(r.fee + r.drinkFee)}</dd></div>
         </dl>

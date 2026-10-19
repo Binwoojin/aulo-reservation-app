@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { SPACES, SPACE_TYPES } from '../config/policy.js';
+import { BEST_MENU, MENU, SPACES, SPACE_TYPES } from '../config/policy.js';
 import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
@@ -8,7 +8,7 @@ import { useAppData, useNow } from '../lib/AppData.jsx';
 import { formatWon } from '../lib/time.js';
 
 export default function HomePage() {
-  const { reservations } = useAppData();
+  const { myReservations: reservations } = useAppData();
   const now = useNow();
   const next = reservations
     .filter((r) => isUpcoming(r, now))
@@ -42,6 +42,25 @@ export default function HomePage() {
             <ReservationCard reservation={next} link />
           </section>
         )}
+
+        <section aria-labelledby="best-title" className="block">
+          <div className="block-head">
+            <h2 id="best-title" className="block-title">음료 베스트</h2>
+            <Link to="/order" className="text-link">메뉴 전체</Link>
+          </div>
+          <p className="group-hint">Aulo가 고른 대표 메뉴예요</p>
+          <ul className="best-list" aria-label="베스트 메뉴">
+            {BEST_MENU.map((id) => MENU.value.find((d) => d.id === id)).map((d) => (
+              <li key={d.id}>
+                <Link to="/order" className="best-item">
+                  <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
+                  <span className="best-item__name">{d.name}</span>
+                  <span className="best-item__price">{formatWon(d.price)}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
         <section aria-labelledby="spaces-title" className="block">
           <div className="block-head">
