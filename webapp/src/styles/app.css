@@ -537,3 +537,4 @@ a.ticket__link:active { background: var(--color-bg); }
 .best-item__name { font-weight: 700; font-size: 0.9375rem; }
 .best-item__price { font-size: 0.8125rem; color: var(--color-text-sub); }
 .badge--best { background: var(--cafe-bg); color: var(--cafe-fg); }
+.reward-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin: var(--space-3) 0; }

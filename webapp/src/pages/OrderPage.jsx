@@ -83,7 +83,7 @@ export default function OrderPage() {
               {placed.order.kind === 'suite' && `${r.unit}번 Suite로 배달해 드려요.`}
               {placed.order.kind === 'extra' && `${SPACES[r.type].name} ${r.unit}번 ${SPACES[r.type].unitName}에서 받아 가세요.`}
               {placed.order.kind === 'cafe' && '준비되면 카운터에서 픽업해 주세요.'}
-              {' '}결제는 매장에서 해요.
+              {' '}결제는 매장에서 해요. 스탬프 {Object.values(placed.order.items).reduce((a, b) => a + b, 0)}개가 적립됐어요.
             </p>
           </div>
           <OrderLines quote={placed.quote} />
@@ -161,6 +161,7 @@ export default function OrderPage() {
 
         <section className="block" aria-labelledby="menu-title">
           <p id="menu-title" className="group-title">메뉴 <Provisional note={MENU.note} /></p>
+          <p className="group-hint">1잔당 스탬프 1개 적립 · 포인트는 음료 주문에 쓸 수 없어요</p>
           <ul className="list-card">
             {MENU.value.map((d) => {
               const isBase = kind === 'suite' && reservation?.drinkId === d.id;

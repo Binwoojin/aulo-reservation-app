@@ -35,7 +35,8 @@ export default function ReservationCard({ reservation: r, link = false, detailed
           {r.requests.length > 0 && (
             <div><dt>무료 요청</dt><dd>{r.requests.map((id) => space.requests.find((q) => q.id === id)?.label).filter(Boolean).join(', ')}</dd></div>
           )}
-          <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(r.fee + r.drinkFee)}</dd></div>
+          {r.pointsUsed > 0 && <div><dt>포인트 사용</dt><dd>−{formatWon(r.pointsUsed)}</dd></div>}
+          <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(r.fee - (r.pointsUsed ?? 0) + r.drinkFee)}</dd></div>
         </dl>
       )}
     </article>

@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
+import { REWARD_POLICY } from '../config/policy.js';
 import { useAppData, useNow } from '../lib/AppData.jsx';
+import { pointBalance, stampCount } from '../lib/rewards.js';
 import LoginPage from './LoginPage.jsx';
 
 // 하단 '마이' 탭: 비로그인이면 그 자리에 바로 로그인 화면을 보여 준다
@@ -24,6 +26,21 @@ export default function MyPage() {
           </div>
         </div>
 
+        <section className="block" aria-labelledby="reward-title">
+          <h2 id="reward-title" className="block-title">적립</h2>
+          <div className="reward-grid">
+            <div className="stat">
+              <span className="stat__value">{stampCount(myOrders, myReservations, now)}개</span>
+              <span className="stat__label">스탬프 · 음료 1잔당 1개</span>
+            </div>
+            <div className="stat">
+              <span className="stat__value">{pointBalance(myReservations, now).toLocaleString('ko-KR')}P</span>
+              <span className="stat__label">포인트 · 좌석 이용료에 사용</span>
+            </div>
+          </div>
+          <ul className="note-list">{REWARD_POLICY.map((n) => <li key={n}>{n}</li>)}</ul>
+        </section>
+
         <ul className="menu-list list-card" aria-label="마이 메뉴">
           <li>
             <Link to="/my/reservations" className="menu-row">
@@ -37,7 +54,6 @@ export default function MyPage() {
           </li>
         </ul>
 
-        <p className="group-hint">스탬프·포인트 적립 기준은 준비 중이에요.</p>
         <button type="button" className="button button--secondary button--block" onClick={logout}>로그아웃</button>
       </div>
     </>

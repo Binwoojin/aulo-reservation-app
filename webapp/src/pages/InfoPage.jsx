@@ -1,4 +1,4 @@
-import { CANCEL_POLICY, CLOSING_NOTICES, LATE_POLICY, PAYMENT_POLICY, PROVISIONAL_NOTES, SEAT_PRICES, SPACES, SPACE_TYPES } from '../config/policy.js';
+import { CANCEL_POLICY, CLOSING_NOTICES, LATE_POLICY, PAYMENT_POLICY, REWARD_POLICY, PROVISIONAL_NOTES, SEAT_PRICES, SPACES, SPACE_TYPES } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
 import { Provisional, Tag } from '../components/ui.jsx';
 import { extensionNote } from '../lib/reservation.js';
@@ -46,6 +46,11 @@ export default function InfoPage() {
             {CLOSING_NOTICES.map((n) => <li key={n}>{n}</li>)}
             <li>야외 라운지는 Aulo 이용 고객 누구나 쓰는 공용 공간이며 예약 대상이 아닙니다.</li>
           </ul>
+        </section>
+
+        <section className="block" aria-labelledby="reward-info">
+          <h2 id="reward-info" className="block-title">스탬프·포인트</h2>
+          <ul className="note-list">{REWARD_POLICY.map((n) => <li key={n}>{n}</li>)}</ul>
         </section>
 
         <section className="block" aria-labelledby="prov-info">

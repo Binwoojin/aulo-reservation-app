@@ -186,6 +186,8 @@ export const createReservation = (input, existing, now, makeId = () => crypto.ra
       drinkId: input.drinkId,
       requests: (input.requests ?? []).filter((id) => space.requests.some((r) => r.id === id)),
       fee: reservationFee(input.type, input.hours),
+      // 좌석 이용료에만 쓴 포인트 (보유량 확인은 화면에서, 여기서는 0~이용료로 제한)
+      pointsUsed: Math.max(0, Math.min(Math.floor(input.pointsUsed ?? 0), reservationFee(input.type, input.hours))),
       drinkFee: drinkFee(input.type, input.drinkId),
       createdAt: now.toISOString(),
     },

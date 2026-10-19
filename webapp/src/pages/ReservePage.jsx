@@ -38,6 +38,7 @@ import {
   windowDates,
 } from '../lib/reservation.js';
 import { formatDate, formatTime, formatWon, toDateString } from '../lib/time.js';
+import { pointBalance, pointsEarnedFor, usablePoints } from '../lib/rewards.js';
 
 const RESERVABLE = ['focus', 'rest', 'suite'];
 
@@ -115,6 +116,7 @@ function ReserveWizard({ type }) {
   const [drinkId, setDrinkId] = useState(null);
   const [requests, setRequests] = useState([]);
   const [errors, setErrors] = useState([]);
+  const [usePoints, setUsePoints] = useState(false);
 
   const free = (s, h) => freeUnits({ storeId, type, date, start: s, hours: h }, reservations);
   const starts = startOptions(type, date, now);
@@ -135,6 +137,9 @@ function ReserveWizard({ type }) {
 
   const fee = start != null ? reservationFee(type, hours) : 0;
   const drinkCost = drinkId ? drinkFee(type, drinkId) : 0;
+  // 포인트는 좌석 이용료에만 쓸 수 있다 (음료 금액 제외)
+  const balance = pointBalance(myReservations, now);
+  const pointsUsed = usePoints ? usablePoints(balance, fee) : 0;
   const stepName = steps[step];
   const canNext = {
     날짜: !isHoliday(date) && !hasReservationOn(date, myReservations),
@@ -150,7 +155,7 @@ function ReserveWizard({ type }) {
 
   const submit = () => {
     const result = createReservation(
-      { type, storeId, date, start, hours, unit, drinkId, requests, mine: myReservations },
+      { type, storeId, date, start, hours, unit, drinkId, requests, mine: myReservations, pointsUsed },
       reservations,
       new Date(),
     );
@@ -326,8 +331,16 @@ function ReserveWizard({ type }) {
               <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
               <div><dt>음료</dt><dd>{MENU.value.find((d) => d.id === drinkId)?.name} · {space.drink === 'included' ? '포함' : formatWon(drinkCost)}</dd></div>
               {requests.length > 0 && <div><dt>무료 요청</dt><dd>{requests.map((id) => space.requests.find((r) => r.id === id).label).join(', ')}</dd></div>}
-              <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(fee + drinkCost)}</dd></div>
+              {pointsUsed > 0 && <div><dt>포인트 사용</dt><dd>−{formatWon(pointsUsed)}</dd></div>}
+              <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(fee - pointsUsed + drinkCost)}</dd></div>
             </dl>
+            <SwitchRow
+              label={`포인트 사용 · 보유 ${balance.toLocaleString('ko-KR')}P`}
+              detail={balance > 0 ? '좌석 이용료에만 쓸 수 있어요. 음료 금액에는 쓸 수 없어요.' : '이용을 시작하면 좌석 이용료의 10%가 적립돼요.'}
+              checked={usePoints && balance > 0}
+              onChange={(v) => balance > 0 && setUsePoints(v)}
+            />
+            <p className="group-hint">이번 예약으로 적립 예정: 포인트 {pointsEarnedFor({ fee, pointsUsed }).toLocaleString('ko-KR')}P · 스탬프 1개 (이용 시작 후)</p>
             <ul className="note-list">
               <li>{PAYMENT_POLICY}</li>
               <li>{CANCEL_POLICY}</li>
@@ -346,7 +359,7 @@ function ReserveWizard({ type }) {
       <BottomBar>
         <div className="price">
           <span className="price__label">결제 예정</span>
-          <span className="price__value">{formatWon(fee + drinkCost)}</span>
+          <span className="price__value">{formatWon(fee - pointsUsed + drinkCost)}</span>
         </div>
         {stepName === '확인' ? (
           <button type="button" className="button button--primary" onClick={submit}>예약하기</button>
