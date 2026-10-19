@@ -3,7 +3,7 @@ import { BEST_MENU, MENU, SPACES, SPACE_TYPES } from '../config/policy.js';
 import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
-import { SpaceImage, Tag } from '../components/ui.jsx';
+import { DrinkThumb, SpaceImage, Tag } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { formatWon } from '../lib/time.js';
 
@@ -53,7 +53,7 @@ export default function HomePage() {
             {BEST_MENU.map((id) => MENU.value.find((d) => d.id === id)).map((d) => (
               <li key={d.id}>
                 <Link to={`/menu/${d.id}`} className="best-item">
-                  <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
+                  <DrinkThumb drink={d} size="sm" />
                   <span className="best-item__name">{d.name}</span>
                   <span className="best-item__price">{formatWon(d.price)}</span>
                 </Link>

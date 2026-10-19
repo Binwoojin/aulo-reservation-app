@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
+import { drinkImage } from '../lib/drink.js';
 
 export function SpaceImage({ space, eager = false, className = '' }) {
   return (
@@ -166,13 +167,25 @@ export function NoticeDialog({ open, title, children, onClose, confirmLabel, onC
   );
 }
 
-// 음료 이미지 자리: MENU 항목에 image(파일명)가 생기면 public/images/drinks/의 사진을, 없으면 컵 아이콘 자리표시를 보여 준다.
-// 정사각형 비율을 고정해 사진이 들어와도 레이아웃이 바뀌지 않는다.
-export function DrinkThumb({ drink, size = 'md' }) {
+// 음료 사진: public/images/drinks/의 사진(400·1024px WebP)을, 온도를 고르는 음료는 고른 온도의 사진을 보여 준다.
+// 사진이 없으면 컵 아이콘 자리표시. 정사각형 비율을 고정해 사진이 바뀌어도 레이아웃이 그대로다.
+const THUMB_SIZES = { sm: '56px', md: '104px', lg: 'min(100vw, 390px)' };
+export function DrinkThumb({ drink, temp = null, size = 'md' }) {
+  const image = drinkImage(drink, temp);
   return (
     <span className={`drink-thumb drink-thumb--${size}`}>
-      {drink.image
-        ? <img src={`images/drinks/${drink.image}`} alt="" loading="lazy" decoding="async" />
+      {image
+        ? (
+          <img
+            key={image}
+            src={`images/drinks/${image}-400.webp`}
+            srcSet={`images/drinks/${image}-400.webp 400w, images/drinks/${image}-1024.webp 1024w`}
+            sizes={THUMB_SIZES[size]}
+            alt=""
+            loading={size === 'lg' ? 'eager' : 'lazy'}
+            decoding="async"
+          />
+        )
         : <Icon name="cup" size={size === 'lg' ? 72 : 32} />}
     </span>
   );

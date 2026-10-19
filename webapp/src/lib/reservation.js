@@ -1,4 +1,5 @@
 import { BOOKING_WINDOW_DAYS, EXTENSION, HOLIDAYS, HOURS, MENU, PENALTY, SPACES, STORES } from '../config/policy.js';
+import { needsTemp } from './drink.js';
 import { addDays, formatTime, minutesOfDay, rangesOverlap, toDateString } from './time.js';
 
 export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
@@ -155,8 +156,8 @@ export const validateReservation = (input, existing, now) => {
   } else if (!durationOptions(input.type, input.start).includes(input.hours)) {
     errors.push(`이용 시간은 ${space.minHours}~${space.maxHours}시간, 마감 전에 끝나야 합니다.`);
   }
-  if (getDrink(input.drinkId)?.category === 'coffee' && !['ice', 'hot'].includes(input.drinkTemp)) {
-    errors.push('커피는 아이스와 핫 중 하나를 골라 주세요.');
+  if (needsTemp(getDrink(input.drinkId)) && !['ice', 'hot'].includes(input.drinkTemp)) {
+    errors.push('음료의 아이스와 핫 중 하나를 골라 주세요.');
   }
   if (!getDrink(input.drinkId)) {
     errors.push(space.drink === 'included' ? '기본 음료를 선택해 주세요.' : '이용 전 음료를 선택해 주세요.');
@@ -188,7 +189,7 @@ export const createReservation = (input, existing, now, makeId = () => crypto.ra
       unit,
       drinkId: input.drinkId,
       // 커피일 때만 아이스/핫
-      drinkTemp: getDrink(input.drinkId)?.category === 'coffee' ? input.drinkTemp : null,
+      drinkTemp: needsTemp(getDrink(input.drinkId)) ? input.drinkTemp : null,
       requests: (input.requests ?? []).filter((id) => space.requests.some((r) => r.id === id)),
       fee: reservationFee(input.type, input.hours),
       // 좌석 이용료에만 쓴 포인트 (보유량 확인은 화면에서, 여기서는 0~이용료로 제한)

@@ -4,6 +4,7 @@ import { BottomBar, AppBar } from './AppShell.jsx';
 import Icon from './Icon.jsx';
 import { DrinkThumb, Provisional, Stepper } from './ui.jsx';
 import { formatWon } from '../lib/time.js';
+import { fixedTemp } from '../lib/drink.js';
 import { TEMPS, optionsText, parseKey, unitPriceOf } from '../lib/order.js';
 
 // 주문 금액 요약 (장바구니·좌석 주문 공통)
@@ -26,14 +27,14 @@ export function OrderLines({ quote }) {
 // itemKey가 있으면 그 안의 온도·샷·개인컵 옵션을 함께 보여 준다
 export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [], onChange }) {
   const opts = parseKey(itemKey);
-  const temp = opts.temp;
+  const temp = opts.temp ?? fixedTemp(drink);
   const tempInfo = TEMPS.find((t) => t.value === temp);
   const options = optionsText(opts);
   const unit = unitPriceOf(itemKey);
   return (
     <li className="cart-item">
       <Link to={`/menu/${drink.id}`} className="cart-item__media" aria-label={`${drink.name} 상세 보기`}>
-        <DrinkThumb drink={drink} />
+        <DrinkThumb drink={drink} temp={temp} />
       </Link>
       <div className="cart-item__body">
         <div className="cart-item__head">

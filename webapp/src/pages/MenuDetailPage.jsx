@@ -4,11 +4,13 @@ import { BEST_MENU, MAX_SHOTS, MENU, MENU_CATEGORIES, OWN_CUP_DISCOUNT, SHOT_PRI
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { BottomSheet, DrinkThumb, Provisional, Segmented, Stepper, SwitchRow } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { REFILL_DRINKS, TEMPS, drinkLabel, hasTemp, itemKey, unitPriceOf } from '../lib/order.js';
+import { canAddShot, fixedTemp, needsTemp } from '../lib/drink.js';
+import { REFILL_DRINKS, TEMPS, drinkLabel, itemKey, unitPriceOf } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 import NotFoundPage from './NotFoundPage.jsx';
 
-// 음료 상세: 누구나 볼 수 있다. 커피는 상세에서 아이스·핫을 먼저 고르고(필수),
+// 음료 상세: 누구나 볼 수 있다. 커피·녹차는 상세에서 아이스·핫을 먼저 고르고(필수, 사진도 바뀜),
+// 한 가지 온도만 있는 음료는 그 온도를 안내만 한다.
 // '주문하기'를 누르면 옵션 창에서 샷 추가(커피)·텀블러(300원 할인)·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
 export default function MenuDetailPage() {
   const { id } = useParams();
@@ -22,10 +24,12 @@ export default function MenuDetailPage() {
   const [qty, setQty] = useState(1);
   if (!drink) return <NotFoundPage />;
 
-  const isCoffee = hasTemp(drink);
-  const key = itemKey(drink.id, isCoffee ? temp : null, { shot: isCoffee ? shot : 0, ownCup });
+  const chooseTemp = needsTemp(drink);
+  const onlyTemp = TEMPS.find((t) => t.value === fixedTemp(drink));
+  const isCoffee = canAddShot(drink);
+  const key = itemKey(drink.id, chooseTemp ? temp : null, { shot: isCoffee ? shot : 0, ownCup });
   const unit = unitPriceOf(key);
-  const ready = !isCoffee || temp;
+  const ready = !chooseTemp || temp;
 
   const put = () => {
     addToCart(key, qty);
@@ -37,7 +41,7 @@ export default function MenuDetailPage() {
     <>
       <AppBar back title="" />
       <div className="screen-body has-bottom-bar">
-        <DrinkThumb drink={drink} size="lg" />
+        <DrinkThumb drink={drink} temp={temp} size="lg" />
         <section className="drink-head" aria-labelledby="drink-title">
           <span className="drink-head__meta">
             <span className="drink-head__category">{MENU_CATEGORIES.find((c) => c.id === drink.category)?.label}</span>
@@ -47,12 +51,19 @@ export default function MenuDetailPage() {
           <p className="drink-price">{formatWon(drink.price)} <Provisional note={MENU.note} /></p>
           <p className="drink-desc">{drink.desc}</p>
         </section>
-        {isCoffee && (
+        {chooseTemp && (
           <section className="drink-temp" aria-labelledby="opt-temp">
             <p id="opt-temp" className="group-title">아이스 · 핫 <span className="sheet-required">필수</span></p>
             <Segmented label="온도" name="temp" value={temp} onChange={setTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
             <p className="group-hint">가격은 같아요</p>
           </section>
+        )}
+        {onlyTemp && (
+          <p className="drink-temp-only">
+            <span className="temp-chip" data-temp={onlyTemp.value}>{onlyTemp.short}</span>
+            {onlyTemp.value === 'hot' ? '따뜻하게만 준비돼요' : '차갑게만 준비돼요'}
+            {drink.tempsNote && <Provisional note={drink.tempsNote} />}
+          </p>
         )}
         <ul className="note-list">
           {isCoffee && <li>샷 추가는 '주문하기'를 누른 뒤 골라요.</li>}
@@ -71,7 +82,7 @@ export default function MenuDetailPage() {
 
       <BottomSheet
         open={sheetOpen}
-        title={drinkLabel(drink.id, isCoffee ? temp : null)}
+        title={drinkLabel(drink.id, chooseTemp ? temp : null)}
         onClose={() => setSheetOpen(false)}
         footer={(
           <button type="button" className="button button--primary button--block" onClick={put}>

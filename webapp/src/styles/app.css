@@ -611,6 +611,7 @@ a.ticket__link:active { background: var(--color-bg); }
 .drink-price { font-family: var(--font-en); font-size: 1.25rem; font-weight: 700; }
 .drink-desc { color: var(--color-text-sub); font-size: 0.9375rem; }
 .drink-temp { display: flex; flex-direction: column; gap: var(--space-2); }
+.drink-temp-only { display: flex; align-items: center; gap: var(--space-2); font-size: 0.9375rem; font-weight: 600; }
 
 /* ---------- 주문 탭 메뉴 목록 · 장바구니 버튼 ---------- */
 .menu-link { display: flex; align-items: center; gap: var(--space-3); min-height: 68px; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); transition: background-color var(--press) var(--ease); }

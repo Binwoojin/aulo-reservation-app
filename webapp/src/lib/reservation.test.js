@@ -250,8 +250,8 @@ describe('휴무일과 1인 1좌석', () => {
 
 describe('커피 온도', () => {
   it('커피는 아이스·핫을 골라야 예약된다', () => {
-    expect(validateReservation({ ...base, drinkTemp: null, type: 'focus', start: 600, hours: 1 }, [], NOW)).toContain('커피는 아이스와 핫 중 하나를 골라 주세요.');
+    expect(validateReservation({ ...base, drinkTemp: null, type: 'focus', start: 600, hours: 1 }, [], NOW)).toContain('음료의 아이스와 핫 중 하나를 골라 주세요.');
     expect(make({ type: 'focus', start: 600, hours: 1, drinkTemp: 'hot' }).reservation.drinkTemp).toBe('hot');
-    expect(make({ type: 'focus', start: 600, hours: 1, drinkId: 'green-tea', drinkTemp: null }).reservation.drinkTemp).toBeNull();
+    expect(make({ type: 'focus', start: 600, hours: 1, drinkId: 'yuja-tea', drinkTemp: null }).reservation.drinkTemp).toBeNull();
   });
 });

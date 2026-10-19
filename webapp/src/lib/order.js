@@ -1,4 +1,5 @@
 import { MENU, OWN_CUP_DISCOUNT, SHOT_PRICE, SPACES } from '../config/policy.js';
+import { needsTemp } from './drink.js';
 
 // 주문 유형
 // - cafe:  일반 주문, 정상가
@@ -31,7 +32,7 @@ export const remainingBenefits = (kind, reservation, previousOrders = []) => {
   };
 };
 
-// 온도: 커피는 아이스/핫을 골라 주문한다 (2026-10-19). 가격 차이는 없다.
+// 온도: 커피·녹차는 아이스/핫을 골라 주문한다 (2026-10-19). 가격 차이는 없다. 한 가지 온도만 있는 음료는 키에 온도를 넣지 않는다.
 // 담은 음료의 키에 옵션을 담는다: 'americano@ice+shot1+cup' = 아이스 · 샷 1회 추가 · 개인컵
 // 옵션이 없으면 'hot-chocolate'처럼 음료 id만 쓴다. 옵션이 다르면 다른 줄로 담긴다.
 export const TEMPS = [
@@ -39,7 +40,7 @@ export const TEMPS = [
   { value: 'hot', label: '핫', short: 'HOT' },
 ];
 export const TEMP_LABEL = { ice: '아이스', hot: '핫' };
-export const hasTemp = (drink) => drink?.category === 'coffee';
+export const hasTemp = needsTemp;
 export const itemKey = (id, temp, { shot = 0, ownCup = false } = {}) =>
   `${id}${temp ? `@${temp}` : ''}${shot ? `+shot${shot}` : ''}${ownCup ? '+cup' : ''}`;
 export const parseKey = (key) => {

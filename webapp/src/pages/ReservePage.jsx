@@ -40,6 +40,7 @@ import {
 } from '../lib/reservation.js';
 import { formatDate, formatTime, formatWon, toDateString } from '../lib/time.js';
 import { pointBalance, pointsEarnedFor, usablePoints } from '../lib/rewards.js';
+import { needsTemp } from '../lib/drink.js';
 import { TEMPS, drinkLabel } from '../lib/order.js';
 
 const RESERVABLE = ['focus', 'rest', 'suite'];
@@ -117,7 +118,7 @@ function ReserveWizard({ type }) {
   const [unit, setUnit] = useState(null);
   const [drinkId, setDrinkId] = useState(null);
   const [drinkTemp, setDrinkTemp] = useState(null);
-  const drinkNeedsTemp = getDrink(drinkId)?.category === 'coffee';
+  const drinkNeedsTemp = needsTemp(getDrink(drinkId));
   const [requests, setRequests] = useState([]);
   const [errors, setErrors] = useState([]);
   const [usePoints, setUsePoints] = useState(false);
@@ -310,7 +311,7 @@ function ReserveWizard({ type }) {
               <section className="block temp-pick" aria-labelledby="drink-temp-title">
                 <p id="drink-temp-title" className="group-title">온도</p>
                 <Segmented label="온도" name="drink-temp" value={drinkTemp} onChange={setDrinkTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
-                {!drinkTemp && <p className="group-hint">커피는 아이스와 핫 중 하나를 골라 주세요.</p>}
+                {!drinkTemp && <p className="group-hint">아이스와 핫 중 하나를 골라 주세요.</p>}
               </section>
             )}
             {space.requests.length > 0 && (

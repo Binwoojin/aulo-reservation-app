@@ -1,9 +1,10 @@
 // Aulo 이용 도우미 (데모): AI 없이 policy.js의 확정 정책과 '내 예약' 상태로 답하는 시나리오형 챗봇.
 // 정책이 바뀌면 답도 함께 바뀐다. 모르는 질문은 지어내지 않고 이용 안내나 매장으로 넘긴다(필수 규칙 5).
 import {
-  BOOKING_WINDOW_DAYS, CANCEL_POLICY, HOURS, LATE_POLICY, MAX_SHOTS, OWN_CUP_DISCOUNT,
+  BOOKING_WINDOW_DAYS, CANCEL_POLICY, HOURS, LATE_POLICY, MAX_SHOTS, MENU, OWN_CUP_DISCOUNT,
   PAYMENT_METHODS, PENALTY, SHOT_PRICE, SPACES,
 } from '../config/policy.js';
+import { fixedTemp, needsTemp } from './drink.js';
 import { HALF_LIMIT, REFILL_DRINKS, orderKindFor, remainingBenefits } from './order.js';
 import { canCancel, extensionStatus, extensionUnitPrice, getDrink, isInUse, reservationEnd } from './reservation.js';
 import { pointBalance, stampCount } from './rewards.js';
@@ -30,7 +31,7 @@ const KEYWORDS = [
   ['tumbler', ['텀블러', '개인컵']],
   ['coupon', ['쿠폰', '할인', '추가 주문', '50%']],
   ['rewards', ['스탬프', '포인트', '적립']],
-  ['options', ['샷', '아이스', '핫', '옵션']],
+  ['options', ['샷', '아이스', '핫', '옵션', '온도', '차가운', '따뜻한']],
   ['hours', ['운영', '영업', '오픈', '마감', '휴무', '공휴일', '몇 시']],
   ['booking', ['예약 가능', '언제까지 예약', '당일', '며칠']],
   ['payment', ['결제', '카드', '계좌', '부가세']],
@@ -41,6 +42,7 @@ export const detectIntent = (text) => {
   return KEYWORDS.find(([, words]) => words.some((w) => t.includes(w)))?.[0] ?? 'unknown';
 };
 
+const namesWhere = (test) => MENU.value.filter(test).map((d) => d.name).join('·');
 const label = (r) => `${SPACES[r.type].name} ${r.unit}번`;
 const when = (r) => `${formatDate(r.date)} ${formatTime(r.start)}–${formatTime(reservationEnd(r))}`;
 const byTime = (a, b) => a.date.localeCompare(b.date) || a.start - b.start;
@@ -138,7 +140,11 @@ export const answer = (intent, { user, myReservations = [], reservations = [], o
 
     case 'options':
       return {
-        text: [`커피는 아이스·핫 중 하나를 골라야 해요(가격 같음). 샷은 최대 ${MAX_SHOTS}회, 1회 ${formatWon(SHOT_PRICE.value)}이에요(임시 가격).`],
+        text: [
+          `${namesWhere((d) => needsTemp(d))}는 아이스·핫 중에서 골라요(가격 같음).`,
+          `${namesWhere((d) => fixedTemp(d) === 'hot')}는 HOT만, ${namesWhere((d) => fixedTemp(d) === 'ice')}는 ICE만 있어요.`,
+          `샷 추가는 커피에만 되고 최대 ${MAX_SHOTS}회, 1회 ${formatWon(SHOT_PRICE.value)}이에요(임시 가격).`,
+        ],
         actions: [{ label: '음료 주문', to: '/order' }],
       };
 
