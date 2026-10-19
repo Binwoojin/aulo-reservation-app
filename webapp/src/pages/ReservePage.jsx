@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import {
-  BOOKING_WINDOW_DAYS,
   CANCEL_POLICY,
   HOURS,
   MENU,
@@ -187,7 +186,7 @@ function ReserveWizard({ type }) {
             </section>
             <section className="block">
               <fieldset className="option-group">
-                <legend className="group-title">날짜 <Provisional note={BOOKING_WINDOW_DAYS.note} /></legend>
+                <legend className="group-title">날짜</legend>
                 <div className="date-strip">
                   {dates.map((d, i) => {
                     const [, m, day, dow] = formatDate(d).match(/(\d+)월 (\d+)일 \((.)\)/);

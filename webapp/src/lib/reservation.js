@@ -19,7 +19,7 @@ export const isHoliday = (date) => HOLIDAYS.includes(date);
 export const windowDates = (now, type) => {
   const today = toDateString(now);
   const first = type && !SPACES[type].sameDayApp ? 1 : 0;
-  return Array.from({ length: BOOKING_WINDOW_DAYS.value + 1 - first }, (_, i) => addDays(today, i + first));
+  return Array.from({ length: BOOKING_WINDOW_DAYS + 1 - first }, (_, i) => addDays(today, i + first));
 };
 
 export const bookableDates = (now, type) => windowDates(now, type).filter((d) => !isHoliday(d));
