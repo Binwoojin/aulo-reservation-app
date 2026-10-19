@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { MENU, SPACES } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import { NoticeDialog, OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
+import { DrinkThumb, NoticeDialog, OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { BENEFIT_LABEL, couponFor, HALF_LIMIT, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits } from '../lib/order.js';
 import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
@@ -162,18 +162,40 @@ export default function CartPage() {
             <Link to="/order" className="text-link">메뉴 더 담기</Link>
           </div>
           {count > 0 ? (
-            <ul className="list-card">
+            <ul className="cart-list">
               {MENU.value.filter((d) => items[d.id] > 0).map((d) => {
                 const isBase = kind === 'suite' && reservation?.drinkId === d.id;
                 const refillable = left.refill > 0 && REFILL_DRINKS.includes(d.id);
+                const line = quote.lines.find((l) => l.drinkId === d.id);
                 return (
-                  <li key={d.id} className="menu-row-item">
-                    <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
-                    <span className="option-row__text">
-                      <span className="option-row__label">{d.name}{isBase && <span className="badge">기본 음료</span>}{refillable && <span className="badge">리필 가능</span>}</span>
-                      <span className="option-row__detail">{formatWon(d.price)} <Provisional note={MENU.note} /></span>
-                    </span>
-                    <Stepper label={d.name} value={items[d.id]} onChange={(q) => setCartQty(d.id, q)} />
+                  <li key={d.id} className="cart-item">
+                    <Link to={`/menu/${d.id}`} className="cart-item__media" aria-label={`${d.name} 상세 보기`}>
+                      <DrinkThumb drink={d} />
+                    </Link>
+                    <div className="cart-item__body">
+                      <div className="cart-item__head">
+                        <div className="cart-item__title">
+                          <strong className="cart-item__name">{d.name}</strong>
+                          {(isBase || refillable) && (
+                            <span className="cart-item__badges">
+                              {isBase && <span className="badge">기본 음료</span>}
+                              {refillable && <span className="badge">리필 가능</span>}
+                            </span>
+                          )}
+                        </div>
+                        <button type="button" className="cart-item__remove" onClick={() => setCartQty(d.id, 0)} aria-label={`${d.name} 빼기`}>
+                          <Icon name="close" size={18} />
+                        </button>
+                      </div>
+                      <span className="cart-item__unit">1잔 {formatWon(d.price)} <Provisional note={MENU.note} /></span>
+                      <div className="cart-item__foot">
+                        <Stepper label={d.name} value={items[d.id]} onChange={(q) => setCartQty(d.id, q)} min={1} />
+                        <span className="cart-item__total">
+                          {line && line.total !== line.listPrice && <s>{formatWon(line.listPrice)}</s>}
+                          {formatWon(line?.total ?? d.price * items[d.id])}
+                        </span>
+                      </div>
+                    </div>
                   </li>
                 );
               })}

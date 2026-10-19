@@ -165,3 +165,15 @@ export function NoticeDialog({ open, title, children, onClose, confirmLabel, onC
     </dialog>
   );
 }
+
+// 음료 이미지 자리: MENU 항목에 image(파일명)가 생기면 public/images/drinks/의 사진을, 없으면 컵 아이콘 자리표시를 보여 준다.
+// 정사각형 비율을 고정해 사진이 들어와도 레이아웃이 바뀌지 않는다.
+export function DrinkThumb({ drink, size = 'md' }) {
+  return (
+    <span className={`drink-thumb drink-thumb--${size}`}>
+      {drink.image
+        ? <img src={`images/drinks/${drink.image}`} alt="" loading="lazy" decoding="async" />
+        : <Icon name="cup" size={size === 'lg' ? 72 : 32} />}
+    </span>
+  );
+}

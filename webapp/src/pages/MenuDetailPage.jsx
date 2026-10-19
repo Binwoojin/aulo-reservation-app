@@ -1,8 +1,7 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { BEST_MENU, MENU } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
-import Icon from '../components/Icon.jsx';
-import { Provisional } from '../components/ui.jsx';
+import { DrinkThumb, Provisional } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
 import { REFILL_DRINKS } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
@@ -20,7 +19,7 @@ export default function MenuDetailPage() {
     <>
       <AppBar back title="" />
       <div className="screen-body has-bottom-bar">
-        <div className="drink-hero" aria-hidden="true"><Icon name="cup" size={72} /></div>
+        <DrinkThumb drink={drink} size="lg" />
         <section className="drink-head" aria-labelledby="drink-title">
           {BEST_MENU.includes(drink.id) && <span className="badge badge--best">베스트</span>}
           <h2 id="drink-title" className="screen-title">{drink.name}</h2>
