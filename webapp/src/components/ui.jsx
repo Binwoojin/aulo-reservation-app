@@ -138,8 +138,9 @@ export function StepProgress({ steps, current, label = '진행 단계' }) {
   );
 }
 
-// 안내창: 앱 프레임 안에서 열리는 작은 모달 (네이티브 <dialog>)
-export function NoticeDialog({ open, title, children, onClose }) {
+// 안내창: 앱 프레임 안에서 열리는 작은 모달 (네이티브 <dialog>).
+// onConfirm을 주면 '닫기 / 확인 동작' 두 버튼 확인창이 된다 (window.confirm은 일부 환경에서 막혀 있어 쓰지 않는다)
+export function NoticeDialog({ open, title, children, onClose, confirmLabel, onConfirm }) {
   const ref = useRef(null);
   useEffect(() => {
     const dialog = ref.current;
@@ -152,7 +153,14 @@ export function NoticeDialog({ open, title, children, onClose }) {
       <div className="notice__box">
         <h2 id="notice-title" className="notice__title">{title}</h2>
         <div className="notice__body">{children}</div>
-        <button type="button" className="button button--primary button--block" onClick={onClose} autoFocus>확인</button>
+        {onConfirm ? (
+          <div className="notice__actions">
+            <button type="button" className="button button--secondary" onClick={onClose} autoFocus>닫기</button>
+            <button type="button" className="button button--danger" onClick={onConfirm}>{confirmLabel}</button>
+          </div>
+        ) : (
+          <button type="button" className="button button--primary button--block" onClick={onClose} autoFocus>확인</button>
+        )}
       </div>
     </dialog>
   );

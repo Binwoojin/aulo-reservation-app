@@ -582,3 +582,5 @@ a.ticket__link:active { background: var(--color-bg); }
 /* 메뉴 이름이 배지 때문에 중간에서 줄바꿈되지 않게: 이름은 한 줄, 배지는 필요하면 다음 줄로 */
 .menu-row-item .option-row__label { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 6px; white-space: nowrap; }
 .menu-row-item .option-row__label .badge { margin-left: 0; }
+.notice__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+.button--danger { background: var(--color-error); color: #FFFFFF; }

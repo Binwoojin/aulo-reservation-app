@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CANCEL_POLICY, CLOSING_NOTICES, LATE_POLICY, PAYMENT_POLICY, SPACES } from '../config/policy.js';
 import { AppBar, BottomBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
+import { NoticeDialog } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { canCancel, extensionStatus, isInUse } from '../lib/reservation.js';
 import { formatDate } from '../lib/time.js';
@@ -13,6 +15,7 @@ export default function ReservationDetailPage() {
   const [params] = useSearchParams();
   const { reservations, removeReservation } = useAppData();
   const navigate = useNavigate();
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const now = useNow();
   const reservation = reservations.find((r) => r.id === id);
   const isNew = params.get('new') === '1';
@@ -36,7 +39,7 @@ export default function ReservationDetailPage() {
   const inUse = isInUse(reservation, now);
 
   const cancel = () => {
-    if (!window.confirm(`${formatDate(reservation.date)} ${space.name} 예약을 취소할까요?`)) return;
+    setConfirmOpen(false);
     removeReservation(reservation.id);
     navigate('/my/reservations', { replace: true });
   };
@@ -74,7 +77,7 @@ export default function ReservationDetailPage() {
             {cancellable ? (
               <>
                 <p className="muted">{formatDate(reservation.date)} 전날 23:59까지 취소할 수 있어요.</p>
-                <button type="button" className="button button--secondary button--block cancel-button" onClick={cancel}>예약 취소하기</button>
+                <button type="button" className="button button--secondary button--block cancel-button" onClick={() => setConfirmOpen(true)}>예약 취소하기</button>
               </>
             ) : (
               <p className="muted">이용 당일에는 앱에서 취소할 수 없어요. 급한 사정이 있으면 매장에 연락해 주세요. 사유가 확인되면 페널티를 면제해요.</p>
@@ -92,6 +95,9 @@ export default function ReservationDetailPage() {
           {isNew ? '홈으로' : '내 예약'}
         </Link>
       </BottomBar>
+      <NoticeDialog open={confirmOpen} title="예약을 취소할까요?" confirmLabel="예약 취소" onConfirm={cancel} onClose={() => setConfirmOpen(false)}>
+        {formatDate(reservation.date)} {space.name} {reservation.unit}번 예약을 취소해요. 예약에 쓴 포인트는 돌려받아요.
+      </NoticeDialog>
     </>
   );
 }
