@@ -112,6 +112,9 @@ const MENU = [
   { title: '안내', items: [
     { to: '/info', icon: 'info', label: '이용 안내·정책' },
   ] },
+  { title: '고객 지원', items: [
+    { to: '/help', icon: 'chat', label: '이용 도우미 (데모)' },
+  ] },
 ];
 
 function MenuDrawer({ open, onClose }) {

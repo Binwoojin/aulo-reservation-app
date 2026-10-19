@@ -71,6 +71,10 @@ export default function ReservationDetailPage() {
           </ul>
         </section>
 
+        <Link to="/help?q=extend" className="notice-row help-link">
+          <Icon name="chat" size={20} /><span>연장·취소·지각 규칙이 궁금하면 이용 도우미에게 물어보세요</span><Icon name="chevron" size={18} />
+        </Link>
+
         {upcoming && (
           <section className="block" aria-labelledby="cancel-title">
             <h3 id="cancel-title" className="block-title">예약 취소</h3>

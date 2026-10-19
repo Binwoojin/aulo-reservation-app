@@ -745,3 +745,45 @@ a.ticket__link:active { background: var(--color-bg); }
 .sheet .group-hint { margin-top: calc(var(--space-2) * -1); }
 .cart-item__options { font-size: 0.8125rem; color: var(--color-olive-hover); font-weight: 600; }
 .kv__sub { display: block; font-size: 0.75rem; color: var(--color-text-sub); }
+
+/* ---------- 이용 도우미 (챗봇 데모) ---------- */
+.chat-body { gap: var(--space-3); padding-bottom: calc(150px + var(--safe-bottom)); }
+.chat-note { align-self: center; padding: 2px var(--space-3); border-radius: var(--radius-pill); background: var(--color-bg-sub); font-size: 0.75rem; color: var(--color-text-sub); }
+.chat-log { display: flex; flex-direction: column; gap: var(--space-3); }
+.chat-msg { display: flex; align-items: flex-end; gap: var(--space-2); animation: chat-in 420ms var(--ease-settle, ease) both; }
+@keyframes chat-in { from { opacity: 0; transform: translateY(6px); } }
+.chat-msg--me { justify-content: flex-end; }
+.chat-avatar {
+  display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 50%;
+  background: var(--color-olive); color: var(--color-bg); font-family: var(--font-logo); font-size: 1.0625rem; font-weight: 600; line-height: 1;
+}
+.chat-bubble { display: flex; flex-direction: column; gap: var(--space-2); max-width: 82%; padding: var(--space-3) var(--space-4); border-radius: 18px; font-size: 0.9375rem; line-height: 1.55; }
+.chat-msg--bot .chat-bubble { background: var(--color-surface); border-bottom-left-radius: 6px; box-shadow: var(--shadow-card); }
+.chat-msg--me .chat-bubble { background: var(--color-olive); color: #FFFFFF; border-bottom-right-radius: 6px; }
+.chat-actions { display: flex; flex-wrap: wrap; gap: var(--space-2); margin-top: var(--space-1); }
+.chat-action { display: inline-flex; align-items: center; gap: 2px; min-height: 36px; padding: 0 var(--space-2) 0 var(--space-3); border-radius: var(--radius-pill); background: var(--color-olive-light); color: var(--color-olive-hover); font-size: 0.8125rem; font-weight: 700; }
+.chat-action:active { transform: scale(0.97); }
+.chat-typing { flex-direction: row; gap: 4px; padding: var(--space-3) var(--space-4); }
+.chat-typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--color-border-control); animation: chat-dot 1.2s ease-in-out infinite; }
+.chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes chat-dot { 0%, 60%, 100% { opacity: 0.35; transform: none; } 30% { opacity: 1; transform: translateY(-3px); } }
+.chat-dock {
+  position: fixed; bottom: 0; left: 50%; z-index: 30; transform: translateX(-50%);
+  width: min(100%, var(--app-width)); padding-bottom: var(--safe-bottom);
+  background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.4); backdrop-filter: blur(20px) saturate(1.4);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0; box-shadow: 0 -1px 0 var(--color-hairline), var(--shadow-sheet);
+}
+.chat-chips { display: flex; gap: var(--space-2); overflow-x: auto; padding: var(--space-3) var(--gutter) var(--space-2); scrollbar-width: none; }
+.chat-chips::-webkit-scrollbar { display: none; }
+.chat-chip { flex-shrink: 0; min-height: 36px; padding: 0 var(--space-3); border: 1px solid var(--color-hairline); border-radius: var(--radius-pill); background: var(--color-surface); font-size: 0.8125rem; font-weight: 600; cursor: pointer; box-shadow: 0 1px 2px rgba(48, 43, 38, 0.05); }
+.chat-chip:active:not(:disabled) { transform: scale(0.96); }
+.chat-chip:disabled { opacity: 0.5; cursor: default; }
+.chat-input { display: flex; align-items: center; gap: var(--space-2); padding: 0 var(--gutter) var(--space-3); }
+.chat-input .field__input { flex: 1; min-width: 0; width: auto; min-height: 46px; border-radius: var(--radius-pill); }
+/* 마지막 답이 입력창 뒤에 가리지 않게 도크 높이만큼 띄워서 스크롤한다 */
+.chat-end { scroll-margin-bottom: calc(150px + var(--safe-bottom)); }
+.chat-send { background: var(--color-olive); color: #FFFFFF; flex-shrink: 0; }
+.chat-send:disabled { background: var(--color-bg-sub); color: var(--color-text-sub); }
+.help-link { color: var(--color-text); }
+.help-link span { font-size: 0.875rem; }

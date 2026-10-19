@@ -17,6 +17,8 @@ const PATHS = {
   pin: <><path d="M12 20s6-5.4 6-10a6 6 0 0 0-12 0c0 4.6 6 10 6 10z" /><circle cx="12" cy="10" r="2.2" /></>,
   home: <><path d="M4.5 10.5L12 4l7.5 6.5" /><path d="M6.5 9v10h11V9" /></>,
   door: <><path d="M6 20V4.5h10V20" /><path d="M4 20h16" /><path d="M13 12h.01" /></>,
+  chat: <><path d="M5 6.5h14a1.5 1.5 0 0 1 1.5 1.5v8a1.5 1.5 0 0 1-1.5 1.5H10l-4 3v-3H5A1.5 1.5 0 0 1 3.5 16V8A1.5 1.5 0 0 1 5 6.5z" /><path d="M8 11h8" /><path d="M8 14h5" /></>,
+  send: <><path d="M4 12l16-7-6 15-2.5-6.5z" /><path d="M11.5 13.5L20 5" /></>,
   bag: <><path d="M5.5 8h13l-1 11.5h-11z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></>,
   alert: <><path d="M12 4l9 16H3z" /><path d="M12 10v4" /><path d="M12 17h.01" /></>,
 };

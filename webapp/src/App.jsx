@@ -14,6 +14,7 @@ import MyPage from './pages/MyPage.jsx';
 import MenuDetailPage from './pages/MenuDetailPage.jsx';
 import CartPage from './pages/CartPage.jsx';
 import SeatOrderPage from './pages/SeatOrderPage.jsx';
+import HelpPage from './pages/HelpPage.jsx';
 
 export default function App() {
   return (
@@ -34,6 +35,7 @@ export default function App() {
         <Route path="my/reservations" element={<RequireLogin><MyReservationsPage /></RequireLogin>} />
         <Route path="my/orders" element={<RequireLogin><MyOrdersPage /></RequireLogin>} />
         <Route path="info" element={<InfoPage />} />
+        <Route path="help" element={<HelpPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
     </Routes>
