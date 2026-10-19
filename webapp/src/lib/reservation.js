@@ -1,4 +1,4 @@
-import { BOOKING_WINDOW_DAYS, EXTENSION, HOURS, MENU, PENALTY, SPACES, STORES } from '../config/policy.js';
+import { BOOKING_WINDOW_DAYS, EXTENSION, HOLIDAYS, HOURS, MENU, PENALTY, SPACES, STORES } from '../config/policy.js';
 import { addDays, formatTime, minutesOfDay, rangesOverlap, toDateString } from './time.js';
 
 export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
@@ -13,11 +13,19 @@ export const unitIds = (storeId, type) => {
 };
 
 // 앱 예약 가능 날짜. 모든 공간이 당일 예약 불가라 내일부터 (Focus·Rest 당일은 매장 방문, Suite는 사전 예약 전용)
-export const bookableDates = (now, type) => {
+// 휴무일(공휴일)은 날짜 목록에 보이되 예약할 수 없다
+export const isHoliday = (date) => HOLIDAYS.includes(date);
+
+export const windowDates = (now, type) => {
   const today = toDateString(now);
   const first = type && !SPACES[type].sameDayApp ? 1 : 0;
   return Array.from({ length: BOOKING_WINDOW_DAYS.value + 1 - first }, (_, i) => addDays(today, i + first));
 };
+
+export const bookableDates = (now, type) => windowDates(now, type).filter((d) => !isHoliday(d));
+
+// 1인 1좌석: 같은 날에는 공간 종류와 관계없이 1건만 예약할 수 있다 (2026-10-19 확정)
+export const hasReservationOn = (date, mine = []) => mine.some((r) => r.date === date);
 
 // 선택 가능한 시작 시각 (정시, 최소 이용 시간을 22:00 종료 전에 채울 수 있어야 함)
 // Suite는 최소 3시간이라 19:00 이후 시작은 자연히 막힌다(별도 '마감 3시간 전' 제한은 두지 않음).
@@ -27,7 +35,7 @@ export const startOptions = (type, date, now) => {
   const isToday = date === toDateString(now);
   const latestStart = lastEndFor(type) - space.minHours * 60;
   const options = [];
-  for (let start = HOURS.open.value; start <= latestStart; start += 60) {
+  for (let start = HOURS.open; start <= latestStart; start += 60) {
     if (isToday && start <= minutesOfDay(now)) continue;
     options.push(start);
   }
@@ -130,6 +138,7 @@ export const drinkFee = (type, drinkId) => {
   return getDrink(drinkId)?.price ?? 0;
 };
 
+// input.mine: 이 사용자의 기존 예약 (1인 1좌석 확인용)
 export const validateReservation = (input, existing, now) => {
   const errors = [];
   const space = SPACES[input.type];
@@ -137,7 +146,10 @@ export const validateReservation = (input, existing, now) => {
   if (!getStore(input.storeId)) errors.push('매장을 선택해 주세요.');
   if (!space.sameDayApp && input.date === toDateString(now)) {
     errors.push(`${space.name}: ${space.sameDayNote}`);
+  } else if (isHoliday(input.date)) {
+    errors.push('공휴일은 매장 휴무라 예약할 수 없어요.');
   } else if (!bookableDates(now, input.type).includes(input.date)) errors.push('예약 가능한 날짜가 아닙니다.');
+  if (hasReservationOn(input.date, input.mine)) errors.push('같은 날에는 1개의 좌석만 예약할 수 있어요.');
   if (!startOptions(input.type, input.date, now).includes(input.start)) {
     errors.push('선택할 수 없는 시작 시간입니다.');
   } else if (!durationOptions(input.type, input.start).includes(input.hours)) {

@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  isHoliday,
   arrivalOutcome,
   canCancel,
   penaltyStatus,
@@ -30,7 +31,7 @@ const make = (input, existing = [], now = NOW) =>
 describe('시작 시간', () => {
   it('Focus는 정시 단위, 22:50 퇴실 전(22:00 종료)까지 최소 1시간을 채울 수 있어야 한다', () => {
     const opts = startOptions('focus', TOMORROW, NOW).map(formatTime);
-    expect(opts[0]).toBe('09:00');
+    expect(opts[0]).toBe('08:00'); // 08:00 오픈
     expect(opts.at(-1)).toBe('21:00');
   });
 
@@ -215,5 +216,22 @@ describe('취소와 노쇼 페널티', () => {
     expect(penaltyStatus(months([7, 8, 9]), at(2026, 10, 1, 12)).permanent).toBe(true);
     expect(penaltyStatus(months([6, 8, 9]), at(2026, 10, 1, 12)).permanent).toBe(false);
     expect(penaltyStatus(months([11, 12]).concat({ at: at(2027, 1, 5, 12).toISOString() }), at(2027, 2, 1, 12)).permanent).toBe(true); // 해를 넘겨도 연속
+  });
+});
+
+describe('휴무일과 1인 1좌석', () => {
+  it('공휴일은 날짜 목록에서 예약할 수 없다', () => {
+    const xmas = at(2026, 12, 20, 10);
+    expect(isHoliday('2026-12-25')).toBe(true);
+    expect(bookableDates(xmas, 'focus')).not.toContain('2026-12-25');
+    const errors = validateReservation({ ...base, date: '2026-12-25', type: 'focus', start: 10 * 60, hours: 1 }, [], xmas);
+    expect(errors[0]).toMatch('공휴일');
+  });
+
+  it('같은 날에는 공간 종류와 관계없이 1건만 예약할 수 있다', () => {
+    const mine = [make({ type: 'focus', start: 10 * 60, hours: 1 }).reservation];
+    expect(make({ type: 'suite', start: 14 * 60, hours: 3, unit: 1, mine }).errors).toContain('같은 날에는 1개의 좌석만 예약할 수 있어요.');
+    const otherDay = make({ type: 'suite', date: '2026-10-16', start: 14 * 60, hours: 3, unit: 1, mine });
+    expect(otherDay.errors).toEqual([]);
   });
 });

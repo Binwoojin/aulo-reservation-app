@@ -41,7 +41,8 @@ export default function InfoPage() {
             <li>{PAYMENT_POLICY}</li>
             <li>{CANCEL_POLICY}</li>
             {LATE_POLICY.map((n) => <li key={n}>{n}</li>)}
-            <li>데모 매장 마감은 23:00입니다.</li>
+            <li>매장 운영 시간은 08:00–23:00이며, 공휴일은 휴무입니다.</li>
+            <li>한 사람은 같은 날 1개의 좌석만 예약·이용할 수 있습니다.</li>
             {CLOSING_NOTICES.map((n) => <li key={n}>{n}</li>)}
             <li>야외 라운지는 Aulo 이용 고객 누구나 쓰는 공용 공간이며 예약 대상이 아닙니다.</li>
           </ul>

@@ -25,7 +25,8 @@ import {
 } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import {
-  bookableDates,
+  hasReservationOn,
+  isHoliday,
   bookedRanges,
   createReservation,
   drinkFee,
@@ -35,6 +36,7 @@ import {
   reservationFee,
   startOptions,
   unitIds,
+  windowDates,
 } from '../lib/reservation.js';
 import { formatDate, formatTime, formatWon, toDateString } from '../lib/time.js';
 
@@ -98,7 +100,8 @@ function ReserveWizard({ type }) {
   const now = useNow();
   const navigate = useNavigate();
   const { reservations, addReservation } = useAppData();
-  const dates = useMemo(() => bookableDates(now, type), [now, type]);
+  const dates = useMemo(() => windowDates(now, type), [now, type]);
+  const firstOpen = dates.find((d) => !isHoliday(d) && !hasReservationOn(d, reservations));
   const today = toDateString(now);
 
   const steps = type === 'suite'
@@ -106,7 +109,7 @@ function ReserveWizard({ type }) {
     : ['날짜', '시간', '좌석', type === 'rest' ? '음료·요청' : '음료', '확인'];
   const [step, setStep] = useState(0);
   const [storeId, setStoreId] = useState(STORES.value[0].id);
-  const [date, setDate] = useState(dates[0]);
+  const [date, setDate] = useState(firstOpen ?? dates[0]);
   const [start, setStart] = useState(null);
   const [hours, setHours] = useState(space.minHours);
   const [unit, setUnit] = useState(null);
@@ -135,7 +138,7 @@ function ReserveWizard({ type }) {
   const drinkCost = drinkId ? drinkFee(type, drinkId) : 0;
   const stepName = steps[step];
   const canNext = {
-    날짜: true,
+    날짜: !isHoliday(date) && !hasReservationOn(date, reservations),
     시간: start != null && maxHours >= space.minHours,
     공간: unit != null,
     좌석: unit != null,
@@ -148,7 +151,7 @@ function ReserveWizard({ type }) {
 
   const submit = () => {
     const result = createReservation(
-      { type, storeId, date, start, hours, unit, drinkId, requests },
+      { type, storeId, date, start, hours, unit, drinkId, requests, mine: reservations },
       reservations,
       new Date(),
     );
@@ -188,12 +191,13 @@ function ReserveWizard({ type }) {
                 <div className="date-strip">
                   {dates.map((d, i) => {
                     const [, m, day, dow] = formatDate(d).match(/(\d+)월 (\d+)일 \((.)\)/);
+                    const blocked = isHoliday(d) ? '휴무' : hasReservationOn(d, reservations) ? '예약 있음' : null;
                     return (
-                      <label key={d} className="date-chip" data-weekend={dow === '토' || dow === '일' || undefined}>
-                        <input type="radio" name="date" value={d} checked={date === d} onChange={() => { setDate(d); clearTime(); }} aria-label={formatDate(d)} />
+                      <label key={d} className="date-chip" data-weekend={dow === '토' || dow === '일' || undefined} data-disabled={blocked || undefined}>
+                        <input type="radio" name="date" value={d} checked={date === d} disabled={!!blocked} onChange={() => { setDate(d); clearTime(); }} aria-label={`${formatDate(d)}${blocked ? ` · ${blocked}` : ''}`} />
                         <span className="date-chip__dow" aria-hidden="true">{d === today ? '오늘' : dow}</span>
                         <span className="date-chip__day" aria-hidden="true">{day}</span>
-                        <span className="date-chip__month" aria-hidden="true">{m}월</span>
+                        <span className="date-chip__month" aria-hidden="true">{blocked ?? `${m}월`}</span>
                       </label>
                     );
                   })}
@@ -201,6 +205,7 @@ function ReserveWizard({ type }) {
                 <p className="group-hint">
                   옆으로 밀어 {space.sameDayApp ? '오늘' : '내일'}부터 {formatDate(dates.at(-1))}까지 고를 수 있어요
                   {!space.sameDayApp && <><br />{space.sameDayNote}</>}
+                  <br />공휴일은 휴무이고, 한 사람은 같은 날 1개의 좌석만 예약할 수 있어요.
                 </p>
               </fieldset>
             </section>
@@ -356,7 +361,7 @@ function ReserveWizard({ type }) {
 
 // Suite 공간별 가능 시간 조회
 function SuiteRooms({ storeId, date, start, hours, value, onChange, free, reservations }) {
-  const open = HOURS.open.value;
+  const open = HOURS.open;
   const end = HOURS.lastEnd;
   const pct = (m) => `${((m - open) / (end - open)) * 100}%`;
 

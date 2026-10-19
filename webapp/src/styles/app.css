@@ -484,3 +484,5 @@ a.ticket__link:active { background: var(--color-bg); }
 }
 .coupon-cta p { margin: 0; }
 .cancel-button { margin-top: var(--space-3); color: var(--color-error); border-color: var(--color-error); }
+.date-chip[data-disabled] { opacity: 0.45; cursor: not-allowed; }
+.date-chip[data-disabled] input { cursor: not-allowed; }
