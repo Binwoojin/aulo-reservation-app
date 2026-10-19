@@ -4,12 +4,12 @@ import { BEST_MENU, MAX_SHOTS, MENU, MENU_CATEGORIES, OWN_CUP_DISCOUNT, SHOT_PRI
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { BottomSheet, DrinkThumb, Provisional, Segmented, Stepper, SwitchRow } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { REFILL_DRINKS, TEMPS, hasTemp, itemKey, unitPriceOf } from '../lib/order.js';
+import { REFILL_DRINKS, TEMPS, drinkLabel, hasTemp, itemKey, unitPriceOf } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 import NotFoundPage from './NotFoundPage.jsx';
 
-// 음료 상세: 누구나 볼 수 있다. '주문하기'를 누르면 옵션 창이 열리고,
-// 온도(커피 필수)·샷 추가(커피)·텀블러(300원 할인)·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
+// 음료 상세: 누구나 볼 수 있다. 커피는 상세에서 아이스·핫을 먼저 고르고(필수),
+// '주문하기'를 누르면 옵션 창에서 샷 추가(커피)·텀블러(300원 할인)·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
 export default function MenuDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -47,8 +47,15 @@ export default function MenuDetailPage() {
           <p className="drink-price">{formatWon(drink.price)} <Provisional note={MENU.note} /></p>
           <p className="drink-desc">{drink.desc}</p>
         </section>
+        {isCoffee && (
+          <section className="drink-temp" aria-labelledby="opt-temp">
+            <p id="opt-temp" className="group-title">아이스 · 핫 <span className="sheet-required">필수</span></p>
+            <Segmented label="온도" name="temp" value={temp} onChange={setTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
+            <p className="group-hint">가격은 같아요</p>
+          </section>
+        )}
         <ul className="note-list">
-          {isCoffee && <li>아이스·핫과 샷 추가는 주문할 때 골라요.</li>}
+          {isCoffee && <li>샷 추가는 '주문하기'를 누른 뒤 골라요.</li>}
           <li>텀블러·개인컵으로 주문하면 1잔당 {formatWon(OWN_CUP_DISCOUNT)} 할인돼요.</li>
           <li>1잔당 스탬프 1개가 적립돼요.</li>
           <li>포인트는 음료 주문에 쓸 수 없어요.</li>
@@ -57,25 +64,21 @@ export default function MenuDetailPage() {
         </ul>
       </div>
       <BottomBar>
-        <button type="button" className="button button--primary" onClick={() => setSheetOpen(true)}>주문하기</button>
+        <button type="button" className="button button--primary" disabled={!ready} onClick={() => setSheetOpen(true)}>
+          {ready ? '주문하기' : '아이스·핫을 골라 주세요'}
+        </button>
       </BottomBar>
 
       <BottomSheet
         open={sheetOpen}
-        title={drink.name}
+        title={drinkLabel(drink.id, isCoffee ? temp : null)}
         onClose={() => setSheetOpen(false)}
         footer={(
-          <button type="button" className="button button--primary button--block" disabled={!ready} onClick={put}>
-            {ready ? `장바구니 담기 · ${formatWon(unit * qty)}` : '온도를 골라 주세요'}
+          <button type="button" className="button button--primary button--block" onClick={put}>
+            장바구니 담기 · {formatWon(unit * qty)}
           </button>
         )}
       >
-        {isCoffee && (
-          <section className="sheet-section" aria-labelledby="opt-temp">
-            <p id="opt-temp" className="group-title">온도 <span className="sheet-required">필수</span></p>
-            <Segmented label="온도" name="temp" value={temp} onChange={setTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
-          </section>
-        )}
         {isCoffee && (
           <section className="sheet-section sheet-row" aria-labelledby="opt-shot">
             <span className="option-row__text">
