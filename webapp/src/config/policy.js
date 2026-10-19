@@ -61,7 +61,7 @@ export const SPACES = {
     pricePerHour: SEAT_PRICES.value.focus,
     minHours: 1,
     maxHours: 4,
-    drink: 'required', // 이용 전 음료 별도 주문
+    drink: 'required', // 이용 전 음료는 예약할 때 선택, 방문 후 정상가로 결제 (2026-10-19 확정)
     extraDrinkDiscount: 0.5,
     requests: [],
     features: ['가림막이 있는 반폐쇄형 개인 좌석', '좌석별 사물함', '추가 음료 50% 할인'],
