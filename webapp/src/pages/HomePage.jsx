@@ -86,6 +86,16 @@ export default function HomePage() {
             })}
           </ul>
         </section>
+
+        {/* 보조 기능이라 홈 맨 아래에 한 줄로만 둔다 (필수 규칙 6·7) */}
+        <Link to="/help" className="notice-row help-link home-help">
+          <Icon name="chat" size={20} />
+          <span className="home-help__text">
+            <strong>이용 도우미</strong>
+            <small>연장·취소·지각 규칙, 내 예약 기준으로 답해요</small>
+          </span>
+          <Icon name="chevron" size={18} />
+        </Link>
       </div>
     </>
   );

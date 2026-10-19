@@ -787,3 +787,7 @@ a.ticket__link:active { background: var(--color-bg); }
 .chat-send:disabled { background: var(--color-bg-sub); color: var(--color-text-sub); }
 .help-link { color: var(--color-text); }
 .help-link span { font-size: 0.875rem; }
+.home-help { margin-top: var(--space-2); padding-block: var(--space-3); }
+.home-help__text { display: flex; flex-direction: column; gap: 2px; }
+.home-help__text strong { font-size: 0.9375rem; font-weight: 700; }
+.home-help__text small { font-size: 0.8125rem; color: var(--color-text-sub); line-height: 1.4; }
