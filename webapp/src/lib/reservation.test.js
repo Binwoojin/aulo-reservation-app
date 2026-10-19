@@ -203,4 +203,11 @@ describe('취소와 노쇼 페널티', () => {
     const old = [{ at: at(2025, 1, 1, 12).toISOString() }, ...p.slice(1)];
     expect(penaltyStatus(old, at(2026, 10, 1, 12))).toMatchObject({ activeCount: 4, permanent: false, canReserve: true });
   });
+
+  it('3개월 연속 매달 페널티를 받으면 횟수와 관계없이 영구 제한', () => {
+    const months = (list) => list.map((m) => ({ at: at(2026, m, 10, 12).toISOString() }));
+    expect(penaltyStatus(months([7, 8, 9]), at(2026, 10, 1, 12)).permanent).toBe(true);
+    expect(penaltyStatus(months([6, 8, 9]), at(2026, 10, 1, 12)).permanent).toBe(false);
+    expect(penaltyStatus(months([11, 12]).concat({ at: at(2027, 1, 5, 12).toISOString() }), at(2027, 2, 1, 12)).permanent).toBe(true); // 해를 넘겨도 연속
+  });
 });

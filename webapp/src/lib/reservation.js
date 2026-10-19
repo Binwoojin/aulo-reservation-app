@@ -198,12 +198,19 @@ export const arrivalOutcome = ({ minutesLate, notice = 'none' }) => {
 // 페널티 상태. penalties: [{ at: ISO 문자열 }]
 // - 유효 페널티: 받은 지 1년 이내
 // - 제한: 가장 최근 페널티부터 1주일
-// - 영구 제한: 유효 페널티가 5회 이상 쌓인 적이 있으면 (permanent 플래그로 기록, 이후 만료되지 않음)
+// - 영구 제한: 유효 페널티 5회 이상, 또는 3개월 연속(달력 기준) 매달 페널티 (permanent 플래그로 기록, 이후 만료되지 않음)
+const monthIndex = (t) => { const d = new Date(t); return d.getFullYear() * 12 + d.getMonth(); };
+export const hasFrequentPenalties = (times) => {
+  const months = [...new Set(times.map(monthIndex))].sort((a, b) => a - b);
+  let run = 0;
+  return months.some((m, i) => { run = i > 0 && m === months[i - 1] + 1 ? run + 1 : 1; return run >= PENALTY.frequentMonths; });
+};
+
 export const penaltyStatus = (penalties, now, permanent = false) => {
   const day = 24 * 60 * 60 * 1000;
   const times = penalties.map((p) => new Date(p.at).getTime()).sort((a, b) => a - b);
   const active = times.filter((t) => now.getTime() - t < PENALTY.validDays * day);
-  const isPermanent = permanent || active.length >= PENALTY.permanentAt;
+  const isPermanent = permanent || active.length >= PENALTY.permanentAt || hasFrequentPenalties(active);
   const last = times.at(-1);
   const blockedUntil = last !== undefined && now.getTime() < last + PENALTY.banDays * day ? new Date(last + PENALTY.banDays * day) : null;
   return { activeCount: active.length, permanent: isPermanent, blockedUntil, canReserve: !isPermanent && !blockedUntil };
