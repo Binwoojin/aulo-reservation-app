@@ -223,6 +223,8 @@ describe('휴무일과 1인 1좌석', () => {
   it('공휴일은 날짜 목록에서 예약할 수 없다', () => {
     const xmas = at(2026, 12, 20, 10);
     expect(isHoliday('2026-12-25')).toBe(true);
+    expect(isHoliday('2027-02-09')).toBe(true); // 설날 대체공휴일
+    expect(isHoliday('2027-05-01')).toBe(false); // 노동절은 영업
     expect(bookableDates(xmas, 'focus')).not.toContain('2026-12-25');
     const errors = validateReservation({ ...base, date: '2026-12-25', type: 'focus', start: 10 * 60, hours: 1 }, [], xmas);
     expect(errors[0]).toMatch('공휴일');
