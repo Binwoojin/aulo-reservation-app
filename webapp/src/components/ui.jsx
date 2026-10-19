@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
 
 export function SpaceImage({ space, eager = false, className = '' }) {
@@ -179,21 +179,40 @@ export function DrinkThumb({ drink, size = 'md' }) {
 }
 
 // 아래에서 올라오는 시트: 앱 프레임 안에서 열리는 네이티브 <dialog>. 배경을 누르거나 Esc로 닫는다.
+// 브랜드 모션 원칙 'Stay in your rhythm'에 맞춰 천천히 올라오고(640ms), 닫힐 때는 짧게 내려간다(320ms).
+const SHEET_EXIT_MS = 320;
 export function BottomSheet({ open, title, onClose, children, footer }) {
   const ref = useRef(null);
+  const [closing, setClosing] = useState(false);
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
+    if (open && !dialog.open) { setClosing(false); dialog.showModal(); }
     if (!open && dialog.open) dialog.close();
   }, [open]);
+  // 닫기 요청: 내려가는 모션을 보여 준 뒤 닫는다 (움직임 줄이기 설정이면 바로 닫는다)
+  const requestClose = () => {
+    if (closing) return;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { onClose(); return; }
+    setClosing(true);
+    window.setTimeout(() => { setClosing(false); onClose(); }, SHEET_EXIT_MS);
+  };
   return (
-    <dialog ref={ref} className="sheet" aria-labelledby="sheet-title" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
+    <dialog
+      ref={ref}
+      className="sheet"
+      data-closing={closing || undefined}
+      aria-labelledby="sheet-title"
+      onCancel={(e) => { e.preventDefault(); requestClose(); }}
+      onClose={() => open && onClose()}
+      onClick={(e) => e.target === ref.current && requestClose()}
+    >
       <div className="sheet__panel">
         <span className="sheet__grip" aria-hidden="true" />
         <div className="sheet__head">
           <h2 id="sheet-title" className="sheet__title">{title}</h2>
-          <button type="button" className="icon-button" onClick={onClose} aria-label="닫기"><Icon name="close" /></button>
+          <button type="button" className="icon-button" onClick={requestClose} aria-label="닫기"><Icon name="close" /></button>
         </div>
         <div className="sheet__body">{children}</div>
         {footer && <div className="sheet__foot">{footer}</div>}

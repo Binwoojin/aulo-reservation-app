@@ -50,6 +50,9 @@
 
   --motion: 180ms;
   --press: 120ms;
+  /* 브랜드 모션 'Stay in your rhythm': 느리게 들어오고 짧게 반응한다 (brand-landing과 같은 값) */
+  --motion-reveal: 640ms;
+  --ease-settle: cubic-bezier(0.32, 0.08, 0.24, 1); /* 천천히 출발해 부드럽게 내려앉는 곡선 */
   --ease: cubic-bezier(0.2, 0, 0, 1);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -689,9 +692,10 @@ a.ticket__link:active { background: var(--color-bg); }
   margin: 0; padding: 0; border: 0; overflow: hidden;
   background: rgba(48, 43, 38, 0.42); color: var(--color-text);
 }
-.sheet[open] { display: flex; flex-direction: column; justify-content: flex-end; animation: scrim-in 240ms ease-out; }
-/* 배경만 서서히 어두워지고, 시트는 불투명한 채로 아래에서 올라온다 */
+.sheet[open] { display: flex; flex-direction: column; justify-content: flex-end; animation: scrim-in var(--motion-reveal) ease both; }
+/* 배경은 서서히 어두워지고, 시트는 불투명한 채로 아래에서 천천히 올라와 내려앉는다 */
 @keyframes scrim-in { from { background-color: rgba(48, 43, 38, 0); } }
+@keyframes scrim-out { to { background-color: rgba(48, 43, 38, 0); } }
 .sheet::backdrop { background: transparent; }
 .sheet__panel {
   display: flex; flex-direction: column; width: 100%; max-height: 88%;
@@ -700,9 +704,15 @@ a.ticket__link:active { background: var(--color-bg); }
   box-shadow: var(--shadow-sheet);
   will-change: transform;
 }
-/* 시트는 화면 아래 밖에서 위로 올라온다 (iOS 시트와 같은 감속 곡선) */
-.sheet[open] .sheet__panel { animation: sheet-up 340ms cubic-bezier(0.32, 0.72, 0, 1) both; }
+.sheet[open] .sheet__panel { animation: sheet-up var(--motion-reveal) var(--ease-settle) both; }
 @keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+/* 안의 내용은 시트가 거의 올라온 뒤 4px 떠오르며 나타난다 */
+.sheet[open] .sheet__head, .sheet[open] .sheet__body, .sheet[open] .sheet__foot { animation: sheet-content 480ms var(--ease-settle) 200ms both; }
+@keyframes sheet-content { from { opacity: 0; transform: translateY(4px); } }
+/* 닫힐 때: 짧게, 가속하며 내려간다 */
+.sheet[data-closing] { animation: scrim-out 320ms ease forwards; }
+.sheet[data-closing] .sheet__panel { animation: sheet-down 320ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+@keyframes sheet-down { from { transform: translateY(0); } to { transform: translateY(100%); } }
 .sheet__grip { align-self: center; width: 40px; height: 5px; margin-top: var(--space-2); border-radius: var(--radius-pill); background: var(--color-border); }
 .sheet__head { display: flex; align-items: center; justify-content: space-between; padding: var(--space-2) var(--space-2) 0 var(--gutter); }
 .sheet__title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.02em; }
