@@ -4,6 +4,7 @@ import { BottomBar, AppBar } from './AppShell.jsx';
 import Icon from './Icon.jsx';
 import { DrinkThumb, Provisional, Stepper } from './ui.jsx';
 import { formatWon } from '../lib/time.js';
+import { TEMPS } from '../lib/order.js';
 
 // 주문 금액 요약 (장바구니·좌석 주문 공통)
 export function OrderLines({ quote }) {
@@ -22,7 +23,8 @@ export function OrderLines({ quote }) {
 }
 
 // 담은 음료 카드 (이미지 자리 + 이름·배지 + 1잔 가격 + 수량 + 줄 합계)
-export function CartItem({ drink, quantity, line, badges = [], onChange }) {
+export function CartItem({ drink, temp = null, quantity, line, badges = [], onChange }) {
+  const tempInfo = TEMPS.find((t) => t.value === temp);
   return (
     <li className="cart-item">
       <Link to={`/menu/${drink.id}`} className="cart-item__media" aria-label={`${drink.name} 상세 보기`}>
@@ -31,10 +33,13 @@ export function CartItem({ drink, quantity, line, badges = [], onChange }) {
       <div className="cart-item__body">
         <div className="cart-item__head">
           <div className="cart-item__title">
-            <strong className="cart-item__name">{drink.name}</strong>
+            <strong className="cart-item__name">
+              {tempInfo && <span className="temp-chip" data-temp={temp}>{tempInfo.short}</span>}
+              {drink.name}
+            </strong>
             {badges.length > 0 && <span className="cart-item__badges">{badges.map((b) => <span key={b} className="badge">{b}</span>)}</span>}
           </div>
-          <button type="button" className="cart-item__remove" onClick={() => onChange(0)} aria-label={`${drink.name} 빼기`}>
+          <button type="button" className="cart-item__remove" onClick={() => onChange(0)} aria-label={`${tempInfo ? `${tempInfo.label} ` : ''}${drink.name} 빼기`}>
             <Icon name="close" size={18} />
           </button>
         </div>

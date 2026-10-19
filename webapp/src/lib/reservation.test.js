@@ -24,7 +24,7 @@ const NOW = at(2026, 10, 14, 10, 30);
 const TODAY = '2026-10-14';
 const TOMORROW = '2026-10-15';
 
-const base = { storeId: 'seongsu', date: TOMORROW, drinkId: 'americano' };
+const base = { storeId: 'seongsu', date: TOMORROW, drinkId: 'americano', drinkTemp: 'ice' };
 let seq = 0;
 const make = (input, existing = [], now = NOW) =>
   createReservation({ ...base, ...input }, existing, now, () => `r${++seq}`);
@@ -245,5 +245,13 @@ describe('휴무일과 1인 1좌석', () => {
     expect(make({ type: 'suite', start: 14 * 60, hours: 3, unit: 1, mine }).errors).toContain('같은 날에는 1개의 좌석만 예약할 수 있어요.');
     const otherDay = make({ type: 'suite', date: '2026-10-16', start: 14 * 60, hours: 3, unit: 1, mine });
     expect(otherDay.errors).toEqual([]);
+  });
+});
+
+describe('커피 온도', () => {
+  it('커피는 아이스·핫을 골라야 예약된다', () => {
+    expect(validateReservation({ ...base, drinkTemp: null, type: 'focus', start: 600, hours: 1 }, [], NOW)).toContain('커피는 아이스와 핫 중 하나를 골라 주세요.');
+    expect(make({ type: 'focus', start: 600, hours: 1, drinkTemp: 'hot' }).reservation.drinkTemp).toBe('hot');
+    expect(make({ type: 'focus', start: 600, hours: 1, drinkId: 'herb-tea', drinkTemp: null }).reservation.drinkTemp).toBeNull();
   });
 });

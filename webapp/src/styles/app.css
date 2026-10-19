@@ -22,6 +22,8 @@
   --focus-fg: #596246; --focus-bg: #E7EBDD;
   --rest-fg: #88604F;  --rest-bg: #F2E7E0;
   --suite-fg: #514438; --suite-bg: #EAE4DF;
+  --ice-fg: #2F5A75;   --ice-bg: #E3ECF2;
+  --hot-fg: #8A3B26;   --hot-bg: #F6E1DA;
 
   --font-ko: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-en: "Manrope", var(--font-ko);
@@ -668,3 +670,14 @@ a.ticket__link:active { background: var(--color-bg); }
 .seat-menu .stepper output { min-width: 24px; font-size: 0.9375rem; }
 .reservation-item { display: flex; flex-direction: column; gap: var(--space-2); }
 .seat-order-link { min-height: 48px; }
+
+/* ---------- 아이스 / 핫 ---------- */
+.temp-chip {
+  display: inline-flex; align-items: center; margin-right: 6px; padding: 0 6px; border-radius: var(--radius-sm);
+  font-family: var(--font-en); font-size: 0.6875rem; font-weight: 700; letter-spacing: 0.04em; line-height: 1.6; vertical-align: 2px;
+}
+.temp-chip[data-temp="ice"] { background: var(--ice-bg); color: var(--ice-fg); }
+.temp-chip[data-temp="hot"] { background: var(--hot-bg); color: var(--hot-fg); }
+.temp-steppers { display: flex; flex-direction: column; gap: var(--space-1); }
+.temp-stepper { display: flex; align-items: center; justify-content: flex-end; }
+.temp-stepper .temp-chip { margin-right: 4px; }

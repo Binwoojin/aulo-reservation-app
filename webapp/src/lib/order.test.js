@@ -74,3 +74,16 @@ describe('예약 확인 할인 쿠폰', () => {
     expect(couponFor('suite', suite, []).benefit).toBe('refill');
   });
 });
+
+describe('아이스·핫 담기', () => {
+  it('같은 커피도 온도별로 따로 담고 이름에 온도를 붙인다', () => {
+    const r = priceOrder({ kind: 'cafe', items: { 'americano@hot': 1, 'americano@ice': 2, 'hot-chocolate': 1 } });
+    expect(r.lines.map((l) => l.name)).toEqual(['아이스 아메리카노', '핫 아메리카노', '핫초코']);
+    expect(r.total).toBe(3000 * 3 + 4000);
+  });
+
+  it('Suite 리필은 온도와 관계없이 아메리카노·카페라떼 1잔', () => {
+    const r = priceOrder({ kind: 'suite', items: { 'latte@hot': 1, 'americano@ice': 1 }, reservation: suite });
+    expect(r.total).toBe(3000); // 기본 음료(카페라떼) 1잔 무료
+  });
+});

@@ -6,7 +6,7 @@ import Icon from '../components/Icon.jsx';
 import { OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
 import { DrinkThumb, Segmented, Stepper } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, couponFor, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits } from '../lib/order.js';
+import { BENEFIT_LABEL, couponFor, hasTemp, itemKey, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits, TEMPS } from '../lib/order.js';
 import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
 import { formatTime, formatWon } from '../lib/time.js';
 
@@ -76,7 +76,7 @@ export default function SeatOrderPage() {
           <span className="seat-order-head__icon" aria-hidden="true"><Icon name={isSuite ? 'door' : 'pin'} size={22} /></span>
           <span className="seat-order-head__text">
             <strong>{space.name} {reservation.unit}번 {space.unitName}</strong>
-            <span>{getStore(reservation.storeId)?.name} · {formatTime(reservation.start)}–{formatTime(reservationEnd(reservation))} · {where}</span>
+            <span>{getStore(reservation.storeId)?.name} · {formatTime(reservation.start)}–{formatTime(reservationEnd(reservation))} · {isSuite ? '공간으로 배달해 드려요' : '좌석에서 받아 가세요'}</span>
           </span>
         </div>
 
@@ -123,7 +123,22 @@ export default function SeatOrderPage() {
                         {badges.length > 0 && <span className="cart-item__badges">{badges.map((b) => <span key={b} className="badge">{b}</span>)}</span>}
                         <span className="seat-menu__price">{formatWon(d.price)}</span>
                       </span>
-                      <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [d.id]: q }))} />
+                      {hasTemp(d) ? (
+                        // 커피는 아이스·핫을 따로 담는다
+                        <span className="temp-steppers">
+                          {TEMPS.map((t) => {
+                            const key = itemKey(d.id, t.value);
+                            return (
+                              <span key={t.value} className="temp-stepper">
+                                <span className="temp-chip" data-temp={t.value}>{t.short}</span>
+                                <Stepper label={`${t.label} ${d.name}`} value={items[key] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [key]: q }))} />
+                              </span>
+                            );
+                          })}
+                        </span>
+                      ) : (
+                        <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [d.id]: q }))} />
+                      )}
                     </li>
                   );
                 })}

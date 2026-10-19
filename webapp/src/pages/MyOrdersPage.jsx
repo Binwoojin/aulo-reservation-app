@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
-import { MENU, SPACES } from '../config/policy.js';
+import { SPACES } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, SERVE_LABEL } from '../lib/order.js';
+import { BENEFIT_LABEL, SERVE_LABEL, drinkLabel, parseKey, sortedKeys } from '../lib/order.js';
 import { formatDateTime, formatWon } from '../lib/time.js';
 
 const KIND_LABEL = { cafe: '카페 주문', extra: '추가 주문', suite: 'Suite 배달' };
@@ -22,7 +22,7 @@ export default function MyOrdersPage() {
           <ul className="stack">
             {list.map((o) => {
               const r = reservations.find((x) => x.id === o.reservationId);
-              const names = MENU.value.filter((d) => o.items[d.id]).map((d) => `${d.name} ${o.items[d.id]}`).join(', ');
+              const names = sortedKeys(o.items).map((k) => { const { id, temp } = parseKey(k); return `${drinkLabel(id, temp)} ${o.items[k]}`; }).join(', ');
               return (
                 <li key={o.id} className="order-card">
                   <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>

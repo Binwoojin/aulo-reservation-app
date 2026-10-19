@@ -31,11 +31,38 @@ export const remainingBenefits = (kind, reservation, previousOrders = []) => {
   };
 };
 
-// 리필할 음료: 기본 음료가 리필 대상이고 주문에 있으면 그것, 아니면 주문에 있는 첫 리필 대상 음료
+// 온도: 커피는 아이스/핫을 골라 주문한다 (2026-10-19). 가격 차이는 없다.
+// 담은 음료의 키는 온도가 있으면 'americano@ice', 없으면 'hot-chocolate'처럼 음료 id만 쓴다.
+export const TEMPS = [
+  { value: 'ice', label: '아이스', short: 'ICE' },
+  { value: 'hot', label: '핫', short: 'HOT' },
+];
+export const TEMP_LABEL = { ice: '아이스', hot: '핫' };
+export const hasTemp = (drink) => drink?.category === 'coffee';
+export const itemKey = (id, temp) => (temp ? `${id}@${temp}` : id);
+export const parseKey = (key) => {
+  const [id, temp = null] = key.split('@');
+  return { id, temp };
+};
+// '아이스 아메리카노'처럼 온도를 붙인 이름
+export const drinkLabel = (id, temp) => {
+  const name = MENU.value.find((d) => d.id === id)?.name ?? id;
+  return temp ? `${TEMP_LABEL[temp]} ${name}` : name;
+};
+// 메뉴 순서 → 아이스 → 핫 순으로 담은 음료 키를 정렬
+const menuIndex = (id) => MENU.value.findIndex((d) => d.id === id);
+export const sortedKeys = (items) =>
+  Object.keys(items)
+    .filter((k) => items[k] > 0)
+    .sort((a, b) => {
+      const pa = parseKey(a); const pb = parseKey(b);
+      return menuIndex(pa.id) - menuIndex(pb.id) || (pa.temp === 'hot') - (pb.temp === 'hot');
+    });
+
+// 리필할 음료(키): 기본 음료가 리필 대상이고 주문에 있으면 그것, 아니면 주문에 있는 첫 리필 대상 음료
 const refillDrinkIn = (items, reservation) => {
-  const has = (id) => (items[id] ?? 0) > 0;
-  if (REFILL_DRINKS.includes(reservation?.drinkId) && has(reservation.drinkId)) return reservation.drinkId;
-  return REFILL_DRINKS.find(has) ?? null;
+  const keys = sortedKeys(items).filter((k) => REFILL_DRINKS.includes(parseKey(k).id));
+  return keys.find((k) => parseKey(k).id === reservation?.drinkId) ?? keys[0] ?? null;
 };
 
 export const orderBenefit = (kind, reservation, previousOrders = [], items = {}) => {
@@ -46,20 +73,23 @@ export const orderBenefit = (kind, reservation, previousOrders = [], items = {})
   return 'normal';
 };
 
-// items: { [drinkId]: quantity }
+// items: { [itemKey]: quantity }
 export const priceOrder = ({ kind, items, reservation, previousOrders = [] }) => {
   const benefit = orderBenefit(kind, reservation, previousOrders, items);
-  const refillDrink = benefit === 'refill' ? refillDrinkIn(items, reservation) : null;
-  const lines = MENU.value
-    .filter((drink) => (items[drink.id] ?? 0) > 0)
-    .map((drink) => {
-      const quantity = items[drink.id];
+  const refillKey = benefit === 'refill' ? refillDrinkIn(items, reservation) : null;
+  const lines = sortedKeys(items)
+    .map((key) => {
+      const { id, temp } = parseKey(key);
+      const drink = MENU.value.find((d) => d.id === id);
+      const quantity = items[key];
       let paidQuantity = quantity;
-      if (drink.id === refillDrink) paidQuantity -= 1;
+      if (key === refillKey) paidQuantity -= 1;
       const unitPrice = benefit === 'half' ? Math.round(drink.price / 2) : drink.price;
       return {
+        key,
         drinkId: drink.id,
-        name: drink.name,
+        temp,
+        name: drinkLabel(id, temp),
         quantity,
         listPrice: drink.price * quantity,
         total: unitPrice * paidQuantity,

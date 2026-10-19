@@ -1,9 +1,10 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { BEST_MENU, MENU, MENU_CATEGORIES } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
-import { DrinkThumb, Provisional } from '../components/ui.jsx';
+import { DrinkThumb, Provisional, Segmented } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { REFILL_DRINKS } from '../lib/order.js';
+import { REFILL_DRINKS, TEMPS, hasTemp, itemKey } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 import NotFoundPage from './NotFoundPage.jsx';
 
@@ -13,7 +14,10 @@ export default function MenuDetailPage() {
   const navigate = useNavigate();
   const { addToCart } = useAppData();
   const drink = MENU.value.find((d) => d.id === id);
+  // 커피는 아이스/핫을 꼭 골라야 담을 수 있다
+  const [temp, setTemp] = useState(null);
   if (!drink) return <NotFoundPage />;
+  const needsTemp = hasTemp(drink);
 
   return (
     <>
@@ -29,6 +33,13 @@ export default function MenuDetailPage() {
           <p className="drink-price">{formatWon(drink.price)} <Provisional note={MENU.note} /></p>
           <p className="drink-desc">{drink.desc}</p>
         </section>
+        {needsTemp && (
+          <section className="block" aria-labelledby="temp-title">
+            <p id="temp-title" className="group-title">온도</p>
+            <Segmented label="온도" name="temp" value={temp} onChange={setTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
+            {!temp && <p className="group-hint">아이스와 핫 중 하나를 골라 주세요. 가격은 같아요.</p>}
+          </section>
+        )}
         <ul className="note-list">
           <li>1잔당 스탬프 1개가 적립돼요.</li>
           <li>포인트는 음료 주문에 쓸 수 없어요.</li>
@@ -37,7 +48,14 @@ export default function MenuDetailPage() {
         </ul>
       </div>
       <BottomBar>
-        <button type="button" className="button button--primary" onClick={() => { addToCart(drink.id); navigate('/cart'); }}>주문하기</button>
+        <button
+          type="button"
+          className="button button--primary"
+          disabled={needsTemp && !temp}
+          onClick={() => { addToCart(itemKey(drink.id, needsTemp ? temp : null)); navigate('/cart'); }}
+        >
+          {needsTemp && !temp ? '온도를 골라 주세요' : '주문하기'}
+        </button>
       </BottomBar>
     </>
   );

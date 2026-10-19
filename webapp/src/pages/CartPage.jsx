@@ -5,7 +5,7 @@ import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { CartItem, OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
 import { NoticeDialog, OptionList } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { SERVE_OPTIONS, priceOrder } from '../lib/order.js';
+import { SERVE_OPTIONS, parseKey, priceOrder, sortedKeys } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 
 // 장바구니: 카페 주문 전용. 음료 상세의 '주문하기'로 담은 메뉴를 확인하고, 매장/테이크아웃을 골라 주문한다.
@@ -63,15 +63,19 @@ export default function CartPage() {
           </div>
           {count > 0 ? (
             <ul className="cart-list">
-              {MENU.value.filter((d) => items[d.id] > 0).map((d) => (
-                <CartItem
-                  key={d.id}
-                  drink={d}
-                  quantity={items[d.id]}
-                  line={quote.lines.find((l) => l.drinkId === d.id)}
-                  onChange={(q) => setCartQty(d.id, q)}
-                />
-              ))}
+              {sortedKeys(items).map((key) => {
+                const { id, temp } = parseKey(key);
+                return (
+                  <CartItem
+                    key={key}
+                    drink={MENU.value.find((d) => d.id === id)}
+                    temp={temp}
+                    quantity={items[key]}
+                    line={quote.lines.find((l) => l.key === key)}
+                    onChange={(q) => setCartQty(key, q)}
+                  />
+                );
+              })}
             </ul>
           ) : (
             <div className="empty-state">

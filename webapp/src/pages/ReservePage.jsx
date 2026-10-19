@@ -30,6 +30,7 @@ import {
   createReservation,
   drinkFee,
   extensionNote,
+  getDrink,
   freeUnits,
   lastEndFor,
   reservationFee,
@@ -39,6 +40,7 @@ import {
 } from '../lib/reservation.js';
 import { formatDate, formatTime, formatWon, toDateString } from '../lib/time.js';
 import { pointBalance, pointsEarnedFor, usablePoints } from '../lib/rewards.js';
+import { TEMPS, drinkLabel } from '../lib/order.js';
 
 const RESERVABLE = ['focus', 'rest', 'suite'];
 
@@ -114,6 +116,8 @@ function ReserveWizard({ type }) {
   const [hours, setHours] = useState(space.minHours);
   const [unit, setUnit] = useState(null);
   const [drinkId, setDrinkId] = useState(null);
+  const [drinkTemp, setDrinkTemp] = useState(null);
+  const drinkNeedsTemp = getDrink(drinkId)?.category === 'coffee';
   const [requests, setRequests] = useState([]);
   const [errors, setErrors] = useState([]);
   const [usePoints, setUsePoints] = useState(false);
@@ -146,8 +150,8 @@ function ReserveWizard({ type }) {
     시간: start != null && maxHours >= space.minHours,
     공간: unit != null,
     좌석: unit != null,
-    음료: drinkId != null,
-    '음료·요청': drinkId != null,
+    음료: drinkId != null && (!drinkNeedsTemp || drinkTemp != null),
+    '음료·요청': drinkId != null && (!drinkNeedsTemp || drinkTemp != null),
     확인: true,
   }[stepName];
 
@@ -155,7 +159,7 @@ function ReserveWizard({ type }) {
 
   const submit = () => {
     const result = createReservation(
-      { type, storeId, date, start, hours, unit, drinkId, requests, mine: myReservations, pointsUsed },
+      { type, storeId, date, start, hours, unit, drinkId, drinkTemp, requests, mine: myReservations, pointsUsed },
       reservations,
       new Date(),
     );
@@ -302,6 +306,13 @@ function ReserveWizard({ type }) {
                 trailing: space.drink === 'included' ? '포함' : formatWon(d.price),
               }))}
             />
+            {drinkNeedsTemp && (
+              <section className="block temp-pick" aria-labelledby="drink-temp-title">
+                <p id="drink-temp-title" className="group-title">온도</p>
+                <Segmented label="온도" name="drink-temp" value={drinkTemp} onChange={setDrinkTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
+                {!drinkTemp && <p className="group-hint">커피는 아이스와 핫 중 하나를 골라 주세요.</p>}
+              </section>
+            )}
             {space.requests.length > 0 && (
               <section className="block">
                 <p className="group-title">무료 요청</p>
@@ -329,7 +340,7 @@ function ReserveWizard({ type }) {
               <div><dt>매장</dt><dd>{store.name}</dd></div>
               <div><dt>일시</dt><dd>{formatDate(date)}<br />{formatTime(start)}–{endLabel} ({hours}시간)</dd></div>
               <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
-              <div><dt>음료</dt><dd>{MENU.value.find((d) => d.id === drinkId)?.name} · {space.drink === 'included' ? '포함' : formatWon(drinkCost)}</dd></div>
+              <div><dt>음료</dt><dd>{drinkLabel(drinkId, drinkNeedsTemp ? drinkTemp : null)} · {space.drink === 'included' ? '포함' : formatWon(drinkCost)}</dd></div>
               {requests.length > 0 && <div><dt>무료 요청</dt><dd>{requests.map((id) => space.requests.find((r) => r.id === id).label).join(', ')}</dd></div>}
               {pointsUsed > 0 && <div><dt>포인트 사용</dt><dd>−{formatWon(pointsUsed)}</dd></div>}
               <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(fee - pointsUsed + drinkCost)}</dd></div>
