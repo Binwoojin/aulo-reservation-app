@@ -180,6 +180,10 @@ export const createReservation = (input, existing, now, makeId = () => crypto.ra
   };
 };
 
+// 이용 중: 오늘 예약이고 시작 시각이 지났고 아직 끝나지 않음. 재주문 혜택은 이때만 적용
+export const isInUse = (r, now) =>
+  r.date === toDateString(now) && r.start <= minutesOfDay(now) && reservationEnd(r) > minutesOfDay(now);
+
 // 취소: 이용 전날 23:59까지 (당일 취소 불가)
 export const canCancel = (r, now) => toDateString(now) < r.date;
 

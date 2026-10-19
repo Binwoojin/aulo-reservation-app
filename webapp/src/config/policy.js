@@ -64,7 +64,7 @@ export const SPACES = {
     drink: 'required', // 이용 전 음료는 예약할 때 선택, 방문 후 정상가로 결제 (2026-10-19 확정)
     extraDrinkDiscount: 0.5,
     requests: [],
-    features: ['가림막이 있는 반폐쇄형 개인 좌석', '좌석별 사물함', '추가 음료 50% 할인'],
+    features: ['가림막이 있는 반폐쇄형 개인 좌석', '좌석별 사물함', '추가 음료 50% 할인 (최대 2회)'],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
     sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
     extendable: true,
@@ -88,7 +88,7 @@ export const SPACES = {
       { id: 'blanket', label: '담요' },
       { id: 'earphones', label: 'OTT 시청용 이어폰' },
     ],
-    features: ['실내 반폐쇄형 1인 리클라이너', '사물함', '담요·이어폰 무료 요청', '추가 음료 50% 할인'],
+    features: ['실내 반폐쇄형 1인 리클라이너', '사물함', '담요·이어폰 무료 요청', '추가 음료 50% 할인 (최대 2회)'],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
     sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
     extendable: true,
@@ -108,7 +108,7 @@ export const SPACES = {
     maxHours: 9,
     drink: 'included', // 기본 음료 포함, 예약 시 선택
     requests: [],
-    features: ['문으로 분리된 독립형 오피스', '보관함·공기청정기·냉난방·4구 콘센트', '공간 번호로 음료 배달 주문'],
+    features: ['문으로 분리된 독립형 오피스', '보관함·공기청정기·냉난방·4구 콘센트', '공간 번호로 음료 배달 주문', '아메리카노·카페라떼 무료 리필 1회, 이후 50% 할인 최대 2회'],
     sameDayApp: false, // 공간 준비가 필요해 사전 예약만 받는다, 당일 예약 불가 (2026-10-19 결정)
     sameDayNote: '공간을 미리 준비해야 해서 사전 예약만 받아요. 당일 예약은 할 수 없어요.',
     extendable: false,
@@ -139,13 +139,6 @@ export const STORES = p(
     { id: 'yeonnam', name: 'Aulo 연남', units: { focus: 30, rest: 20, suite: 12 } },
   ],
   '매장 임시 설정 — 성수·연남 대형 카페 2곳, 4가지 공간 모두 운영 (성수 Focus 24 · Rest 18 · Suite 16, 연남 Focus 30 · Rest 20 · Suite 12)',
-);
-
-// Suite 음료: 무료 리필 1회 → 정상가 주문 → 다음 주문 50% 할인 (확정)
-// 리필 대상 메뉴와 이후 반복 방식은 미확정.
-export const SUITE_ORDER_RULE = p(
-  { refillTarget: 'base-drink', afterSequence: 'alternate' },
-  'Suite 리필 대상·이후 반복 방식 미확정 — 임시로 예약 시 고른 기본 음료 1잔 리필, 이후 정상가와 50% 할인을 번갈아 적용',
 );
 
 export const CLOSING_NOTICES = [

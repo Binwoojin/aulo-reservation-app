@@ -209,7 +209,7 @@ a { color: inherit; text-decoration: none; }
   padding: 0 6px; border: 1px dashed var(--color-border-control); border-radius: var(--radius-pill);
   font-size: 0.6875rem; font-weight: 600; line-height: 1.6; color: var(--color-text-sub); background: var(--color-bg);
 }
-.badge { margin-left: var(--space-2); padding: 0 6px; border-radius: var(--radius-pill); background: var(--color-olive-light); font-size: 0.6875rem; font-weight: 700; vertical-align: 1px; }
+.badge { white-space: nowrap; margin-left: var(--space-2); padding: 0 6px; border-radius: var(--radius-pill); background: var(--color-olive-light); font-size: 0.6875rem; font-weight: 700; vertical-align: 1px; }
 .photo { position: relative; aspect-ratio: 3 / 2; overflow: hidden; background: var(--color-bg-sub); }
 .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .empty-state {

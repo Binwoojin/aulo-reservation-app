@@ -4,7 +4,7 @@ import { AppBar, BottomBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { canCancel, extensionStatus } from '../lib/reservation.js';
+import { canCancel, extensionStatus, isInUse } from '../lib/reservation.js';
 import { formatDate } from '../lib/time.js';
 
 // 예약 완료(?new=1)와 예약 상세를 함께 보여준다
@@ -33,6 +33,7 @@ export default function ReservationDetailPage() {
   const space = SPACES[reservation.type];
   const upcoming = isUpcoming(reservation, now);
   const cancellable = canCancel(reservation, now);
+  const inUse = isInUse(reservation, now);
 
   const cancel = () => {
     if (!window.confirm(`${formatDate(reservation.date)} ${space.name} 예약을 취소할까요?`)) return;
@@ -58,8 +59,8 @@ export default function ReservationDetailPage() {
           <h3 id="guide-title" className="block-title">이용 안내</h3>
           <ul className="note-list">
             <li>{PAYMENT_POLICY}</li>
-            {space.drink === 'required' && <li>이용 전 음료는 방문 후 함께 결제해요. 이용 중 추가 음료는 50% 할인돼요.</li>}
-            {space.drink === 'included' && <li>기본 음료는 이용료에 포함돼요. 공간 번호({reservation.unit}번)로 음료를 배달 주문할 수 있어요.</li>}
+            {space.drink === 'required' && <li>이용 전 음료는 방문 후 함께 결제해요. 이용 시작부터 재주문에 50% 할인 쿠폰을 최대 2회 드려요.</li>}
+            {space.drink === 'included' && <li>기본 음료는 이용료에 포함돼요. 공간 번호({reservation.unit}번)로 음료를 배달 주문할 수 있어요. 아메리카노·카페라떼 1잔 무료 리필 1회, 이후 50% 할인 쿠폰 최대 2회.</li>}
             <li>{extensionStatus(reservation, reservations)}</li>
             <li>{CANCEL_POLICY}</li>
             {LATE_POLICY.map((n) => <li key={n}>{n}</li>)}
@@ -82,12 +83,12 @@ export default function ReservationDetailPage() {
         )}
       </div>
       <BottomBar>
-        {upcoming && (
+        {inUse && (
           <Link className="button button--primary" to={`/order?reservation=${reservation.id}`}>
             {space.drink === 'included' ? '음료 배달 주문' : '추가 음료 주문'}
           </Link>
         )}
-        <Link className={`button ${upcoming ? 'button--secondary' : 'button--primary button--block'}`} to={isNew ? '/' : '/my/reservations'}>
+        <Link className={`button ${inUse ? 'button--secondary' : 'button--primary button--block'}`} to={isNew ? '/' : '/my/reservations'}>
           {isNew ? '홈으로' : '내 예약'}
         </Link>
       </BottomBar>

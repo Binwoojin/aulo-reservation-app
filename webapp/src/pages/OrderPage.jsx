@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-import { MENU, SPACES, SUITE_ORDER_RULE } from '../config/policy.js';
+import { MENU, SPACES } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { OptionList, Provisional, Segmented, Stepper } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, couponFor, orderKindFor, priceOrder } from '../lib/order.js';
-import { getDrink, getStore, reservationEnd } from '../lib/reservation.js';
+import { BENEFIT_LABEL, couponFor, HALF_LIMIT, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits } from '../lib/order.js';
+import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
 import { formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
 
 const KINDS = [
@@ -17,8 +17,8 @@ const KINDS = [
 
 const KIND_HINT = {
   cafe: '준비되면 카운터에서 픽업해요 · 정상가',
-  extra: 'Focus·Rest 예약을 확인하면 재주문 50% 할인 쿠폰을 드려요',
-  suite: '공간 번호로 배달해요 · 예약을 확인하면 할인 쿠폰을 드려요',
+  extra: `이용 시작부터 재주문 50% 할인 쿠폰을 예약당 최대 ${HALF_LIMIT}회 드려요`,
+  suite: '공간 번호로 배달해요 · 아메리카노·카페라떼 무료 리필 1회, 이후 50% 할인 최대 2회',
 };
 
 export default function OrderPage() {
@@ -27,8 +27,9 @@ export default function OrderPage() {
   const { reservations, orders, addOrder } = useAppData();
   const today = toDateString(now);
 
-  // 오늘 아직 끝나지 않은 예약만 주문에 연결할 수 있다 (데모)
-  const active = reservations.filter((r) => r.date === today && reservationEnd(r) > minutesOfDay(now));
+  // 재주문은 좌석 이용 시작과 함께 가능: 지금 이용 중인 예약만 주문에 연결한다
+  const active = reservations.filter((r) => isInUse(r, now));
+  const waiting = reservations.filter((r) => r.date === today && r.start > minutesOfDay(now));
   const preset = reservations.find((r) => r.id === params.get('reservation'));
 
   const [kind, setKind] = useState(preset ? orderKindFor(preset) : 'cafe');
@@ -36,12 +37,13 @@ export default function OrderPage() {
   const [items, setItems] = useState({});
   const [placed, setPlaced] = useState(null);
 
-  const candidates = preset && !active.includes(preset) ? [...active, preset] : active;
-  const linkable = kind === 'cafe' ? [] : candidates.filter((r) => orderKindFor(r) === kind);
+  const linkable = kind === 'cafe' ? [] : active.filter((r) => orderKindFor(r) === kind);
+  const nextStart = waiting.filter((r) => orderKindFor(r) === kind).sort((a, b) => a.start - b.start)[0];
   const reservation = linkable.find((r) => r.id === reservationId) ?? (linkable.length === 1 ? linkable[0] : null);
   const needsReservation = kind !== 'cafe';
   const quote = priceOrder({ kind, items, reservation, previousOrders: orders });
-  const coupon = couponFor(kind, reservation, orders);
+  const coupon = couponFor(kind, reservation, orders, items);
+  const left = remainingBenefits(kind, reservation, orders);
   // 카페 주문을 고른 사람에게 오늘 이용 중인 좌석 예약이 있으면 쿠폰을 받을 수 있다고 알린다
   const seatToday = kind === 'cafe' ? active[0] : null;
   const count = Object.values(items).reduce((a, b) => a + b, 0);
@@ -119,9 +121,10 @@ export default function OrderPage() {
                 label: `${SPACES[r.type].name} ${r.unit}번`,
                 detail: `${getStore(r.storeId)?.name} · ${formatTime(r.start)}–${formatTime(reservationEnd(r))}`,
               }))}
-              hint={kind === 'suite' && <>무료 리필 1회 → 정상가 → 다음 주문 50% <Provisional note={SUITE_ORDER_RULE.note} /></>}
-              empty={<>
-                <p>오늘 이용 중인 {kind === 'suite' ? 'Suite' : 'Focus·Rest'} 예약이 없어요.</p>
+              empty={nextStart ? (
+                <p>{SPACES[nextStart.type].name} 예약은 이용 시작 시각인 {formatTime(nextStart.start)}부터 재주문할 수 있어요.</p>
+              ) : <>
+                <p>지금 이용 중인 {kind === 'suite' ? 'Suite' : 'Focus·Rest'} 예약이 없어요.</p>
                 <Link className="text-link" to={`/reserve/${kind === 'suite' ? 'suite' : 'focus'}`}>예약하러 가기</Link>
               </>}
             />
@@ -141,7 +144,7 @@ export default function OrderPage() {
                 <span className="coupon__state">적용됨</span>
               </div>
             ) : (
-              <p className="group-hint">이번 주문은 정상가예요. 다음 주문에 50% 할인 쿠폰이 발급돼요.</p>
+              <p className="group-hint">이 예약의 할인 쿠폰을 모두 사용했어요. 이번 주문은 정상가예요.</p>
             )}
           </section>
         )}
@@ -151,11 +154,12 @@ export default function OrderPage() {
           <ul className="list-card">
             {MENU.value.map((d) => {
               const isBase = kind === 'suite' && reservation?.drinkId === d.id;
+              const refillable = left.refill > 0 && REFILL_DRINKS.includes(d.id);
               return (
                 <li key={d.id} className="menu-row-item">
                   <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
                   <span className="option-row__text">
-                    <span className="option-row__label">{d.name}{isBase && <span className="badge">기본 음료</span>}</span>
+                    <span className="option-row__label">{d.name}{isBase && <span className="badge">기본 음료</span>}{refillable && <span className="badge">리필 가능</span>}</span>
                     <span className="option-row__detail">{formatWon(d.price)}</span>
                   </span>
                   <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [d.id]: q }))} />
@@ -170,7 +174,7 @@ export default function OrderPage() {
 
       <BottomBar note={(!needsReservation || reservation) && (
         <>{quote.benefit === 'normal' ? '이번 주문' : '쿠폰 적용'} <strong>{BENEFIT_LABEL[quote.benefit]}</strong>
-          {quote.benefit === 'refill' && reservation && ` · ${getDrink(reservation.drinkId)?.name}`}</>
+          </>
       )}>
         <div className="price">
           <span className="price__label">{count}잔</span>
