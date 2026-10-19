@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  arrivalOutcome,
   canCancel,
   penaltyStatus,
   bookableDates,
@@ -181,6 +182,13 @@ describe('취소와 노쇼 페널티', () => {
     const r = { date: TOMORROW };
     expect(canCancel(r, at(2026, 10, 14, 23, 59))).toBe(true);
     expect(canCancel(r, at(2026, 10, 15, 0, 0))).toBe(false);
+  });
+
+  it('지각 연락은 1시간까지만 예약 유지, 당일 취소 연락은 페널티 없음', () => {
+    expect(arrivalOutcome({ minutesLate: 50, notice: 'late' })).toEqual({ status: 'kept', penalty: false });
+    expect(arrivalOutcome({ minutesLate: 70, notice: 'late' })).toEqual({ status: 'cancelled', penalty: true });
+    expect(arrivalOutcome({ minutesLate: null })).toEqual({ status: 'cancelled', penalty: true });
+    expect(arrivalOutcome({ minutesLate: null, notice: 'cancel' })).toEqual({ status: 'cancelled', penalty: false });
   });
 
   it('페널티를 받으면 1주일 동안 예약할 수 없다', () => {

@@ -186,6 +186,15 @@ export const canCancel = (r, now) => toDateString(now) < r.date;
 // 노쇼·1시간 이상 지각 판정 시각: 이 시각까지 도착(체크인)하지 않으면 강제 취소
 export const forfeitAt = (r) => r.start + PENALTY.lateLimitMinutes;
 
+// 도착 결과 판정 (매장 체크인 시 사용)
+// minutesLate: 늦은 분, 노쇼는 null / notice: 'none' | 'late'(지각 연락) | 'cancel'(당일 취소 연락)
+// 지각 연락은 1시간까지만 예약을 지켜 주고, 그 이상은 연락했어도 취소 + 페널티. 당일 취소 연락은 취소만 하고 페널티 없음.
+export const arrivalOutcome = ({ minutesLate, notice = 'none' }) => {
+  if (notice === 'cancel') return { status: 'cancelled', penalty: false };
+  if (minutesLate === null || minutesLate >= PENALTY.lateLimitMinutes) return { status: 'cancelled', penalty: true };
+  return { status: 'kept', penalty: false };
+};
+
 // 페널티 상태. penalties: [{ at: ISO 문자열 }]
 // - 유효 페널티: 받은 지 1년 이내
 // - 제한: 가장 최근 페널티부터 1주일
