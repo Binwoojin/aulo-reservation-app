@@ -644,3 +644,27 @@ a.ticket__link:active { background: var(--color-bg); }
 .cart-item .stepper output { min-width: 28px; font-size: 0.9375rem; }
 .drink-head__meta { display: flex; align-items: center; gap: var(--space-2); }
 .drink-head__category { font-size: 0.8125rem; font-weight: 600; color: var(--color-text-sub); }
+
+/* ---------- 좌석 주문 (추가 주문 · Suite 배달 메뉴) ---------- */
+.seat-order-head { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--tag-bg); color: var(--color-text); }
+.seat-order-head__icon { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: 50%; background: var(--color-surface); color: var(--tag-fg); }
+.seat-order-head__text { display: flex; flex-direction: column; min-width: 0; }
+.seat-order-head__text strong { font-size: 1rem; }
+.seat-order-head__text span { font-size: 0.8125rem; color: var(--color-text-sub); }
+.seat-menu { display: flex; flex-direction: column; background: var(--color-surface); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); overflow: hidden; }
+.seat-menu__item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); }
+.seat-menu__item:last-child { border-bottom: 0; }
+.seat-menu__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.seat-menu__name { font-weight: 600; }
+.seat-menu__price { font-size: 0.8125rem; color: var(--color-text-sub); font-family: var(--font-en); }
+.drink-thumb--sm { width: 56px; border-radius: var(--radius-md); flex-shrink: 0; }
+.drink-thumb--sm .icon { width: 24px; height: 24px; }
+/* 메뉴 목록 안 수량 버튼: 작게 보이되 터치 영역은 44px */
+.seat-menu .stepper { gap: 2px; padding: 2px; border-radius: var(--radius-pill); background: var(--color-bg-sub); }
+.seat-menu .stepper button { position: relative; width: 30px; height: 30px; background: var(--color-surface); box-shadow: 0 1px 2px rgba(48, 43, 38, 0.08); }
+.seat-menu .stepper button:disabled { background: transparent; box-shadow: none; }
+.seat-menu .stepper button .icon { width: 16px; height: 16px; }
+.seat-menu .stepper button::after { content: ""; position: absolute; inset: -7px; }
+.seat-menu .stepper output { min-width: 24px; font-size: 0.9375rem; }
+.reservation-item { display: flex; flex-direction: column; gap: var(--space-2); }
+.seat-order-link { min-height: 48px; }

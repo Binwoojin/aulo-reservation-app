@@ -4,6 +4,8 @@ import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
 import { Segmented } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
+import { isInUse } from '../lib/reservation.js';
+import { SPACES } from '../config/policy.js';
 
 export default function MyReservationsPage() {
   const { myReservations: reservations } = useAppData();
@@ -27,7 +29,17 @@ export default function MyReservationsPage() {
         />
         {list.length ? (
           <ul className="stack">
-            {list.map((r) => <li key={r.id}><ReservationCard reservation={r} link /></li>)}
+            {list.map((r) => (
+              <li key={r.id} className="reservation-item">
+                <ReservationCard reservation={r} link />
+                {/* 이용 중인 좌석은 여기서 바로 좌석 주문으로 (카페 장바구니와 따로 운영) */}
+                {isInUse(r, now) && (
+                  <Link className="button button--primary button--block seat-order-link" to={`/reservations/${r.id}/order`}>
+                    {SPACES[r.type].drink === 'included' ? 'Suite 배달 메뉴' : '추가 주문하기'}
+                  </Link>
+                )}
+              </li>
+            ))}
           </ul>
         ) : (
           <div className="empty-state">

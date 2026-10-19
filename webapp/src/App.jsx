@@ -13,6 +13,7 @@ import LoginPage, { RequireLogin } from './pages/LoginPage.jsx';
 import MyPage from './pages/MyPage.jsx';
 import MenuDetailPage from './pages/MenuDetailPage.jsx';
 import CartPage from './pages/CartPage.jsx';
+import SeatOrderPage from './pages/SeatOrderPage.jsx';
 
 export default function App() {
   return (
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="reserve" element={<RequireLogin><ReservePage /></RequireLogin>} />
         <Route path="reserve/:type" element={<RequireLogin><ReservePage /></RequireLogin>} />
         <Route path="reservations/:id" element={<RequireLogin><ReservationDetailPage /></RequireLogin>} />
+        <Route path="reservations/:id/order" element={<RequireLogin><SeatOrderPage /></RequireLogin>} />
         <Route path="order" element={<OrderPage />} />
         <Route path="menu/:id" element={<MenuDetailPage />} />
         <Route path="cart" element={<CartPage />} />
