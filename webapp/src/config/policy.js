@@ -150,7 +150,7 @@ export const MENU = p(
     { id: 'grapefruit-ade', category: 'ade-tea', name: '자몽에이드', price: 4500, desc: '자몽 청에 탄산수를 더한 쌉싸름하고 상큼한 에이드예요.' },
     { id: 'yuja-tea', category: 'ade-tea', name: '유자차', price: 4000, desc: '유자 청을 따뜻한 물에 풀어 마시는 차예요.' },
     { id: 'earl-grey', category: 'ade-tea', name: '얼그레이 티', price: 4000, desc: '베르가못 향을 입힌 홍차예요.' },
-    { id: 'herb-tea', category: 'ade-tea', name: '허브티', price: 4000, desc: '카페인 없이 편하게 마실 수 있는 허브 차예요.' },
+    { id: 'green-tea', category: 'ade-tea', name: '녹차', price: 4000, desc: '은은하고 깔끔하게 즐기는 녹차예요.' },
   ],
   '음료 가격은 임의 설정(임시) — 아메리카노·카페라떼는 한국소비자원 평균 기준, 나머지는 이 기준에 맞춘 추정값',
 );

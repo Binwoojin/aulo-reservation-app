@@ -17,7 +17,7 @@ describe('음료 주문 요금', () => {
   });
 
   it('Focus·Rest 추가 주문은 50% 할인, 예약당 최대 2회', () => {
-    const items = { latte: 1, 'herb-tea': 1 };
+    const items = { latte: 1, 'green-tea': 1 };
     expect(priceOrder({ kind: orderKindFor(focus), items, reservation: focus }).total).toBe(4000);
     expect(priceOrder({ kind: 'extra', items, reservation: focus, previousOrders: [half] }).benefit).toBe('half');
     const third = priceOrder({ kind: 'extra', items, reservation: focus, previousOrders: [half, half, { reservationId: 'other', benefit: 'half' }] });
@@ -29,12 +29,12 @@ describe('음료 주문 요금', () => {
     const r = priceOrder({ kind: 'suite', items: { latte: 2, 'vanilla-latte': 1 }, reservation: suite });
     expect(r.benefit).toBe('refill');
     expect(r.total).toBe(4000 + 4500);
-    const base = { ...suite, drinkId: 'herb-tea' }; // 기본 음료가 리필 대상이 아니어도 아메리카노·라떼는 리필
+    const base = { ...suite, drinkId: 'green-tea' }; // 기본 음료가 리필 대상이 아니어도 아메리카노·라떼는 리필
     expect(priceOrder({ kind: 'suite', items: { americano: 1 }, reservation: base }).total).toBe(0);
   });
 
   it('Suite 주문에 리필 대상이 없으면 리필은 남기고 50% 쿠폰을 쓴다', () => {
-    const r = priceOrder({ kind: 'suite', items: { 'herb-tea': 1 }, reservation: suite });
+    const r = priceOrder({ kind: 'suite', items: { 'green-tea': 1 }, reservation: suite });
     expect(r.benefit).toBe('half');
     expect(r.total).toBe(2000);
   });

@@ -1,5 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { KEYS, loadList, loadValue, saveList, saveValue } from './storage.js';
+import { parseKey } from './order.js';
+import { getDrink } from './reservation.js';
 
 const AppDataContext = createContext(null);
 
@@ -52,8 +54,13 @@ const useSession = () => {
 // serve: 카페 주문의 이용 방법 'dine-in'(매장) | 'takeout'(테이크아웃)
 const CART_KEY = 'aulo.cart.v2';
 const EMPTY_CART = { items: {}, serve: 'dine-in' };
+// 메뉴에서 빠진 음료(예: 허브티 → 녹차로 교체)가 남아 있으면 버린다
+const knownItems = (items = {}) => Object.fromEntries(Object.entries(items).filter(([key]) => getDrink(parseKey(key).id)));
 const readCart = () => {
-  try { return { ...EMPTY_CART, ...JSON.parse(sessionStorage.getItem(CART_KEY)) }; } catch { return EMPTY_CART; }
+  try {
+    const saved = { ...EMPTY_CART, ...JSON.parse(sessionStorage.getItem(CART_KEY)) };
+    return { ...saved, items: knownItems(saved.items) };
+  } catch { return EMPTY_CART; }
 };
 const useCart = () => {
   const [cart, setCart] = useState(readCart);
