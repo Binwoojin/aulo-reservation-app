@@ -93,8 +93,12 @@ function TabBar() {
         {TABS.map((t) => (
           <li key={t.to}>
             <NavLink to={t.to} end={t.end} className={t.primary ? 'tab tab--primary' : 'tab'}>
-              <Icon name={t.icon} />
-              <span>{t.label}</span>
+              {t.primary ? (
+                // 가운데 주문: 아이콘과 글자를 한 원 안에 담는다
+                <span className="tab__bubble"><Icon name={t.icon} /><span>{t.label}</span></span>
+              ) : (
+                <><Icon name={t.icon} /><span>{t.label}</span></>
+              )}
             </NavLink>
           </li>
         ))}
