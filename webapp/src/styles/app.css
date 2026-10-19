@@ -642,3 +642,5 @@ a.ticket__link:active { background: var(--color-bg); }
 .cart-item .stepper button .icon { width: 16px; height: 16px; }
 .cart-item .stepper button::after { content: ""; position: absolute; inset: -7px; }
 .cart-item .stepper output { min-width: 28px; font-size: 0.9375rem; }
+.drink-head__meta { display: flex; align-items: center; gap: var(--space-2); }
+.drink-head__category { font-size: 0.8125rem; font-weight: 600; color: var(--color-text-sub); }

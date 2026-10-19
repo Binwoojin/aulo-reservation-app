@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
-import { BEST_MENU, MENU } from '../config/policy.js';
+import { BEST_MENU, MENU, MENU_CATEGORIES } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { DrinkThumb, Provisional } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
@@ -21,7 +21,10 @@ export default function MenuDetailPage() {
       <div className="screen-body has-bottom-bar">
         <DrinkThumb drink={drink} size="lg" />
         <section className="drink-head" aria-labelledby="drink-title">
-          {BEST_MENU.includes(drink.id) && <span className="badge badge--best">베스트</span>}
+          <span className="drink-head__meta">
+            <span className="drink-head__category">{MENU_CATEGORIES.find((c) => c.id === drink.category)?.label}</span>
+            {BEST_MENU.includes(drink.id) && <span className="badge badge--best">베스트</span>}
+          </span>
           <h2 id="drink-title" className="screen-title">{drink.name}</h2>
           <p className="drink-price">{formatWon(drink.price)} <Provisional note={MENU.note} /></p>
           <p className="drink-desc">{drink.desc}</p>

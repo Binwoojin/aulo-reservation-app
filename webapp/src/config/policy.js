@@ -127,21 +127,32 @@ export const SPACES = {
 };
 
 // 음료 메뉴: 기본 카페 메뉴로만 구성 (2026-10-19 확정, 포트폴리오 작업량을 고려해 최소한으로).
-// 홈 베스트로 정한 카라멜 마끼야또·핫초코를 더해 6종. 가격은 2026-10-16 사용자 요청으로 시장 평균가에 맞춰 임의 설정한다.
+// 카테고리는 커피 · 논커피 · 에이드·티 (2026-10-19 사용자 요청). 가격은 모두 임의 설정(임시)이다.
 // - 아메리카노·카페라떼: 한국소비자원 2024 커피전문점 25개 브랜드 평균(3,001원 · 3,978원)
-// - 바닐라라떼: 카페라떼 평균에 시럽 추가분(약 500원)을 더한 값
-// - 허브티: 공개된 평균 자료가 없어 카페라떼 평균 수준으로 둔다
-// - 카라멜 마끼야또: 바닐라라떼와 같은 시럽 음료 수준 / 핫초코: 카페라떼 평균 수준 (모두 임의)
+// - 그 밖의 메뉴: 공개된 평균 자료를 찾지 못해 두 기준값에 맞춰 정했다
+//   (시럽·소스 음료 +500원, 과일 라떼 +1,000원, 에이드 4,500원, 차 4,000원)
+export const MENU_CATEGORIES = [
+  { id: 'coffee', label: '커피' },
+  { id: 'non-coffee', label: '논커피' },
+  { id: 'ade-tea', label: '에이드 · 티' },
+];
 export const MENU = p(
   [
-    { id: 'americano', name: '아메리카노', price: 3000, desc: '에스프레소에 물을 더해 깔끔하게 즐기는 기본 커피예요.' },
-    { id: 'latte', name: '카페라떼', price: 4000, desc: '에스프레소와 데운 우유를 섞은 부드러운 커피예요.' },
-    { id: 'vanilla-latte', name: '바닐라라떼', price: 4500, desc: '카페라떼에 바닐라 시럽을 더해 달콤하게 만든 커피예요.' },
-    { id: 'caramel-macchiato', name: '카라멜 마끼야또', price: 4500, desc: '우유와 에스프레소 위에 카라멜 소스를 올린 달콤한 커피예요.' },
-    { id: 'hot-chocolate', name: '핫초코', price: 4000, desc: '초콜릿과 데운 우유로 만든 커피 없는 음료예요.' },
-    { id: 'herb-tea', name: '허브티', price: 4000, desc: '카페인 없이 편하게 마실 수 있는 허브 차예요.' },
+    { id: 'americano', category: 'coffee', name: '아메리카노', price: 3000, desc: '에스프레소에 물을 더해 깔끔하게 즐기는 기본 커피예요.' },
+    { id: 'latte', category: 'coffee', name: '카페라떼', price: 4000, desc: '에스프레소와 데운 우유를 섞은 부드러운 커피예요.' },
+    { id: 'cappuccino', category: 'coffee', name: '카푸치노', price: 4000, desc: '에스프레소 위에 우유 거품을 두툼하게 올린 커피예요.' },
+    { id: 'vanilla-latte', category: 'coffee', name: '바닐라라떼', price: 4500, desc: '카페라떼에 바닐라 시럽을 더해 달콤하게 만든 커피예요.' },
+    { id: 'caramel-macchiato', category: 'coffee', name: '카라멜 마끼야또', price: 4500, desc: '우유와 에스프레소 위에 카라멜 소스를 올린 달콤한 커피예요.' },
+    { id: 'hot-chocolate', category: 'non-coffee', name: '핫초코', price: 4000, desc: '초콜릿과 데운 우유로 만든 커피 없는 음료예요.' },
+    { id: 'matcha-latte', category: 'non-coffee', name: '말차라떼', price: 4500, desc: '말차 가루와 우유를 섞은 쌉싸름하고 고소한 라떼예요.' },
+    { id: 'strawberry-latte', category: 'non-coffee', name: '딸기라떼', price: 5000, desc: '딸기 청과 우유를 섞은 새콤달콤한 라떼예요.' },
+    { id: 'lemon-ade', category: 'ade-tea', name: '레몬에이드', price: 4500, desc: '레몬 청에 탄산수를 더한 상큼한 에이드예요.' },
+    { id: 'grapefruit-ade', category: 'ade-tea', name: '자몽에이드', price: 4500, desc: '자몽 청에 탄산수를 더한 쌉싸름하고 상큼한 에이드예요.' },
+    { id: 'yuja-tea', category: 'ade-tea', name: '유자차', price: 4000, desc: '유자 청을 따뜻한 물에 풀어 마시는 차예요.' },
+    { id: 'earl-grey', category: 'ade-tea', name: '얼그레이 티', price: 4000, desc: '베르가못 향을 입힌 홍차예요.' },
+    { id: 'herb-tea', category: 'ade-tea', name: '허브티', price: 4000, desc: '카페인 없이 편하게 마실 수 있는 허브 차예요.' },
   ],
-  '음료 가격은 시장 평균으로 임의 설정 — 아메리카노 3,000 · 카페라떼 4,000 · 바닐라라떼·카라멜 마끼야또 4,500 · 핫초코·허브티 4,000원',
+  '음료 가격은 임의 설정(임시) — 아메리카노·카페라떼는 한국소비자원 평균 기준, 나머지는 이 기준에 맞춘 추정값',
 );
 
 // 홈 '베스트': 주문 데이터가 쌓이기 전에는 운영자가 고른 대표 메뉴 (2026-10-19 확정). 순위·판매량 숫자는 표시하지 않는다.
