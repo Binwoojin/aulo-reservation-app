@@ -200,7 +200,7 @@ function ReserveWizard({ type }) {
                 </div>
                 <p className="group-hint">
                   옆으로 밀어 {space.sameDayApp ? '오늘' : '내일'}부터 {formatDate(dates.at(-1))}까지 고를 수 있어요
-                  {!space.sameDayApp && <><br />{space.name}는 앱에서 당일 예약이 안 돼요. 오늘 이용은 매장에 방문하면 빈 {space.unitName}을 배정해 드려요.</>}
+                  {!space.sameDayApp && <><br />{space.sameDayNote}</>}
                 </p>
               </fieldset>
             </section>

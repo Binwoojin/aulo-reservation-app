@@ -12,7 +12,7 @@ export const unitIds = (storeId, type) => {
   return Array.from({ length: count }, (_, i) => i + 1);
 };
 
-// 앱 예약 가능 날짜. Focus·Rest는 당일 앱 예약이 안 되고(매장 방문으로 이용) 내일부터, Suite는 오늘부터
+// 앱 예약 가능 날짜. 모든 공간이 당일 예약 불가라 내일부터 (Focus·Rest 당일은 매장 방문, Suite는 사전 예약 전용)
 export const bookableDates = (now, type) => {
   const today = toDateString(now);
   const first = type && !SPACES[type].sameDayApp ? 1 : 0;
@@ -136,7 +136,7 @@ export const validateReservation = (input, existing, now) => {
   if (!space?.reservable) return ['예약할 수 없는 공간입니다.'];
   if (!getStore(input.storeId)) errors.push('매장을 선택해 주세요.');
   if (!space.sameDayApp && input.date === toDateString(now)) {
-    errors.push(`${space.name}는 앱에서 당일 예약할 수 없어요. 당일 이용은 매장에 방문해 주세요.`);
+    errors.push(`${space.name}: ${space.sameDayNote}`);
   } else if (!bookableDates(now, input.type).includes(input.date)) errors.push('예약 가능한 날짜가 아닙니다.');
   if (!startOptions(input.type, input.date, now).includes(input.start)) {
     errors.push('선택할 수 없는 시작 시간입니다.');

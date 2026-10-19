@@ -66,6 +66,7 @@ export const SPACES = {
     requests: [],
     features: ['가림막이 있는 반폐쇄형 개인 좌석', '좌석별 사물함', '추가 음료 50% 할인'],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
+    sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
     extendable: true,
     extension: '앱으로 사전 예약하면 현장에서 10분 단위로 최대 1시간 연장할 수 있습니다.',
   },
@@ -89,6 +90,7 @@ export const SPACES = {
     ],
     features: ['실내 반폐쇄형 1인 리클라이너', '사물함', '담요·이어폰 무료 요청', '추가 음료 50% 할인'],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
+    sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
     extendable: true,
     extension: '앱으로 사전 예약하면 현장에서 10분 단위로 최대 1시간 연장할 수 있습니다.',
   },
@@ -107,7 +109,8 @@ export const SPACES = {
     drink: 'included', // 기본 음료 포함, 예약 시 선택
     requests: [],
     features: ['문으로 분리된 독립형 오피스', '보관함·공기청정기·냉난방·4구 콘센트', '공간 번호로 음료 배달 주문'],
-    sameDayApp: true, // Suite는 앱 당일 예약 가능
+    sameDayApp: false, // 공간 준비가 필요해 사전 예약만 받는다, 당일 예약 불가 (2026-10-19 결정)
+    sameDayNote: '공간을 미리 준비해야 해서 사전 예약만 받아요. 당일 예약은 할 수 없어요.',
     extendable: false,
     extension: '현장 예약과 연장은 할 수 없습니다.',
   },

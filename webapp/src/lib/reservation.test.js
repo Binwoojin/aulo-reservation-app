@@ -60,10 +60,10 @@ describe('이용 시간', () => {
   });
 });
 
-describe('Suite 당일 마감 (최소 3시간 · 22:00 종료)', () => {
-  it('오늘 19:00 시작이 지나면 Suite는 예약할 시간이 없다', () => {
-    expect(startOptions('suite', TODAY, at(2026, 10, 14, 18, 30)).map(formatTime)).toEqual(['19:00']);
-    expect(startOptions('suite', TODAY, at(2026, 10, 14, 19, 0))).toEqual([]);
+describe('Suite 사전 예약 전용', () => {
+  it('Suite 당일 예약은 사전 예약 안내와 함께 거절한다', () => {
+    const errors = validateReservation({ ...base, date: TODAY, type: 'suite', start: 15 * 60, hours: 3, unit: 1 }, [], NOW);
+    expect(errors[0]).toMatch('사전 예약만');
   });
 
   it('미래 날짜는 예약하는 시각과 무관하게 예약할 수 있다', () => {
@@ -157,11 +157,9 @@ describe('현장 연장 요금', () => {
 });
 
 describe('앱 당일 예약과 좌석 선택', () => {
-  it('Focus·Rest는 앱 당일 예약이 안 되고 내일부터, Suite는 오늘부터', () => {
-    expect(bookableDates(NOW, 'focus')[0]).toBe(TOMORROW);
-    expect(bookableDates(NOW, 'rest')[0]).toBe(TOMORROW);
-    expect(bookableDates(NOW, 'suite')[0]).toBe(TODAY);
-    expect(bookableDates(NOW, 'focus').at(-1)).toBe(bookableDates(NOW, 'suite').at(-1));
+  it('모든 공간이 앱 당일 예약 불가라 내일부터 예약한다', () => {
+    for (const type of ['focus', 'rest', 'suite']) expect(bookableDates(NOW, type)[0]).toBe(TOMORROW);
+    expect(bookableDates(NOW, 'focus').at(-1)).toBe('2026-10-28');
   });
 
   it('Focus 당일 예약은 매장 방문 안내와 함께 거절한다', () => {
