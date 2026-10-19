@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { couponFor, orderKindFor, priceOrder } from './order.js';
+import { couponFor, itemKey, orderKindFor, parseKey, priceOrder } from './order.js';
 import { recommend } from './recommend.js';
 
 const suite = { id: 's1', type: 'suite', drinkId: 'latte' };
@@ -85,5 +85,21 @@ describe('아이스·핫 담기', () => {
   it('Suite 리필은 온도와 관계없이 아메리카노·카페라떼 1잔', () => {
     const r = priceOrder({ kind: 'suite', items: { 'latte@hot': 1, 'americano@ice': 1 }, reservation: suite });
     expect(r.total).toBe(3000); // 기본 음료(카페라떼) 1잔 무료
+  });
+});
+
+describe('음료 옵션', () => {
+  it('샷 추가는 1회 500원(임시), 개인컵은 할인 없음, 옵션이 다르면 다른 줄', () => {
+    const shot = itemKey('latte', 'ice', { shot: 2, ownCup: true });
+    expect(shot).toBe('latte@ice+shot2+cup');
+    expect(parseKey(shot)).toEqual({ id: 'latte', temp: 'ice', shot: 2, ownCup: true });
+    const r = priceOrder({ kind: 'cafe', items: { [shot]: 1, 'latte@ice': 1 } });
+    expect(r.lines.map((l) => [l.name, l.options])).toEqual([['아이스 카페라떼', '샷 2회 추가 · 개인컵'], ['아이스 카페라떼', '']]);
+    expect(r.total).toBe(5000 + 4000);
+  });
+
+  it('Suite 무료 리필은 음료값만 빼고 샷 추가 금액은 받는다', () => {
+    const r = priceOrder({ kind: 'suite', items: { 'latte@hot+shot1': 1 }, reservation: suite });
+    expect(r.total).toBe(500);
   });
 });

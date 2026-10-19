@@ -177,3 +177,27 @@ export function DrinkThumb({ drink, size = 'md' }) {
     </span>
   );
 }
+
+// 아래에서 올라오는 시트: 앱 프레임 안에서 열리는 네이티브 <dialog>. 배경을 누르거나 Esc로 닫는다.
+export function BottomSheet({ open, title, onClose, children, footer }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const dialog = ref.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+  return (
+    <dialog ref={ref} className="sheet" aria-labelledby="sheet-title" onClose={onClose} onClick={(e) => e.target === ref.current && onClose()}>
+      <div className="sheet__panel">
+        <span className="sheet__grip" aria-hidden="true" />
+        <div className="sheet__head">
+          <h2 id="sheet-title" className="sheet__title">{title}</h2>
+          <button type="button" className="icon-button" onClick={onClose} aria-label="닫기"><Icon name="close" /></button>
+        </div>
+        <div className="sheet__body">{children}</div>
+        {footer && <div className="sheet__foot">{footer}</div>}
+      </div>
+    </dialog>
+  );
+}

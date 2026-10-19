@@ -64,12 +64,12 @@ export default function CartPage() {
           {count > 0 ? (
             <ul className="cart-list">
               {sortedKeys(items).map((key) => {
-                const { id, temp } = parseKey(key);
+                const { id } = parseKey(key);
                 return (
                   <CartItem
                     key={key}
+                    itemKey={key}
                     drink={MENU.value.find((d) => d.id === id)}
-                    temp={temp}
                     quantity={items[key]}
                     line={quote.lines.find((l) => l.key === key)}
                     onChange={(q) => setCartQty(key, q)}

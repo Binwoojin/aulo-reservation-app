@@ -1,4 +1,4 @@
-import { MENU, SPACES } from '../config/policy.js';
+import { MENU, SHOT_PRICE, SPACES } from '../config/policy.js';
 
 // 주문 유형
 // - cafe:  일반 주문, 정상가
@@ -32,17 +32,28 @@ export const remainingBenefits = (kind, reservation, previousOrders = []) => {
 };
 
 // 온도: 커피는 아이스/핫을 골라 주문한다 (2026-10-19). 가격 차이는 없다.
-// 담은 음료의 키는 온도가 있으면 'americano@ice', 없으면 'hot-chocolate'처럼 음료 id만 쓴다.
+// 담은 음료의 키에 옵션을 담는다: 'americano@ice+shot1+cup' = 아이스 · 샷 1회 추가 · 개인컵
+// 옵션이 없으면 'hot-chocolate'처럼 음료 id만 쓴다. 옵션이 다르면 다른 줄로 담긴다.
 export const TEMPS = [
   { value: 'ice', label: '아이스', short: 'ICE' },
   { value: 'hot', label: '핫', short: 'HOT' },
 ];
 export const TEMP_LABEL = { ice: '아이스', hot: '핫' };
 export const hasTemp = (drink) => drink?.category === 'coffee';
-export const itemKey = (id, temp) => (temp ? `${id}@${temp}` : id);
+export const itemKey = (id, temp, { shot = 0, ownCup = false } = {}) =>
+  `${id}${temp ? `@${temp}` : ''}${shot ? `+shot${shot}` : ''}${ownCup ? '+cup' : ''}`;
 export const parseKey = (key) => {
-  const [id, temp = null] = key.split('@');
-  return { id, temp };
+  const [head, ...opts] = key.split('+');
+  const [id, temp = null] = head.split('@');
+  const shot = Number(opts.find((o) => o.startsWith('shot'))?.slice(4) ?? 0);
+  return { id, temp, shot, ownCup: opts.includes('cup') };
+};
+// 옵션 설명 (예: '샷 1회 추가 · 개인컵'), 없으면 ''
+export const optionsText = ({ shot, ownCup }) => [shot ? `샷 ${shot}회 추가` : '', ownCup ? '개인컵' : ''].filter(Boolean).join(' · ');
+// 1잔 가격 = 음료 가격 + 샷 추가 금액
+export const unitPriceOf = (key) => {
+  const { id, shot } = parseKey(key);
+  return (MENU.value.find((d) => d.id === id)?.price ?? 0) + shot * SHOT_PRICE.value;
 };
 // '아이스 아메리카노'처럼 온도를 붙인 이름
 export const drinkLabel = (id, temp) => {
@@ -79,20 +90,22 @@ export const priceOrder = ({ kind, items, reservation, previousOrders = [] }) =>
   const refillKey = benefit === 'refill' ? refillDrinkIn(items, reservation) : null;
   const lines = sortedKeys(items)
     .map((key) => {
-      const { id, temp } = parseKey(key);
-      const drink = MENU.value.find((d) => d.id === id);
+      const opts = parseKey(key);
+      const drink = MENU.value.find((d) => d.id === opts.id);
       const quantity = items[key];
-      let paidQuantity = quantity;
-      if (key === refillKey) paidQuantity -= 1;
-      const unitPrice = benefit === 'half' ? Math.round(drink.price / 2) : drink.price;
+      const listUnit = unitPriceOf(key);
+      const unitPrice = benefit === 'half' ? Math.round(listUnit / 2) : listUnit;
+      // 무료 리필은 음료 1잔 값만 빼고, 샷 추가 금액은 받는다
+      const refillDiscount = key === refillKey ? drink.price : 0;
       return {
         key,
         drinkId: drink.id,
-        temp,
-        name: drinkLabel(id, temp),
+        temp: opts.temp,
+        options: optionsText(opts),
+        name: drinkLabel(opts.id, opts.temp),
         quantity,
-        listPrice: drink.price * quantity,
-        total: unitPrice * paidQuantity,
+        listPrice: listUnit * quantity,
+        total: unitPrice * quantity - refillDiscount,
       };
     });
   const listTotal = lines.reduce((sum, l) => sum + l.listPrice, 0);

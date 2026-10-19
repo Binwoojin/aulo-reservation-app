@@ -4,7 +4,7 @@ import { BottomBar, AppBar } from './AppShell.jsx';
 import Icon from './Icon.jsx';
 import { DrinkThumb, Provisional, Stepper } from './ui.jsx';
 import { formatWon } from '../lib/time.js';
-import { TEMPS } from '../lib/order.js';
+import { TEMPS, optionsText, parseKey, unitPriceOf } from '../lib/order.js';
 
 // 주문 금액 요약 (장바구니·좌석 주문 공통)
 export function OrderLines({ quote }) {
@@ -12,7 +12,7 @@ export function OrderLines({ quote }) {
     <dl className="kv summary-card">
       {quote.lines.map((l) => (
         <div key={l.drinkId}>
-          <dt>{l.name} × {l.quantity}</dt>
+          <dt>{l.name} × {l.quantity}{l.options && <small className="kv__sub">{l.options}</small>}</dt>
           <dd>{l.total !== l.listPrice && <s>{formatWon(l.listPrice)}</s>} {formatWon(l.total)}</dd>
         </div>
       ))}
@@ -23,8 +23,13 @@ export function OrderLines({ quote }) {
 }
 
 // 담은 음료 카드 (이미지 자리 + 이름·배지 + 1잔 가격 + 수량 + 줄 합계)
-export function CartItem({ drink, temp = null, quantity, line, badges = [], onChange }) {
+// itemKey가 있으면 그 안의 온도·샷·개인컵 옵션을 함께 보여 준다
+export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [], onChange }) {
+  const opts = parseKey(itemKey);
+  const temp = opts.temp;
   const tempInfo = TEMPS.find((t) => t.value === temp);
+  const options = optionsText(opts);
+  const unit = unitPriceOf(itemKey);
   return (
     <li className="cart-item">
       <Link to={`/menu/${drink.id}`} className="cart-item__media" aria-label={`${drink.name} 상세 보기`}>
@@ -43,12 +48,13 @@ export function CartItem({ drink, temp = null, quantity, line, badges = [], onCh
             <Icon name="close" size={18} />
           </button>
         </div>
-        <span className="cart-item__unit">1잔 {formatWon(drink.price)} <Provisional note={MENU.note} /></span>
+        {options && <span className="cart-item__options">{options}</span>}
+        <span className="cart-item__unit">1잔 {formatWon(unit)} <Provisional note={MENU.note} /></span>
         <div className="cart-item__foot">
           <Stepper label={drink.name} value={quantity} onChange={onChange} min={1} />
           <span className="cart-item__total">
             {line && line.total !== line.listPrice && <s>{formatWon(line.listPrice)}</s>}
-            {formatWon(line?.total ?? drink.price * quantity)}
+            {formatWon(line?.total ?? unit * quantity)}
           </span>
         </div>
       </div>

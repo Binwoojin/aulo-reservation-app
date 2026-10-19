@@ -1,23 +1,37 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { BEST_MENU, MENU, MENU_CATEGORIES } from '../config/policy.js';
+import { BEST_MENU, MAX_SHOTS, MENU, MENU_CATEGORIES, OWN_CUP_DISCOUNT, SHOT_PRICE } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
-import { DrinkThumb, Provisional, Segmented } from '../components/ui.jsx';
+import { BottomSheet, DrinkThumb, Provisional, Segmented, Stepper, SwitchRow } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { REFILL_DRINKS, TEMPS, hasTemp, itemKey } from '../lib/order.js';
+import { REFILL_DRINKS, TEMPS, hasTemp, itemKey, unitPriceOf } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 import NotFoundPage from './NotFoundPage.jsx';
 
-// 음료 상세: 누구나 볼 수 있다. '주문하기'를 누르면 이 음료 1잔을 장바구니에 담고 장바구니로 넘어간다.
+// 음료 상세: 누구나 볼 수 있다. '주문하기'를 누르면 옵션 창이 열리고,
+// 온도(커피 필수)·샷 추가(커피)·개인컵·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
 export default function MenuDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useAppData();
   const drink = MENU.value.find((d) => d.id === id);
-  // 커피는 아이스/핫을 꼭 골라야 담을 수 있다
+  const [sheetOpen, setSheetOpen] = useState(false);
   const [temp, setTemp] = useState(null);
+  const [shot, setShot] = useState(0);
+  const [ownCup, setOwnCup] = useState(false);
+  const [qty, setQty] = useState(1);
   if (!drink) return <NotFoundPage />;
-  const needsTemp = hasTemp(drink);
+
+  const isCoffee = hasTemp(drink);
+  const key = itemKey(drink.id, isCoffee ? temp : null, { shot: isCoffee ? shot : 0, ownCup });
+  const unit = unitPriceOf(key);
+  const ready = !isCoffee || temp;
+
+  const put = () => {
+    addToCart(key, qty);
+    setSheetOpen(false);
+    navigate('/cart');
+  };
 
   return (
     <>
@@ -33,14 +47,8 @@ export default function MenuDetailPage() {
           <p className="drink-price">{formatWon(drink.price)} <Provisional note={MENU.note} /></p>
           <p className="drink-desc">{drink.desc}</p>
         </section>
-        {needsTemp && (
-          <section className="block" aria-labelledby="temp-title">
-            <p id="temp-title" className="group-title">온도</p>
-            <Segmented label="온도" name="temp" value={temp} onChange={setTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
-            {!temp && <p className="group-hint">아이스와 핫 중 하나를 골라 주세요. 가격은 같아요.</p>}
-          </section>
-        )}
         <ul className="note-list">
+          {isCoffee && <li>아이스·핫과 샷 추가는 주문할 때 골라요.</li>}
           <li>1잔당 스탬프 1개가 적립돼요.</li>
           <li>포인트는 음료 주문에 쓸 수 없어요.</li>
           <li>Focus·Rest 이용 중에는 재주문 50% 할인 쿠폰을 최대 2회 쓸 수 있어요.</li>
@@ -48,15 +56,46 @@ export default function MenuDetailPage() {
         </ul>
       </div>
       <BottomBar>
-        <button
-          type="button"
-          className="button button--primary"
-          disabled={needsTemp && !temp}
-          onClick={() => { addToCart(itemKey(drink.id, needsTemp ? temp : null)); navigate('/cart'); }}
-        >
-          {needsTemp && !temp ? '온도를 골라 주세요' : '주문하기'}
-        </button>
+        <button type="button" className="button button--primary" onClick={() => setSheetOpen(true)}>주문하기</button>
       </BottomBar>
+
+      <BottomSheet
+        open={sheetOpen}
+        title={drink.name}
+        onClose={() => setSheetOpen(false)}
+        footer={(
+          <button type="button" className="button button--primary button--block" disabled={!ready} onClick={put}>
+            {ready ? `장바구니 담기 · ${formatWon(unit * qty)}` : '온도를 골라 주세요'}
+          </button>
+        )}
+      >
+        {isCoffee && (
+          <section className="sheet-section" aria-labelledby="opt-temp">
+            <p id="opt-temp" className="group-title">온도 <span className="sheet-required">필수</span></p>
+            <Segmented label="온도" name="temp" value={temp} onChange={setTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
+          </section>
+        )}
+        {isCoffee && (
+          <section className="sheet-section sheet-row" aria-labelledby="opt-shot">
+            <span className="option-row__text">
+              <span id="opt-shot" className="option-row__label">샷 추가</span>
+              <span className="option-row__detail">1회 +{formatWon(SHOT_PRICE.value)} · 최대 {MAX_SHOTS}회 <Provisional note={SHOT_PRICE.note} /></span>
+            </span>
+            <Stepper label="샷 추가" value={shot} onChange={setShot} min={0} max={MAX_SHOTS} />
+          </section>
+        )}
+        <section className="sheet-section list-card" aria-label="컵">
+          <SwitchRow label="개인컵 사용" detail="텀블러 등 가져온 컵에 담아 드려요" checked={ownCup} onChange={setOwnCup} />
+        </section>
+        <p className="group-hint">개인컵 할인은 아직 정해지지 않았어요 <Provisional note={OWN_CUP_DISCOUNT.note} /></p>
+        <section className="sheet-section sheet-row" aria-labelledby="opt-qty">
+          <span className="option-row__text">
+            <span id="opt-qty" className="option-row__label">수량</span>
+            <span className="option-row__detail">1잔 {formatWon(unit)}</span>
+          </span>
+          <Stepper label="수량" value={qty} onChange={setQty} min={1} max={9} />
+        </section>
+      </BottomSheet>
     </>
   );
 }
