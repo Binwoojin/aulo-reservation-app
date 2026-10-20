@@ -20,7 +20,6 @@ import {
   Segmented,
   SpaceImage,
   StepProgress,
-  Stepper,
   SwitchRow,
   Tag,
 } from '../components/ui.jsx';
@@ -40,7 +39,7 @@ import {
   unitIds,
   windowDates,
 } from '../lib/reservation.js';
-import { formatDate, formatTime, formatWon, toDateString } from '../lib/time.js';
+import { formatDate, formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
 import { pointBalance, pointsEarnedFor, usablePoints } from '../lib/rewards.js';
 import { needsTemp } from '../lib/drink.js';
 import { TEMPS, drinkLabel } from '../lib/order.js';
@@ -272,39 +271,22 @@ function ReserveWizard({ type }) {
 
         {stepName === '시간' && (
           <>
-            <h2 className="screen-title">몇 시부터<br />이용하세요?</h2>
+            <h2 className="screen-title">몇 시부터 몇 시까지<br />이용하세요?</h2>
             <p className="muted">{formatDate(date)} · {store.name}</p>
-            <ChipGrid
-              legend="시작 시간"
-              name="start"
-              value={start}
-              onChange={(v) => { setStart(v); setHours(space.minHours); setUnit(null); }}
-              options={starts.map((s) => {
-                const ok = free(s, space.minHours).length > 0;
-                return { value: s, label: formatTime(s), disabled: !ok, detail: ok ? undefined : '마감' };
-              })}
-              hint={<>1시간 단위 · {formatTime(lastEndFor(type))} 종료까지 · {formatTime(HOURS.checkout)} 퇴실</>}
-              empty={space.minHours > 1
+            <TimeRange
+              type={type}
+              date={date}
+              now={now}
+              start={start}
+              hours={hours}
+              canStart={(s) => starts.includes(s) && free(s, space.minHours).length > 0}
+              maxHoursFor={maxHoursFor}
+              onChange={(s, h) => { setStart(s); setHours(h); setUnit(null); }}
+              onClear={clearTime}
+              empty={starts.length === 0 && (space.minHours > 1
                 ? `최소 ${space.minHours}시간을 ${formatTime(lastEndFor(type))} 종료 전에 채울 수 없어 오늘은 예약할 수 없어요. 날짜를 바꿔 주세요.`
-                : '오늘은 예약 가능한 시간이 지났어요. 날짜를 바꿔 주세요.'}
+                : '오늘은 예약 가능한 시간이 지났어요. 날짜를 바꿔 주세요.')}
             />
-            {start != null && (
-              <section className="duration-card" aria-labelledby="duration-title">
-                <div>
-                  <p id="duration-title" className="group-title">이용 시간</p>
-                  <p className="duration-card__range">{formatTime(start)} – {endLabel}</p>
-                  <p className="group-hint">최소 {space.minHours}시간 · 최대 {space.maxHours}시간</p>
-                </div>
-                <Stepper
-                  label="이용 시간"
-                  value={hours}
-                  onChange={(v) => { setHours(v); setUnit(null); }}
-                  min={space.minHours}
-                  max={maxHours}
-                  format={(v) => `${v}시간`}
-                />
-              </section>
-            )}
             {start != null && type !== 'suite' && (
               <p className="inline-status"><Icon name="check" size={16} />남은 {space.unitName} {freeNow.length}개 · 다음 단계에서 {space.unitName}을 골라요</p>
             )}
@@ -433,6 +415,70 @@ function ReserveWizard({ type }) {
 }
 
 // Suite 공간별 가능 시간 조회
+// 이용 시간: 1시간 칸을 눌러 고른다. 첫 칸 = 시작, 이어서 누른 칸 = 끝 (시작 기준 최대 maxHours칸).
+// 시작을 누르면 최소 시간만큼 바로 채우고, 늘릴 수 있는 칸은 점선으로 보여 준다.
+// 범위 밖 칸을 누르면 그 칸부터 새로 시작하고, 시작 칸을 다시 누르면 최소 시간으로 줄인다(이미 최소면 선택 해제).
+function TimeRange({ type, date, now, start, hours, canStart, maxHoursFor, onChange, onClear, empty }) {
+  const space = SPACES[type];
+  const isToday = date === toDateString(now);
+  const slots = [];
+  for (let t = HOURS.open; t + 60 <= lastEndFor(type); t += 60) {
+    if (isToday && t <= minutesOfDay(now)) continue;
+    slots.push(t);
+  }
+  const reach = start != null ? maxHoursFor(start) : 0; // 시작 기준으로 실제 고를 수 있는 최대 시간(마감·빈 좌석 반영)
+  const end = start != null ? start + hours * 60 : null;
+  const inReach = (t) => start != null && t >= start && t + 60 <= start + reach * 60;
+
+  const pick = (t) => {
+    if (inReach(t)) {
+      const h = Math.max(space.minHours, (t - start) / 60 + 1);
+      if (t === start && hours === space.minHours) onClear();
+      else onChange(start, h);
+    } else if (canStart(t)) {
+      onChange(t, space.minHours);
+    }
+  };
+
+  if (empty) return <div className="empty-state">{empty}</div>;
+
+  return (
+    <section className="time-range" aria-labelledby="time-range-title">
+      <div className="time-range__summary" aria-live="polite">
+        <p id="time-range-title" className="group-title">이용 시간</p>
+        {start != null ? (
+          <>
+            <p className="time-range__value" lang="en">{formatTime(start)} – {formatTime(end)}</p>
+            <p className="group-hint"><strong>{hours}시간</strong> · 최소 {space.minHours}시간 · 최대 {space.maxHours}시간{reach < space.maxHours ? ` (이 시작 시간은 최대 ${reach}시간)` : ''}</p>
+          </>
+        ) : (
+          <>
+            <p className="time-range__value time-range__value--empty">시작 시간을 눌러 주세요</p>
+            <p className="group-hint">시작 칸을 누른 뒤, 끝나는 칸을 눌러 최대 {space.maxHours}시간까지 골라요</p>
+          </>
+        )}
+      </div>
+      <p className="group-hint">1시간 단위 · {formatTime(lastEndFor(type))} 종료까지 · {formatTime(HOURS.checkout)} 퇴실</p>
+      <div className="time-grid" role="group" aria-label="시간 칸">
+        {slots.map((t) => {
+          const selected = start != null && t >= start && t < end;
+          const state = selected ? (t === start ? 'start' : t + 60 === end ? 'end' : 'in') : inReach(t) ? 'reach' : canStart(t) ? 'open' : 'off';
+          const label = `${formatTime(t)}–${formatTime(t + 60)}`;
+          const action = selected ? (t === start ? '시작 시간' : '선택됨') : inReach(t) ? '여기까지 늘리기' : canStart(t) ? '여기부터 시작' : '예약 불가';
+          return (
+            <button key={t} type="button" className="time-slot" data-state={state} disabled={state === 'off'} aria-pressed={selected} aria-label={`${label}, ${action}`} onClick={() => pick(t)}>
+              <span lang="en">{formatTime(t)}</span>
+              {state === 'start' && <small>시작</small>}
+              {state === 'end' && <small lang="en">~{formatTime(end)}</small>}
+              {state === 'off' && <small>마감</small>}
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 function SuiteRooms({ storeId, date, start, hours, value, onChange, free, reservations }) {
   const open = HOURS.open;
   const end = HOURS.lastEnd;

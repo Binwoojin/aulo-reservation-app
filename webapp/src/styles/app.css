@@ -1334,7 +1334,7 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .my-row--logout .my-row__label { color: var(--color-error); }
 .my-row--logout > .icon:first-child { color: var(--color-error); }
 .my-row__hint { padding: var(--space-3) var(--space-4) var(--space-4); font-size: 0.8125rem; line-height: 1.55; color: var(--color-text-sub); background: var(--color-bg); }
-.my-row .store-picker--inline { min-height: 32px; }
+.my-row .store-picker--inline { align-self: center; min-height: 44px; margin-right: calc(var(--space-1) * -1); }
 
 /* 목적: 아이콘 카드 2×2 (사진 없이) */
 .choices--icon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -1452,3 +1452,26 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .demo-account__list dt { width: 4.5em; flex-shrink: 0; color: var(--color-text-sub); }
 .demo-account__list dd { font-weight: 600; overflow-wrap: anywhere; }
 .demo-account__fill { min-height: 44px; }
+
+/* ---------- 예약: 이용 시간 칸 선택 (시작 칸 → 끝 칸, 최대 maxHours칸) ---------- */
+.time-range { display: flex; flex-direction: column; gap: var(--space-3); }
+.time-range__summary { padding: var(--space-4) var(--space-5); border-radius: var(--radius-lg); background: var(--grad-cream); border: 1px solid var(--color-hairline); }
+.time-range__value { margin: 2px 0; font-family: var(--font-logo); font-size: 1.5rem; font-weight: 600; line-height: 1.25; }
+.time-range__value--empty { font-family: inherit; font-size: 1.0625rem; font-weight: 700; color: var(--color-text-sub); }
+.time-range__summary strong { color: var(--color-olive-hover); }
+.time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-2) 0; }
+.time-slot {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  min-height: 56px; margin: 0 3px; padding: 0; border: 1px solid var(--color-hairline); border-radius: var(--radius-md);
+  background: var(--color-surface); color: var(--color-text); font: inherit; font-size: 0.9375rem; font-weight: 600; cursor: pointer;
+  transition: background-color var(--motion) var(--ease), border-color var(--motion) var(--ease), transform var(--motion) var(--ease);
+}
+.time-slot small { font-size: 0.6875rem; font-weight: 600; line-height: 1.2; }
+.time-slot:active:not(:disabled) { transform: scale(0.96); }
+.time-slot:focus-visible { outline: 2px solid var(--color-olive); outline-offset: 2px; }
+/* 고른 범위: 시작·끝은 진한 올리브, 사이는 연한 올리브로 이어 하나의 막대처럼 */
+.time-slot[data-state="start"], .time-slot[data-state="end"] { background: var(--grad-olive); border-color: transparent; color: #FFFFFF; }
+.time-slot[data-state="in"] { background: var(--color-olive-light); border-color: transparent; color: var(--color-olive-hover); }
+.time-slot[data-state="reach"] { border: 1.5px dashed var(--color-olive); color: var(--color-olive-hover); }
+.time-slot[data-state="off"] { cursor: not-allowed; border-style: dashed; background: var(--color-bg); color: var(--color-text-sub); }
+.time-slot[data-state="off"] > span { text-decoration: line-through; }
