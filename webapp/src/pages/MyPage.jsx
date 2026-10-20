@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { PENALTY, REWARD_POLICY } from '../config/policy.js';
@@ -20,14 +21,8 @@ export default function MyPage() {
   return (
     <>
       <AppBar title="마이" />
-      <div className="screen-body">
-        <div className="my-head">
-          <span className="avatar" aria-hidden="true"><Icon name="user" /></span>
-          <div>
-            <strong>{user.email}</strong>
-            <span>이메일 로그인 · 데모 계정</span>
-          </div>
-        </div>
+      <div className="screen-body order-body">
+        <BrandBand id="my-title" script="my aulo" title={user.email} hint="이메일 로그인 · 데모 계정" />
 
         <section className="block" aria-labelledby="reward-title">
           <h2 id="reward-title" className="block-title">적립</h2>

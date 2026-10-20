@@ -1,4 +1,5 @@
 import { CLOSING_NOTICES, HOLIDAYS, HOURS } from '../config/policy.js';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { useNow } from '../lib/AppData.jsx';
 import { formatDate, formatTime, toDateString } from '../lib/time.js';
@@ -11,7 +12,8 @@ export default function NoticePage() {
   return (
     <>
       <AppBar back title="공지사항" />
-      <div className="screen-body">
+      <div className="screen-body order-body">
+        <BrandBand id="notice-title" script="notice" title="공지사항" hint="확정된 운영 정책에서 나온 소식만 알려 드려요" />
         <ul className="stack">
           <li className="notice-card">
             <span className="notice-card__tag">휴무</span>

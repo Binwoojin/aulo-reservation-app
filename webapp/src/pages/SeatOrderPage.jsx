@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { MENU, MENU_CATEGORIES, SPACES } from '../config/policy.js';
+import { SpaceHead } from '../components/BrandBand.jsx';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
-import { DrinkThumb, Segmented, Stepper } from '../components/ui.jsx';
+import { DrinkThumb, Stepper } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { BENEFIT_LABEL, couponFor, hasTemp, itemKey, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits, TEMPS } from '../lib/order.js';
 import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
@@ -72,13 +73,7 @@ export default function SeatOrderPage() {
     <>
       <AppBar back title={title} />
       <div className="screen-body has-bottom-bar">
-        <div className="seat-order-head" data-service={reservation.type}>
-          <span className="seat-order-head__icon" aria-hidden="true"><Icon name={isSuite ? 'door' : 'pin'} size={22} /></span>
-          <span className="seat-order-head__text">
-            <strong>{space.name} {reservation.unit}번 {space.unitName}</strong>
-            <span>{getStore(reservation.storeId)?.name} · {formatTime(reservation.start)}–{formatTime(reservationEnd(reservation))} · {isSuite ? '공간으로 배달해 드려요' : '좌석에서 받아 가세요'}</span>
-          </span>
-        </div>
+        <SpaceHead space={space} sub={`${reservation.unit}번 ${space.unitName} · ${getStore(reservation.storeId)?.name} · ${formatTime(reservation.start)}–${formatTime(reservationEnd(reservation))} · ${isSuite ? '공간으로 배달해 드려요' : '좌석에서 받아 가세요'}`} />
 
         {!inUse ? (
           <div className="empty-state">
@@ -102,13 +97,11 @@ export default function SeatOrderPage() {
 
             <section className="block" aria-labelledby="seat-menu-title">
               <h2 id="seat-menu-title" className="block-title">{isSuite ? '배달 메뉴' : '메뉴'}</h2>
-              <Segmented
-                label="메뉴 카테고리"
-                name="seat-category"
-                value={category}
-                onChange={setCategory}
-                options={MENU_CATEGORIES.map((c) => ({ value: c.id, label: c.label }))}
-              />
+              <div className="text-tabs text-tabs--brown" role="tablist" aria-label="메뉴 카테고리">
+                {MENU_CATEGORIES.map((c) => (
+                  <button key={c.id} type="button" role="tab" aria-selected={category === c.id} onClick={() => setCategory(c.id)}>{c.label}</button>
+                ))}
+              </div>
               <ul className="seat-menu">
                 {MENU.value.filter((d) => d.category === category).map((d) => {
                   const badges = [

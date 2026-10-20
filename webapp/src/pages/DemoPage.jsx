@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
@@ -20,12 +21,8 @@ export default function DemoPage() {
   return (
     <>
       <AppBar back title="데모 시나리오" />
-      <div className="screen-body">
-        <section className="home-greeting">
-          <p className="eyebrow" lang="en">DEMO SCENARIOS</p>
-          <h2 className="screen-title">상황을 골라<br />홈을 둘러보세요</h2>
-          <p className="muted demo-lead">예약하고 그 시간이 될 때까지 기다리지 않아도, 상황별로 달라지는 홈을 바로 볼 수 있어요. 지금 시각과 지금 매장을 기준으로 기록을 만들어요.</p>
-        </section>
+      <div className="screen-body order-body">
+        <BrandBand id="demo-title" script="demo scenarios" title={<>상황을 골라<br />홈을 둘러보세요</>} hint="예약하고 그 시간이 될 때까지 기다리지 않아도, 상황별로 달라지는 홈을 바로 볼 수 있어요. 지금 시각과 지금 매장을 기준으로 기록을 만들어요." />
         <ul className="scenario-list">
           {SCENARIOS.map((s, i) => {
             const disabled = s.needsOpenHours && !open;

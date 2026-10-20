@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { SPACES } from '../config/policy.js';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { OptionList, SpaceImage, StepProgress, Tag } from '../components/ui.jsx';
@@ -69,8 +70,8 @@ export default function RecommendPage() {
     <>
       <AppBar back={back} title="공간 추천" />
       <StepProgress steps={QUESTIONS.map((x) => x.title)} current={step} />
-      <div className="screen-body">
-        <h2 className="screen-title question" id={`q-${q.id}`}>{q.title}</h2>
+      <div className="screen-body order-body">
+        <BrandBand id={`q-${q.id}`} script="find your rhythm" title={q.title} hint="고르면 바로 다음 질문으로 넘어가요" />
         <OptionList
           key={q.id}
           legend={q.title}

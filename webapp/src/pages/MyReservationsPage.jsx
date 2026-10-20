@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
-import { Segmented } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { isInUse } from '../lib/reservation.js';
 import { rebookPath } from '../lib/again.js';
@@ -20,14 +20,13 @@ export default function MyReservationsPage() {
   return (
     <>
       <AppBar back title="내 예약" />
-      <div className="screen-body">
-        <Segmented
-          label="예약 구분"
-          name="tab"
-          value={tab}
-          onChange={setTab}
-          options={[{ value: 'upcoming', label: `다가오는 ${upcoming.length}` }, { value: 'past', label: `지난 ${past.length}` }]}
-        />
+      <div className="screen-body order-body">
+        <BrandBand id="resv-title" script="my stays" title="내 예약">
+          <div className="text-tabs" role="tablist" aria-label="예약 구분">
+            <button type="button" role="tab" aria-selected={tab === 'upcoming'} onClick={() => setTab('upcoming')}>다가오는 {upcoming.length}</button>
+            <button type="button" role="tab" aria-selected={tab === 'past'} onClick={() => setTab('past')}>지난 {past.length}</button>
+          </div>
+        </BrandBand>
         {list.length ? (
           <ul className="stack">
             {list.map((r) => (

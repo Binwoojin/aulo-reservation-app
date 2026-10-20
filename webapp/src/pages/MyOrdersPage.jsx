@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { SPACES } from '../config/policy.js';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { useReorder } from '../components/AgainCard.jsx';
 import { DrinkThumb } from '../components/ui.jsx';
@@ -21,7 +22,8 @@ export default function MyOrdersPage() {
   return (
     <>
       <AppBar back title="주문 내역" />
-      <div className="screen-body">
+      <div className="screen-body order-body">
+        <BrandBand id="orders-title" script="my orders" title="주문 내역" hint="최근 주문부터 보여 드려요. 카페 주문은 같은 옵션으로 다시 담을 수 있어요." />
         {list.length ? (
           <ul className="stack">
             {list.map((o) => {

@@ -1210,3 +1210,21 @@ a.again-card:active { transform: scale(0.99); }
 /* 단계 진행 막대·숫자도 브랜드 톤 */
 .step-progress__bar span { background: var(--grad-olive); }
 .date-chip__day, .duration-card__range { font-family: var(--font-logo); font-weight: 600; }
+
+/* ── 나머지 화면 브랜드 톤 (공통 띠·Fraunces 숫자) ── */
+.brand-band { padding-bottom: var(--space-5); }
+.brand-band:has(.text-tabs) { padding-bottom: 0; }
+.brand-band__hint { font-size: 0.875rem; line-height: 1.55; color: #5E554C; }
+.brand-band .text-tabs { margin-top: var(--space-3); border-bottom: 0; gap: var(--space-5); }
+.brand-band .text-tabs button[aria-selected="true"] { color: var(--cafe-fg); }
+.brand-band .text-tabs button[aria-selected="true"]::after { background: var(--cafe-fg); height: 3px; }
+.stat__value { font-family: var(--font-logo); font-weight: 600; color: var(--cafe-fg); }
+.order-card .drink-thumb--sm { aspect-ratio: 4 / 5; height: auto; border-radius: 50% 50% 8px 8px / 26px 26px 8px 8px; }
+.order-card__total { font-family: var(--font-logo); font-weight: 600; color: var(--cafe-fg); }
+.seat-menu .drink-thumb--sm { aspect-ratio: 4 / 5; height: auto; border-radius: 50% 50% 8px 8px / 26px 26px 8px 8px; }
+.result-card .photo { border-radius: 50% 50% 0 0 / 110px 110px 0 0; overflow: hidden; }
+.result-card .screen-title[lang="en"] { font-family: var(--font-logo); font-weight: 600; letter-spacing: -0.01em; }
+
+.text-tabs--brown { gap: var(--space-5); margin-bottom: var(--space-2); }
+.text-tabs--brown button[aria-selected="true"] { color: var(--cafe-fg); }
+.text-tabs--brown button[aria-selected="true"]::after { background: var(--cafe-fg); height: 3px; }

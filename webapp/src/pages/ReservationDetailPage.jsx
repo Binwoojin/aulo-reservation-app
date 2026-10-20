@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CANCEL_POLICY, CLOSING_NOTICES, HOURS, LATE_POLICY, PAYMENT_POLICY, PENALTY, SPACES } from '../config/policy.js';
+import { SpaceHead } from '../components/BrandBand.jsx';
 import { AppBar, BottomBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
@@ -61,6 +62,7 @@ export default function ReservationDetailPage() {
           </div>
         )}
 
+        <SpaceHead space={space} />
         <ReservationCard reservation={reservation} detailed />
 
         {/* 지금 알아 둘 것: 예약 단계(이용 전 · 오늘 · 이용 중)에 맞는 안내만 먼저 보여 준다 */}

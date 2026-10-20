@@ -1,4 +1,5 @@
 import { CANCEL_POLICY, CLOSING_NOTICES, LATE_POLICY, PAYMENT_POLICY, REWARD_POLICY, PROVISIONAL_NOTES, SEAT_PRICES, SPACES, SPACE_TYPES } from '../config/policy.js';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { Provisional, Tag } from '../components/ui.jsx';
 import { extensionNote } from '../lib/reservation.js';
@@ -8,7 +9,8 @@ export default function InfoPage() {
   return (
     <>
       <AppBar back title="이용 안내·정책" />
-      <div className="screen-body">
+      <div className="screen-body order-body">
+        <BrandBand id="info-title" script="how aulo works" title="이용 안내·정책" hint="확정된 이용 정책을 한곳에 모았어요" />
         <section className="block" aria-labelledby="spaces-info">
           <h2 id="spaces-info" className="block-title">공간별 이용</h2>
           <ul className="stack">

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { NoticeDialog } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
@@ -41,9 +42,8 @@ export default function LoginPage({ inline = false }) {
   return (
     <>
       <AppBar title={inline ? '마이' : '로그인'} back={inline ? undefined : close} />
-      <div className="screen-body">
-        <h2 className="screen-title">로그인하고<br />예약과 주문을 이용하세요</h2>
-        <p className="muted">좌석 예약과 음료 주문은 스탬프·포인트 적립과 연결돼 로그인이 필요해요.</p>
+      <div className="screen-body order-body">
+        <BrandBand id="login-title" script="welcome to aulo" title={<>로그인하고<br />예약과 주문을 이용하세요</>} hint="좌석 예약과 음료 주문은 스탬프·포인트 적립과 연결돼 로그인이 필요해요." />
 
         <form className="login-form" onSubmit={submit} noValidate>
           <label className="field">
