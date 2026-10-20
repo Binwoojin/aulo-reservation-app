@@ -282,11 +282,12 @@ function AuloDay({ now }) {
           const space = SPACES[d.type];
           return (
             <li key={d.type} className="day-line__item" data-now={i === current || undefined}>
-              <span className="day-line__time"><span lang="en">{d.time}</span>{i === current && <span className="day-line__now">지금</span>}</span>
+              <span className="day-line__dot" aria-hidden="true" />
+              <p className="day-line__time"><span lang="en">{d.time}</span><span lang="en" className="day-line__en">{d.en}</span>{i === current && <span className="day-line__now">지금</span>}</p>
               <Link to={space.reservable ? `/reserve/${d.type}` : '/order'} className="day-card">
                 <SpaceImage space={space} />
                 <span className="day-card__body">
-                  <span className="day-card__kicker" lang="en">{d.en} · {space.name}</span>
+                  <span className="day-card__kicker" lang="en">{space.name}</span>
                   <span className="day-card__headline">{space.headline}</span>
                   {/* 비교 카드: 특징 아이콘 · 지금 매장 좌석 수 · 이용 시간 범위 · 가격 */}
                   <span className="day-card__features">
@@ -307,7 +308,8 @@ function AuloDay({ now }) {
           );
         })}
         <li className="day-line__item day-line__item--end" data-now={closed || undefined}>
-          <span className="day-line__time"><span lang="en">{formatTime(HOURS.checkout)}</span>{closed && <span className="day-line__now">지금</span>}</span>
+          <span className="day-line__dot" aria-hidden="true" />
+          <p className="day-line__time"><span lang="en">{formatTime(HOURS.checkout)}</span>{closed && <span className="day-line__now">지금</span>}</p>
           <p className="day-end">
             <strong>모든 좌석 퇴실</strong>
             <span>{formatTime(HOURS.close)}에 문을 닫고, 내일 {formatTime(HOURS.open)}에 다시 열어요</span>
