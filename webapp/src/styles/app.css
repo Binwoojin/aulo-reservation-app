@@ -1429,8 +1429,14 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .withdraw-list b { font-family: var(--font-logo); font-weight: 600; }
 .withdraw-agree { display: flex; align-items: flex-start; gap: var(--space-3); min-height: 44px; padding: var(--space-3) var(--space-1); font-size: 0.9375rem; font-weight: 600; cursor: pointer; }
 .withdraw-agree input { flex-shrink: 0; width: 22px; height: 22px; margin-top: 1px; accent-color: var(--color-olive); }
-.withdraw-block { display: flex; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-error-bg); color: var(--color-text); font-size: 0.875rem; }
-.withdraw-block > .icon { flex-shrink: 0; color: var(--color-error); }
-.withdraw-block__title { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin-bottom: var(--space-1); font-weight: 700; color: var(--color-error); }
+.withdraw-cancel { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-error-bg); }
+.withdraw-cancel__title { display: flex; align-items: center; gap: var(--space-2); font-size: 0.9375rem; font-weight: 700; color: var(--color-error); }
+.withdraw-cancel__list { display: flex; flex-direction: column; border-radius: var(--radius-md); background: var(--color-surface); }
+.withdraw-cancel__list li { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); font-size: 0.875rem; }
+.withdraw-cancel__list li:last-child { border-bottom: 0; }
+.withdraw-cancel__head { display: flex; align-items: center; gap: var(--space-2); }
+.withdraw-cancel__space { font-family: var(--font-logo); font-size: 1rem; font-weight: 600; }
+.withdraw-cancel__when { color: var(--color-text-sub); }
+.withdraw-cancel__now { padding: 2px var(--space-2); border-radius: 999px; background: var(--color-olive-light); color: var(--color-olive-hover); font-size: 0.75rem; font-weight: 700; }
 /* 확인창 두 버튼 (닫기 / 확인 동작): 같은 너비로 나란히 */
 .notice__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
