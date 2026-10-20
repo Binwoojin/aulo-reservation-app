@@ -6,14 +6,14 @@ import { BottomSheet, OptionList, Provisional } from './ui.jsx';
 
 // 지금 매장 표시 + 바꾸기 (필수 규칙 4). 홈에서 고른 매장을 앱 전체가 함께 쓴다.
 // 음료 주문(주문 탭·장바구니)에서는 forOrder: 테이크아웃·Cafe 손님도 쓰므로 Focus·Rest·Suite 좌석 정보를 보여 주지 않는다.
-export default function StorePicker({ label = '지금 매장', forOrder = false }) {
+export default function StorePicker({ label = '지금 매장', forOrder = false, variant = 'pill' }) {
   const { store, storeId, setStoreId } = useAppData();
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button type="button" className="store-picker" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={`${label} ${store.name}, 매장 바꾸기`}>
+      <button type="button" className={`store-picker store-picker--${variant}`} onClick={() => setOpen(true)} aria-haspopup="dialog" aria-label={`${label} ${store.name}, 매장 바꾸기`}>
         <Icon name="pin" size={18} />
-        <span className="store-picker__label">{label}</span>
+        {variant === 'pill' && <span className="store-picker__label">{label}</span>}
         <strong className="store-picker__name">{store.name}</strong>
         <Icon name="down" size={16} />
       </button>

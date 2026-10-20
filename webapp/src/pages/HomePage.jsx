@@ -3,15 +3,15 @@ import { Link } from 'react-router-dom';
 import { BEST_MENU, BEST_MENU_TEMP, HOURS, MENU, SPACES, SPACE_TYPES } from '../config/policy.js';
 import { needsTemp } from '../lib/drink.js';
 import { AppBar } from '../components/AppShell.jsx';
-import { RebookCard, ReorderCard } from '../components/AgainCard.jsx';
+import { itemsSummary, useReorder } from '../components/AgainCard.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
 import StorePicker from '../components/StorePicker.jsx';
 import { DrinkThumb, SpaceImage, Tag } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { lastPastReservation, lastReorderable } from '../lib/again.js';
-import { HALF_LIMIT, orderKindFor, remainingBenefits } from '../lib/order.js';
-import { canCancel, getStore, isHoliday, reservationEnd } from '../lib/reservation.js';
+import { lastPastReservation, lastReorderable, rebookPath, reorderItems } from '../lib/again.js';
+import { HALF_LIMIT, orderKindFor, parseKey, remainingBenefits, sortedKeys } from '../lib/order.js';
+import { canCancel, getDrink, getStore, isHoliday, reservationEnd } from '../lib/reservation.js';
 import { daysUntil, formatDuration, homeStatus, storeToday } from '../lib/status.js';
 import { drinkPicks } from '../lib/drinkPick.js';
 import { QUESTIONS } from '../lib/recommend.js';
@@ -32,8 +32,9 @@ export default function HomePage() {
     <>
       <AppBar />
       <div className="screen-body has-fab">
-        <div className="home-store">
-          <StorePicker />
+        {/* 지금 매장 + 오늘 운영: 박스 없이 한 줄 (필수 규칙 4) */}
+        <div className="home-meta">
+          <StorePicker variant="inline" />
           <StoreToday now={now} />
         </div>
 
@@ -45,39 +46,14 @@ export default function HomePage() {
               <p className="eyebrow" lang="en">SPACE FOR YOUR NOW</p>
               <h2 id="home-title" className="screen-title">오늘은 어떤 시간을<br />보내실 건가요?</h2>
             </section>
-            {/* 예약이 없을 때만: 목적 칩으로 공간 찾기를 시작한다. 고른 목적이 첫 질문의 답이 된다 (홈 구성 결정의 '목적별 추천 칩') */}
-            <PurposeChips />
+            {/* 예약이 없을 때만: 사진 위 목적 칩으로 공간 찾기를 시작한다. 고른 목적이 첫 질문의 답이 된다 */}
+            <PurposeHero />
           </>
         )}
 
-        {(lastOrder || lastPast) && (
-          <div className="again-stack">
-            {lastPast && <RebookCard reservation={lastPast} />}
-            {lastOrder && <ReorderCard order={lastOrder} />}
-          </div>
-        )}
+        {(lastOrder || lastPast) && <AgainTiles reservation={lastPast} order={lastOrder} />}
 
-        {status.kind !== 'in-use' && <DrinkPicks orders={user ? myOrders : []} now={now} />}
-
-        <section aria-labelledby="best-title" className="block">
-          <div className="block-head">
-            <h2 id="best-title" className="block-title">머무름에 곁들이는 한 잔</h2>
-            <Link to="/order" className="text-link">메뉴 전체</Link>
-          </div>
-          {/* 베스트: 주문 데이터가 없어 운영자가 고른 대표 메뉴. 순위·판매량처럼 읽히는 말은 쓰지 않는다 (필수 규칙 5) */}
-          <p className="group-hint">어떤 시간에도 잘 어울리는, Aulo의 대표 메뉴예요</p>
-          <ul className="best-list" aria-label="대표 메뉴">
-            {BEST_MENU.map((id) => MENU.value.find((d) => d.id === id)).map((d) => (
-              <li key={d.id}>
-                <Link to={needsTemp(d) ? `/menu/${d.id}?temp=${BEST_MENU_TEMP}` : `/menu/${d.id}`} className="best-item">
-                  <DrinkThumb drink={d} temp={BEST_MENU_TEMP} size="card" />
-                  <span className="best-item__name">{d.name}</span>
-                  <span className="best-item__price">{formatWon(d.price)}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <DrinkShelf orders={user ? myOrders : []} now={now} showPicks={status.kind !== 'in-use'} />
 
         <section aria-labelledby="spaces-title" className="block">
           <div className="block-head">
@@ -170,60 +146,110 @@ function UpcomingCard({ reservation: r, now }) {
 function StoreToday({ now }) {
   const { closed, nextHoliday } = storeToday(now, isHoliday, addDays);
   return (
-    <p className="store-today">
-      {closed
-        ? <><span className="store-today__dot store-today__dot--off" aria-hidden="true" />오늘은 공휴일 휴무예요</>
-        : <><span className="store-today__dot" aria-hidden="true" />오늘 {formatTime(HOURS.open)}–{formatTime(HOURS.close)} 운영 · {formatTime(HOURS.checkout)} 퇴실</>}
-      {nextHoliday && <span className="store-today__next">{formatDate(nextHoliday)} 휴무</span>}
+    <p className="store-today" data-closed={closed || undefined}>
+      {closed ? '오늘은 공휴일 휴무' : `오늘 ${formatTime(HOURS.open)}–${formatTime(HOURS.close)}`}
+      {nextHoliday && <> · {formatDate(nextHoliday).replace(/ \(.\)$/, '')} 휴무</>}
     </p>
   );
 }
 
-const PURPOSE_ICON = { coffee: 'cup', work: 'clock', rest: 'home', private: 'door' };
-function PurposeChips() {
+// 예약 없음: 매장 사진 위에 목적 칩을 얹는다. 칩을 누르면 추천의 두 번째 질문부터 시작
+function PurposeHero() {
   const purpose = QUESTIONS[0];
   return (
-    <section className="block" aria-labelledby="purpose-title">
-      <h2 id="purpose-title" className="block-title">무엇을 하러 오세요?</h2>
-      <p className="group-hint">고르면 이어서 두 가지만 물어보고 맞는 공간을 찾아 드려요</p>
-      <ul className="purpose-grid">
-        {purpose.options.map((o) => (
-          <li key={o.id}>
-            <Link to={`/recommend?purpose=${o.id}`} className="purpose-chip">
-              <span className="purpose-chip__icon" aria-hidden="true"><Icon name={PURPOSE_ICON[o.id] ?? 'compass'} size={20} /></span>
-              <span className="purpose-chip__label">{o.label}</span>
-            </Link>
-          </li>
-        ))}
-      </ul>
+    <section className="purpose-hero" aria-labelledby="purpose-title">
+      <SpaceImage space={SPACES.cafe} eager />
+      <div className="purpose-hero__body">
+        <h2 id="purpose-title" className="purpose-hero__title">무엇을 하러 오세요?</h2>
+        <p className="purpose-hero__text">고르면 두 가지만 더 묻고 맞는 공간을 찾아 드려요</p>
+        <ul className="purpose-hero__chips">
+          {purpose.options.map((o) => (
+            <li key={o.id}><Link to={`/recommend?purpose=${o.id}`} className="glass-chip">{o.label}</Link></li>
+          ))}
+        </ul>
+      </div>
     </section>
   );
 }
 
-// 음료 추천: 시간대(비로그인)·최근 주문(로그인)을 근거로, 카드마다 이유 한 줄 (필수 규칙 5)
-function DrinkPicks({ orders, now }) {
-  const { slot, picks } = drinkPicks({ orders, now });
-  if (!picks.length) return null;
-  const hasRecent = picks.some((p) => p.basis === 'recent');
+// 한 번에 다시 하기 (필수 규칙 1): 사진이 있는 작은 타일 두 장
+function AgainTiles({ reservation: r, order }) {
+  const reorder = useReorder();
+  const first = order ? parseKey(sortedKeys(reorderItems(order))[0]) : null;
+  const drink = first ? getDrink(first.id) : null;
   return (
-    <section className="block" aria-labelledby="picks-title">
-      <div className="block-head">
-        <h2 id="picks-title" className="block-title">지금 마시기 좋은 음료</h2>
+    <section className="block" aria-labelledby="again-title">
+      <h2 id="again-title" className="block-title">지난번처럼</h2>
+      <div className={`again-tiles${r && order && drink ? '' : ' again-tiles--single'}`}>
+        {r && (
+          <Link to={rebookPath(r)} className="again-tile">
+            <SpaceImage space={SPACES[r.type]} />
+            <span className="again-tile__body">
+              <span className="again-tile__kicker">다시 예약</span>
+              <span className="again-tile__what">{SPACES[r.type].name}</span>
+              <span className="again-tile__meta">{formatTime(r.start)}부터 {r.hours}시간</span>
+            </span>
+          </Link>
+        )}
+        {order && drink && (
+          <button type="button" className="again-tile" onClick={() => reorder(order)}>
+            <DrinkThumb drink={drink} temp={first.temp} size="card" />
+            <span className="again-tile__body">
+              <span className="again-tile__kicker">다시 담기</span>
+              <span className="again-tile__what">{itemsSummary(reorderItems(order))}</span>
+              <span className="again-tile__meta">같은 옵션으로 장바구니에</span>
+            </span>
+          </button>
+        )}
       </div>
-      <p className="group-hint">{hasRecent ? `${slot.label} 시간대와 최근 주문을` : `${slot.label} 시간대를`} 바탕으로 골랐어요</p>
-      <ul className="list-card pick-list">
-        {picks.map(({ drink, temp, reason }) => {
-          const showTemp = needsTemp(drink) ? (temp ?? BEST_MENU_TEMP) : null;
-          const tempInfo = TEMPS.find((t) => t.value === temp);
+    </section>
+  );
+}
+
+// 음료: 홈 구성 결정의 '추천'과 '베스트'를 한 섹션의 두 탭으로 (같은 사진 카드)
+// 추천은 이유를 제목 한 줄로 보여 주고(필수 규칙 5), 이용 중에는 상태 카드의 추천 한 줄만 두므로 숨긴다
+function DrinkShelf({ orders, now, showPicks }) {
+  const { slot, picks } = drinkPicks({ orders, now });
+  const hasPicks = showPicks && picks.length > 0;
+  const [tab, setTab] = useState(hasPicks ? 'picks' : 'best');
+  const current = hasPicks && tab === 'picks' ? 'picks' : 'best';
+  const hasRecent = picks.some((p) => p.basis === 'recent');
+  const items = current === 'picks'
+    ? picks.map((p) => ({ drink: p.drink, temp: p.temp, tag: p.basis === 'recent' ? '지난 주문' : null }))
+    : BEST_MENU.map((id) => ({ drink: MENU.value.find((d) => d.id === id), temp: null, tag: null }));
+  return (
+    <section aria-labelledby="best-title" className="block drink-shelf">
+      <div className="block-head">
+        <h2 id="best-title" className="block-title">머무름에 곁들이는 한 잔</h2>
+        <Link to="/order" className="text-link">메뉴 전체</Link>
+      </div>
+      {hasPicks && (
+        <div className="text-tabs" role="tablist" aria-label="음료 분류">
+          <button type="button" role="tab" aria-selected={current === 'picks'} onClick={() => setTab('picks')}>지금 추천</button>
+          <button type="button" role="tab" aria-selected={current === 'best'} onClick={() => setTab('best')}>대표 메뉴</button>
+        </div>
+      )}
+      {current === 'picks' ? (
+        <p className="shelf-reason">
+          <span className="shelf-reason__kicker" lang="en">{slot.en}</span>
+          {slot.reason}{hasRecent ? ' · 지난 주문도 함께 담았어요' : ''}
+        </p>
+      ) : (
+        // 베스트: 주문 데이터가 없어 운영자가 고른 대표 메뉴. 순위·판매량처럼 읽히는 말은 쓰지 않는다 (필수 규칙 5)
+        <p className="shelf-reason">어떤 시간에도 잘 어울리는, Aulo의 대표 메뉴예요</p>
+      )}
+      <ul className="best-list" aria-label={current === 'picks' ? '지금 추천 음료' : '대표 메뉴'}>
+        {items.map(({ drink: d, temp, tag }) => {
+          const showTemp = needsTemp(d) ? (temp ?? BEST_MENU_TEMP) : null;
           return (
-            <li key={drink.id}>
-              <Link to={showTemp ? `/menu/${drink.id}?temp=${showTemp}` : `/menu/${drink.id}`} className="pick-row">
-                <DrinkThumb drink={drink} temp={showTemp} size="sm" />
-                <span className="pick-row__text">
-                  <span className="pick-row__name">{tempInfo && <span className="temp-chip" data-temp={temp}>{tempInfo.short}</span>}{drink.name}</span>
-                  <span className="pick-row__reason">{reason}</span>
+            <li key={d.id}>
+              <Link to={showTemp ? `/menu/${d.id}?temp=${showTemp}` : `/menu/${d.id}`} className="best-item">
+                <span className="best-item__media">
+                  <DrinkThumb drink={d} temp={showTemp} size="card" />
+                  {tag && <span className="best-item__tag">{tag}</span>}
                 </span>
-                <span className="pick-row__price">{formatWon(drink.price)}</span>
+                <span className="best-item__name">{temp ? `${TEMPS.find((t) => t.value === temp).label} ` : ''}{d.name}</span>
+                <span className="best-item__price">{formatWon(d.price)}</span>
               </Link>
             </li>
           );

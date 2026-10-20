@@ -882,33 +882,6 @@ a.again-card:active { transform: scale(0.99); }
 .rebook-note { align-items: flex-start; line-height: 1.5; }
 .rebook-note { margin-top: 0; }
 
-/* ── 홈: 지금 매장의 오늘 ── */
-.home-store { display: flex; flex-direction: column; gap: var(--space-2); }
-.store-today { display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--space-2); font-size: 0.8125rem; color: var(--color-text-sub); padding-left: var(--space-1); }
-.store-today__dot { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--color-olive); vertical-align: 1px; }
-.store-today__dot--off { background: var(--color-error); }
-.store-today__next { padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--color-bg-sub); font-weight: 600; }
-
-/* ── 홈: 목적 칩 ── */
-.purpose-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-3); }
-.purpose-chip {
-  display: flex; align-items: center; gap: var(--space-3); min-height: 64px; padding: var(--space-3);
-  border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-text);
-  transition: transform var(--press) var(--ease);
-}
-.purpose-chip:active { transform: scale(0.97); }
-.purpose-chip__icon { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%; background: var(--cafe-bg); color: var(--cafe-fg); }
-.purpose-chip__label { font-size: 0.9375rem; font-weight: 700; line-height: 1.35; }
-
-/* ── 홈: 음료 추천 (이유 한 줄) ── */
-.pick-list { margin-top: var(--space-3); }
-.pick-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); color: var(--color-text); }
-.pick-list > li:last-child .pick-row { border-bottom: 0; }
-.pick-row:active { background: var(--color-bg); }
-.pick-row__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.pick-row__name { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.9375rem; }
-.pick-row__reason { font-size: 0.8125rem; color: var(--color-text-sub); line-height: 1.45; }
-.pick-row__price { flex-shrink: 0; font-size: 0.875rem; font-weight: 600; color: var(--color-text-sub); }
 
 /* ── 예약 상세: 지금 알아 둘 것 / 전체 규칙 ── */
 .live-panel { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
@@ -953,3 +926,56 @@ a.again-card:active { transform: scale(0.99); }
 .notice-card__body { font-size: 0.875rem; color: var(--color-text-sub); line-height: 1.55; }
 .notice-card__dates { display: flex; flex-wrap: wrap; gap: 6px; }
 .notice-card__dates li { padding: 2px var(--space-2); border-radius: var(--radius-pill); background: var(--color-bg-sub); font-size: 0.8125rem; font-weight: 600; }
+
+/* ── 홈 리디자인 (2026-10-20): 박스·아이콘 원을 줄이고 사진과 타이포로 ── */
+/* 지금 매장 + 오늘: 한 줄 메타 */
+.home-meta { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); margin-bottom: calc(var(--space-2) * -1); }
+.store-picker--inline { min-height: 36px; padding: 0 var(--space-1) 0 0; border: 0; background: none; box-shadow: none; gap: 4px; }
+.store-picker--inline .store-picker__name { font-size: 1rem; }
+.store-picker--inline .icon:last-child { color: var(--color-text-sub); }
+.store-today { font-size: 0.8125rem; color: var(--color-text-sub); text-align: right; }
+.store-today[data-closed] { color: var(--color-error); font-weight: 600; }
+
+/* 예약 없음: 사진 위 목적 칩 */
+.purpose-hero { position: relative; border-radius: var(--radius-xl); overflow: hidden; color: #FFFFFF; box-shadow: var(--shadow-float); }
+.purpose-hero .photo { aspect-ratio: 4 / 3.4; }
+.purpose-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(48, 43, 38, 0.05) 0%, rgba(48, 43, 38, 0.35) 38%, rgba(48, 43, 38, 0.86) 100%); pointer-events: none; }
+.purpose-hero__body { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; display: flex; flex-direction: column; gap: 4px; padding: var(--space-5); }
+.purpose-hero__title { font-size: 1.375rem; font-weight: 700; letter-spacing: -0.02em; }
+.purpose-hero__text { font-size: 0.875rem; opacity: 0.88; }
+.purpose-hero__chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-3); }
+.purpose-hero__chips .glass-chip { width: 100%; justify-content: center; text-align: center; padding: 0 var(--space-2); }
+.glass-chip {
+  display: inline-flex; align-items: center; min-height: 40px; padding: 0 var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.38); border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.16); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px);
+  color: #FFFFFF; font-size: 0.875rem; font-weight: 600; transition: background-color var(--press) var(--ease), transform var(--press) var(--ease);
+}
+.glass-chip:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.3); }
+.glass-chip:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
+
+/* 지난번처럼: 사진 타일 두 장 */
+.again-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
+.again-tile { display: flex; flex-direction: column; padding: 0; border: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-text); font: inherit; text-align: left; cursor: pointer; transition: transform var(--press) var(--ease); }
+.again-tile:active { transform: scale(0.98); }
+.again-tile .photo, .again-tile .drink-thumb--card { width: 100%; aspect-ratio: 16 / 10; border-radius: 0; }
+.again-tile .photo img, .again-tile .drink-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.again-tile__body { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3); }
+.again-tile__kicker { font-size: 0.75rem; font-weight: 700; color: var(--color-olive); }
+.again-tile__what { font-size: 0.9375rem; font-weight: 700; line-height: 1.35; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.again-tile__meta { font-size: 0.8125rem; color: var(--color-text-sub); }
+/* 한 장뿐이면 가로로 길게: 왼쪽 사진, 오른쪽 글 */
+.again-tiles--single { grid-template-columns: 1fr; }
+.again-tiles--single .again-tile { flex-direction: row; align-items: center; }
+.again-tiles--single .again-tile .photo, .again-tiles--single .again-tile .drink-thumb--card { width: 112px; flex-shrink: 0; aspect-ratio: 1; }
+.again-tiles--single .again-tile__body { padding: var(--space-3) var(--space-4); }
+
+/* 음료: 텍스트 탭 + 이유 한 줄 + 사진 카드 */
+.text-tabs { display: flex; gap: var(--space-4); margin-top: var(--space-2); border-bottom: 1px solid var(--color-hairline); }
+.text-tabs button { position: relative; min-height: 40px; padding: 0; border: 0; background: none; font: inherit; font-size: 0.9375rem; font-weight: 600; color: var(--color-text-sub); cursor: pointer; }
+.text-tabs button[aria-selected="true"] { color: var(--color-text); font-weight: 700; }
+.text-tabs button[aria-selected="true"]::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; border-radius: 2px; background: var(--color-text); }
+.shelf-reason { margin-top: var(--space-3); font-size: 0.875rem; line-height: 1.55; color: var(--color-text-sub); }
+.shelf-reason__kicker { display: block; margin-bottom: 2px; font-family: var(--font-en); font-size: 0.6875rem; font-weight: 700; letter-spacing: 2px; color: var(--color-olive); }
+.best-item__media { position: relative; display: block; }
+.best-item__tag { position: absolute; left: 8px; top: 8px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--glass); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-size: 0.6875rem; font-weight: 700; color: var(--color-text); }

@@ -1,9 +1,7 @@
-import { Link, useNavigate } from 'react-router-dom';
-import { SPACES } from '../config/policy.js';
+import { useNavigate } from 'react-router-dom';
 import { useAppData } from '../lib/AppData.jsx';
-import { rebookPath, reorderItems } from '../lib/again.js';
+import { reorderItems } from '../lib/again.js';
 import { drinkLabel, parseKey, sortedKeys } from '../lib/order.js';
-import { formatTime } from '../lib/time.js';
 import Icon from './Icon.jsx';
 
 // 담긴 음료 요약: '핫 카페라떼 2잔 외 1'
@@ -35,19 +33,5 @@ export function ReorderCard({ order }) {
       </span>
       <button type="button" className="button button--secondary button--small" onClick={() => reorder(order)}>다시 담기</button>
     </section>
-  );
-}
-
-export function RebookCard({ reservation: r }) {
-  const space = SPACES[r.type];
-  return (
-    <Link to={rebookPath(r)} className="again-card" aria-label={`지난 예약 다시 예약: ${space.name}`}>
-      <span className="again-card__icon" aria-hidden="true"><Icon name="repeat" size={20} /></span>
-      <span className="again-card__text">
-        <span className="again-card__label">지난번처럼 예약하기</span>
-        <span className="again-card__what">{space.name} · {formatTime(r.start)}부터 {r.hours}시간</span>
-      </span>
-      <span className="again-card__go">다시 예약<Icon name="chevron" size={16} /></span>
-    </Link>
   );
 }

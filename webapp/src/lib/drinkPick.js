@@ -9,10 +9,10 @@ import { minutesOfDay } from './time.js';
 
 // 시간대별 제안: 이유는 시간대 자체(아침·식사 뒤·오후·저녁)만 말한다
 export const TIME_PICKS = [
-  { until: 11 * 60, label: '아침', reason: '하루를 여는 시간, 기본에 충실한 커피로 시작해요', drinks: ['americano', 'latte'] },
-  { until: 14 * 60, label: '점심', reason: '식사 뒤에는 깔끔하고 가볍게', drinks: ['americano', 'earl-grey'] },
-  { until: 17 * 60, label: '오후', reason: '오후엔 달콤한 한 잔으로 한 템포 쉬어 가요', drinks: ['vanilla-latte', 'caramel-macchiato'] },
-  { until: HOURS.close, label: '저녁', reason: '저녁엔 커피 없이 편하게 마무리해요', drinks: ['yuja-tea', 'hot-chocolate'] },
+  { until: 11 * 60, label: '아침', en: 'MORNING', reason: '하루를 여는 시간, 기본에 충실한 커피로 시작해요', drinks: ['americano', 'latte'] },
+  { until: 14 * 60, label: '점심', en: 'MIDDAY', reason: '식사 뒤에는 깔끔하고 가볍게', drinks: ['americano', 'earl-grey'] },
+  { until: 17 * 60, label: '오후', en: 'AFTERNOON', reason: '오후엔 달콤한 한 잔으로 한 템포 쉬어 가요', drinks: ['vanilla-latte', 'caramel-macchiato'] },
+  { until: HOURS.close, label: '저녁', en: 'EVENING', reason: '저녁엔 커피 없이 편하게 마무리해요', drinks: ['yuja-tea', 'hot-chocolate'] },
 ];
 export const timePick = (now) => {
   const m = minutesOfDay(now);
