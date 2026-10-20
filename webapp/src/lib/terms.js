@@ -43,7 +43,7 @@ export const SERVICE_TERMS = {
     },
     { title: '제8조 이용 연장', body: [`${SPACES.focus.name}·${SPACES.rest.name}는 현장에서 ${EXTENSION.unitMinutes}분 단위로 최대 ${EXTENSION.maxMinutes / 60}시간까지 연장할 수 있습니다. 폐점 ${EXTENSION.cutoffBeforeCloseMinutes / 60}시간 전까지만 가능하며, 다음 예약과 겹치거나 최대 시간으로 예약한 경우에는 연장할 수 없습니다. ${SPACES.suite.name}는 연장하지 않습니다.`] },
     { title: '제9조 스탬프와 포인트', body: [`음료 1잔당 스탬프 ${REWARDS.stampsPerDrink}개, 좌석 이용료 결제 금액의 ${REWARDS.pointRate * 100}%를 포인트로 적립합니다. 포인트는 좌석 이용료 결제에만 쓸 수 있고(1P = 1원), 음료 주문에는 쓸 수 없습니다.`] },
-    { title: '제10조 회원 탈퇴', body: ['회원은 언제든 탈퇴를 요청할 수 있습니다. 탈퇴하면 남은 스탬프와 포인트는 모두 소멸하며, 다시 가입해도 되살릴 수 없습니다.', '탈퇴할 때 남아 있는 예약(이용 예정·이용 중)은 자동으로 취소됩니다.'] },
+    { title: '제10조 회원 탈퇴', body: ['회원은 언제든 탈퇴를 요청할 수 있습니다. 탈퇴하면 남은 스탬프와 포인트는 모두 소멸하며, 다시 가입해도 되살릴 수 없습니다.', '탈퇴할 때 남아 있는 이용 예정 예약은 자동으로 취소됩니다. 좌석을 이용 중일 때는 이용이 끝난 뒤에 탈퇴할 수 있습니다.'] },
   ],
 };
 

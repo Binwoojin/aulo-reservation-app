@@ -1434,9 +1434,21 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .withdraw-cancel__list { display: flex; flex-direction: column; border-radius: var(--radius-md); background: var(--color-surface); }
 .withdraw-cancel__list li { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); font-size: 0.875rem; }
 .withdraw-cancel__list li:last-child { border-bottom: 0; }
-.withdraw-cancel__head { display: flex; align-items: center; gap: var(--space-2); }
 .withdraw-cancel__space { font-family: var(--font-logo); font-size: 1rem; font-weight: 600; }
 .withdraw-cancel__when { color: var(--color-text-sub); }
-.withdraw-cancel__now { padding: 2px var(--space-2); border-radius: 999px; background: var(--color-olive-light); color: var(--color-olive-hover); font-size: 0.75rem; font-weight: 700; }
+.withdraw-block { display: flex; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--grad-sage); border: 1px solid var(--color-hairline); font-size: 0.875rem; }
+.withdraw-block > .icon { flex-shrink: 0; color: var(--color-olive); }
+.withdraw-block__title { margin-bottom: var(--space-1); font-size: 0.9375rem; font-weight: 700; }
+.withdraw-block b { font-family: var(--font-logo); font-weight: 600; }
 /* 확인창 두 버튼 (닫기 / 확인 동작): 같은 너비로 나란히 */
 .notice__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
+
+/* 로그인: 포트폴리오 데모 계정 안내 */
+.demo-account { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--grad-sage); border: 1px solid var(--color-hairline); }
+.demo-account__text { flex: 1; min-width: 0; }
+.demo-account__title { margin-bottom: var(--space-1); font-size: 0.8125rem; font-weight: 700; color: var(--color-olive-hover); }
+.demo-account__list { display: flex; flex-direction: column; gap: 2px; font-size: 0.875rem; }
+.demo-account__list div { display: flex; gap: var(--space-2); }
+.demo-account__list dt { width: 4.5em; flex-shrink: 0; color: var(--color-text-sub); }
+.demo-account__list dd { font-weight: 600; overflow-wrap: anywhere; }
+.demo-account__fill { min-height: 44px; }

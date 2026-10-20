@@ -5,6 +5,10 @@ import { drinkFee, reservationFee } from './reservation.js';
 import { addDays, minutesOfDay, toDateString } from './time.js';
 
 export const DEMO_EMAIL = 'demo@aulo.kr';
+// 포트폴리오 공유용 데모 계정. 데모 로그인은 형식만 확인하므로 이 비밀번호를 따로 저장하거나 검사하지 않는다.
+export const DEMO_PASSWORD = 'aulo1234';
+// 데모 계정으로 처음 로그인할 때(기록이 없을 때) 채우는 예시 기록
+export const DEMO_SEED_SCENARIO = 'returning';
 
 const reservation = (o) => ({
   owner: DEMO_EMAIL, requests: [], createdAt: new Date().toISOString(), pointsUsed: 0,

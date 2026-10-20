@@ -5,12 +5,13 @@ import { AppBar } from '../components/AppShell.jsx';
 import { NoticeDialog } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
 import { EMAIL_RE, MIN_PASSWORD, register } from '../lib/auth.js';
+import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_SEED_SCENARIO, SCENARIOS } from '../lib/scenarios.js';
 
 // 로그인 정책: 좌석 예약·음료 주문은 로그인해야 진입한다.
 // 비로그인으로 들어오면 이 화면으로 보내고(redirect), 로그인하면 원래 가려던 화면으로 돌려보낸다.
 // inline: 하단 '마이' 탭에서 그 자리에 바로 보여 줄 때
 export default function LoginPage({ inline = false }) {
-  const { user, login } = useAppData();
+  const { user, login, reservations, orders, storeId, loadScenario } = useAppData();
   const navigate = useNavigate();
   const location = useLocation();
   const [params] = useSearchParams();
@@ -30,7 +31,15 @@ export default function LoginPage({ inline = false }) {
     setErrors(next);
     if (Object.keys(next).length) return;
     register(email);
-    login(email.trim());
+    const isDemo = email.trim().toLowerCase() === DEMO_EMAIL;
+    const demoHasRecords = [...reservations, ...orders].some((x) => x.owner === DEMO_EMAIL);
+    if (isDemo && !demoHasRecords) {
+      // 데모 계정 첫 로그인: 지난 예약·최근 주문 예시를 채워 로그인 화면(다시 예약·다시 담기·적립)을 바로 볼 수 있게 한다
+      const seed = SCENARIOS.find((sc) => sc.id === DEMO_SEED_SCENARIO).build(new Date(), storeId);
+      loadScenario({ email: DEMO_EMAIL, reservations: [...reservations, ...seed.reservations], orders: [...orders, ...seed.orders] });
+    } else {
+      login(email.trim());
+    }
     if (!inline) navigate(redirect, { replace: true });
   };
 
@@ -42,6 +51,17 @@ export default function LoginPage({ inline = false }) {
       <AppBar title={inline ? '마이' : '로그인'} back={inline ? undefined : close} />
       <div className="screen-body order-body">
         <BrandBand id="login-title" script="welcome to aulo" title={<>로그인하고<br />예약과 주문을 이용하세요</>} hint="좌석 예약과 음료 주문은 스탬프·포인트 적립과 연결돼 로그인이 필요해요." />
+
+        <section className="demo-account" aria-labelledby="demo-account-title">
+          <div className="demo-account__text">
+            <p id="demo-account-title" className="demo-account__title">포트폴리오 데모 계정</p>
+            <dl className="demo-account__list">
+              <div><dt>아이디</dt><dd lang="en">{DEMO_EMAIL}</dd></div>
+              <div><dt>비밀번호</dt><dd lang="en">{DEMO_PASSWORD}</dd></div>
+            </dl>
+          </div>
+          <button type="button" className="button button--secondary button--small demo-account__fill" onClick={() => { setEmail(DEMO_EMAIL); setPassword(DEMO_PASSWORD); setErrors({}); }}>채우기</button>
+        </section>
 
         <form className="login-form" onSubmit={submit} noValidate>
           <label className="field">
@@ -72,7 +92,7 @@ export default function LoginPage({ inline = false }) {
 
         <p className="login-divider">또는</p>
         <button type="button" className="button button--kakao button--block" onClick={() => setKakaoOpen(true)}>카카오로 로그인</button>
-        <p className="login-note">데모 버전이라 형식에 맞는 이메일과 비밀번호면 로그인돼요. 정보는 이 기기에만 저장돼요.</p>
+        <p className="login-note">데모 버전이라 형식에 맞는 이메일과 비밀번호면 로그인돼요. 데모 계정으로 처음 로그인하면 지난 예약·최근 주문 예시가 채워져요. 정보는 이 기기에만 저장돼요.</p>
       </div>
 
       <NoticeDialog open={kakaoOpen} title="서비스 준비 중" onClose={() => setKakaoOpen(false)}>

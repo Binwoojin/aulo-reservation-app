@@ -121,7 +121,7 @@ export function AppDataProvider({ children }) {
       storeId,
       store,
       setStoreId,
-      // 회원 탈퇴: 내 예약(남은 예약은 자동 취소)·주문 기록과 가입 기록을 지우고 로그아웃한다 (스탬프·포인트는 기록에서 계산하므로 함께 사라진다)
+      // 회원 탈퇴: 내 예약(이용 예정은 자동 취소, 이용 중이면 화면에서 막는다)·주문 기록과 가입 기록을 지우고 로그아웃한다 (스탬프·포인트는 기록에서 계산하므로 함께 사라진다)
       withdraw: () => {
         if (!user) return;
         replaceReservations(reservations.filter((r) => !isMine(r, user)));
