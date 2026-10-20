@@ -444,12 +444,6 @@ a.ticket__link:active { background: var(--color-bg); }
 
 /* ---------- Order ---------- */
 .cup-thumb { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: var(--radius-md); background: var(--cafe-bg); color: var(--cafe-fg); }
-.order-card { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
-.order-card__main { flex: 1; min-width: 0; }
-.order-card__kind { font-size: 0.8125rem; color: var(--color-text-sub); }
-.order-card__items { font-weight: 600; }
-.order-card__meta { font-size: 0.75rem; color: var(--color-text-sub); margin-top: 2px; }
-.order-card__total { font-weight: 700; white-space: nowrap; }
 
 /* ---------- Info ---------- */
 .info-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
@@ -894,7 +888,6 @@ a.again-card:active { transform: scale(0.99); }
 
 .home-demo { align-self: center; margin-top: var(--space-2); }
 
-.order-card__again { align-self: flex-start; margin-top: var(--space-2); }
 .rebook-note { align-items: flex-start; line-height: 1.5; }
 .rebook-note { margin-top: 0; }
 
@@ -1227,8 +1220,6 @@ a.again-card:active { transform: scale(0.99); }
 .brand-band .text-tabs button[aria-selected="true"] { color: var(--cafe-fg); }
 .brand-band .text-tabs button[aria-selected="true"]::after { background: var(--cafe-fg); height: 3px; }
 .stat__value { font-family: var(--font-logo); font-weight: 600; color: var(--cafe-fg); }
-.order-card .drink-thumb--sm { aspect-ratio: 4 / 5; height: auto; border-radius: 50% 50% 8px 8px / 26px 26px 8px 8px; }
-.order-card__total { font-family: var(--font-logo); font-weight: 600; color: var(--cafe-fg); }
 .seat-menu .drink-thumb--sm { aspect-ratio: 4 / 5; height: auto; border-radius: 50% 50% 8px 8px / 26px 26px 8px 8px; }
 .result-card .photo { border-radius: 50% 50% 0 0 / 110px 110px 0 0; overflow: hidden; }
 .result-card .screen-title[lang="en"] { font-family: var(--font-logo); font-weight: 600; letter-spacing: -0.01em; }
@@ -1475,3 +1466,21 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .time-slot[data-state="reach"] { border: 1.5px dashed var(--color-olive); color: var(--color-olive-hover); }
 .time-slot[data-state="off"] { cursor: not-allowed; border-style: dashed; background: var(--color-bg); color: var(--color-text-sub); }
 .time-slot[data-state="off"] > span { text-decoration: line-through; }
+
+/* ---------- 주문 내역 카드: 머리(종류·날짜) → 받은 곳 → 음료 줄 → 합계 → 다시 담기 ---------- */
+.order-card { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-5) var(--space-5); background: var(--color-surface); border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); }
+.order-card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.order-card__kind { padding: 3px var(--space-3); border-radius: var(--radius-pill); background: var(--color-olive-light); color: var(--color-olive-hover); font-size: 0.75rem; font-weight: 700; }
+.order-card__kind[data-kind="cafe"] { background: var(--color-bg-sub); color: var(--cafe-fg); }
+.order-card__date { font-size: 0.8125rem; color: var(--color-text-sub); white-space: nowrap; }
+.order-card__where { margin-top: calc(var(--space-1) * -1); font-size: 0.875rem; font-weight: 600; }
+.order-card__items { display: flex; flex-direction: column; border-top: 1px solid var(--color-hairline); }
+.order-line { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--color-hairline); }
+.order-line .drink-thumb--sm { flex-shrink: 0; width: 44px; height: auto; aspect-ratio: 4 / 5; border-radius: 50% 50% 8px 8px / 20px 20px 8px 8px; }
+.order-line__name { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; font-size: 0.9375rem; font-weight: 600; }
+.order-line__name small { font-size: 0.75rem; font-weight: 500; color: var(--color-text-sub); }
+.order-line__qty { flex-shrink: 0; font-family: var(--font-logo); font-size: 1rem; font-weight: 600; color: var(--color-text-sub); }
+.order-card__foot { display: flex; align-items: baseline; justify-content: space-between; gap: var(--space-3); }
+.order-card__meta { font-size: 0.8125rem; color: var(--color-text-sub); }
+.order-card__total { font-family: var(--font-logo); font-size: 1.25rem; font-weight: 600; color: var(--cafe-fg); white-space: nowrap; }
+.order-card__again { gap: var(--space-2); min-height: 44px; }

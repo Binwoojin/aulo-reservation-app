@@ -3,6 +3,7 @@ import { SPACES } from '../config/policy.js';
 import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { useReorder } from '../components/AgainCard.jsx';
+import Icon from '../components/Icon.jsx';
 import { DrinkThumb } from '../components/ui.jsx';
 import { canReorder } from '../lib/again.js';
 import { getDrink, getStore } from '../lib/reservation.js';
@@ -28,17 +29,43 @@ export default function MyOrdersPage() {
           <ul className="stack">
             {list.map((o) => {
               const r = reservations.find((x) => x.id === o.reservationId);
-              const names = sortedKeys(o.items).map((k) => { const opts = parseKey(k); const extra = optionsText(opts); return `${drinkLabel(opts.id, opts.temp)}${extra ? `(${extra})` : ''} ${o.items[k]}`; }).join(', ');
+              const store = getStore(o.storeId ?? r?.storeId);
+              // 어디서 받았는지: 카페는 매장/테이크아웃, 좌석 주문은 공간·번호
+              const where = [o.kind === 'cafe' && o.serve ? SERVE_LABEL[o.serve] : null, r ? `${SPACES[r.type].name} ${r.unit}번` : null, store?.name].filter(Boolean).join(' · ');
+              const count = Object.values(o.items).reduce((a, b) => a + b, 0);
               return (
                 <li key={o.id} className="order-card">
-                  {(() => { const first = parseKey(sortedKeys(o.items)[0] ?? ''); const d = getDrink(first.id); return d ? <DrinkThumb drink={d} temp={first.temp} size="sm" /> : <span className="drink-thumb drink-thumb--sm" aria-hidden="true" />; })()}
-                  <div className="order-card__main">
-                    <p className="order-card__kind">{KIND_LABEL[o.kind]}{o.kind === 'cafe' && o.serve && ` · ${SERVE_LABEL[o.serve]}`}{r && ` · ${SPACES[r.type].name} ${r.unit}번`}{getStore(o.storeId ?? r?.storeId) && ` · ${getStore(o.storeId ?? r?.storeId).name}`}</p>
-                    <p className="order-card__items">{names}</p>
-                    <p className="order-card__meta">{formatOrderedAt(o.createdAt)}{BENEFIT_LABEL[o.benefit] ? ` · ${BENEFIT_LABEL[o.benefit]}` : ''}</p>
-                    {canReorder(o) && <button type="button" className="button button--secondary button--small order-card__again" onClick={() => reorder(o)}>다시 담기</button>}
+                  <div className="order-card__head">
+                    <span className="order-card__kind" data-kind={o.kind}>{KIND_LABEL[o.kind]}</span>
+                    <time className="order-card__date" dateTime={o.createdAt}>{formatOrderedAt(o.createdAt)}</time>
                   </div>
-                  <p className="order-card__total">{formatWon(o.total)}</p>
+                  {where && <p className="order-card__where">{where}</p>}
+                  <ul className="order-card__items" aria-label="주문한 음료">
+                    {sortedKeys(o.items).map((k) => {
+                      const opts = parseKey(k);
+                      const d = getDrink(opts.id);
+                      const extra = optionsText(opts);
+                      return (
+                        <li key={k} className="order-line">
+                          {d ? <DrinkThumb drink={d} temp={opts.temp} size="sm" /> : <span className="drink-thumb drink-thumb--sm" aria-hidden="true" />}
+                          <span className="order-line__name">
+                            {drinkLabel(opts.id, opts.temp)}
+                            {extra && <small>{extra}</small>}
+                          </span>
+                          <span className="order-line__qty" lang="en">× {o.items[k]}</span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                  <div className="order-card__foot">
+                    <span className="order-card__meta">총 {count}잔{BENEFIT_LABEL[o.benefit] ? ` · ${BENEFIT_LABEL[o.benefit]}` : ''}</span>
+                    <span className="order-card__total" lang="en">{formatWon(o.total)}</span>
+                  </div>
+                  {canReorder(o) && (
+                    <button type="button" className="button button--secondary button--block order-card__again" onClick={() => reorder(o)}>
+                      <Icon name="repeat" size={18} />같은 주문 다시 담기
+                    </button>
+                  )}
                 </li>
               );
             })}
