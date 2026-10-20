@@ -55,7 +55,7 @@ export default function CartPage() {
     <>
       <AppBar back title="장바구니" />
       <div className="screen-body has-bottom-bar">
-        <StorePicker label="주문 매장" />
+        <StorePicker label="주문 매장" forOrder />
         <OptionList legend="이용 방법" name="serve" value={cart.serve} onChange={setCartServe} options={SERVE_OPTIONS} />
 
         <section className="block" aria-labelledby="cart-title">

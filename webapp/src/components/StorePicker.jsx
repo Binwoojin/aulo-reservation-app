@@ -5,7 +5,8 @@ import Icon from './Icon.jsx';
 import { BottomSheet, OptionList, Provisional } from './ui.jsx';
 
 // 지금 매장 표시 + 바꾸기 (필수 규칙 4). 홈에서 고른 매장을 앱 전체가 함께 쓴다.
-export default function StorePicker({ label = '지금 매장' }) {
+// 음료 주문(주문 탭·장바구니)에서는 forOrder: 테이크아웃·Cafe 손님도 쓰므로 Focus·Rest·Suite 좌석 정보를 보여 주지 않는다.
+export default function StorePicker({ label = '지금 매장', forOrder = false }) {
   const { store, storeId, setStoreId } = useAppData();
   const [open, setOpen] = useState(false);
   return (
@@ -23,11 +24,13 @@ export default function StorePicker({ label = '지금 매장' }) {
           name="store-pick"
           value={storeId}
           onChange={(id) => { setStoreId(id); setOpen(false); }}
-          hint={<>홈의 공간 정보와 음료 주문이 이 매장 기준으로 바뀌어요. <Provisional note={STORES.note} /></>}
+          hint={forOrder
+            ? <>음료 주문이 이 매장으로 접수돼요. <Provisional note="매장 임시 설정 — 성수·연남 2곳" /></>
+            : <>홈의 공간 정보와 음료 주문이 이 매장 기준으로 바뀌어요. <Provisional note={STORES.note} /></>}
           options={STORES.value.map((s) => ({
             value: s.id,
             label: s.name,
-            detail: `Focus 좌석 ${s.units.focus} · Rest 좌석 ${s.units.rest} · Suite 공간 ${s.units.suite}`,
+            detail: forOrder ? undefined : `Focus 좌석 ${s.units.focus} · Rest 좌석 ${s.units.rest} · Suite 공간 ${s.units.suite}`,
           }))}
         />
       </BottomSheet>

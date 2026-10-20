@@ -32,7 +32,7 @@ export default function OrderPage() {
         )}
       </AppBar>
       <div className="screen-body">
-        <StorePicker label="주문 매장" />
+        <StorePicker label="주문 매장" forOrder />
         {lastOrder && <ReorderCard order={lastOrder} />}
         <Segmented
           label="메뉴 카테고리"
