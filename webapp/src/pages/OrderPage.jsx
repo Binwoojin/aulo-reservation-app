@@ -3,6 +3,7 @@ import { MENU, MENU_CATEGORIES } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { DrinkThumb, Segmented } from '../components/ui.jsx';
+import { drinkTemps, needsTemp } from '../lib/drink.js';
 import { useAppData } from '../lib/AppData.jsx';
 import { formatWon } from '../lib/time.js';
 
@@ -35,7 +36,8 @@ export default function OrderPage() {
         <ul className="menu-grid" aria-label={`${MENU_CATEGORIES.find((c) => c.id === category).label} 메뉴`}>
           {list.map((d) => (
             <li key={d.id}>
-              <Link to={`/menu/${d.id}`} className="menu-card">
+              {/* 사진에 보이는 온도(ICE/HOT 음료는 HOT)가 상세에서 선택된 상태로 열린다 */}
+              <Link to={needsTemp(d) ? `/menu/${d.id}?temp=${drinkTemps(d)[0]}` : `/menu/${d.id}`} className="menu-card">
                 <DrinkThumb drink={d} size="card" />
                 <span className="menu-card__name">{d.name}</span>
                 <span className="menu-card__price">{formatWon(d.price)}</span>
