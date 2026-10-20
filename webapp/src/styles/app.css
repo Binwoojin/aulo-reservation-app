@@ -1063,3 +1063,25 @@ a.again-card:active { transform: scale(0.99); }
 .again-tile__body { background: var(--grad-cream); }
 .status-progress span { background: linear-gradient(90deg, rgba(255, 255, 255, 0.75) 0%, #FFFFFF 100%); }
 .status-progress--light span { background: linear-gradient(90deg, #8A9670 0%, var(--color-olive) 100%); }
+
+/* ── Aulo의 하루: 비교 카드 (특징 아이콘 · 좌석 수 · 시간 · 가격) ── */
+.day-card { align-items: stretch; }
+.day-card .photo { height: auto; min-height: 96px; align-self: stretch; }
+.day-card__features { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.day-card__features > span { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px 2px 5px; border-radius: var(--radius-pill); background: var(--color-bg-sub); font-size: 0.6875rem; font-weight: 600; color: var(--color-text-sub); }
+.day-card__features .icon { color: var(--color-olive); }
+.day-card__facts { display: flex; flex-wrap: wrap; gap: 2px 10px; margin-top: 4px; font-size: 0.75rem; color: var(--color-text-sub); }
+.day-card__facts strong { margin-right: 1px; font-family: var(--font-logo); font-size: 0.9375rem; font-weight: 600; color: var(--color-text); }
+.day-line__item[data-now] .day-card__features > span { background: rgba(255, 255, 255, 0.7); }
+
+/* ── 적립 위젯 ── */
+.reward-strip {
+  display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4);
+  border-radius: var(--radius-lg); background: var(--grad-sage); box-shadow: var(--shadow-card); color: var(--color-text);
+  transition: transform var(--press) var(--ease);
+}
+.reward-strip:active { transform: scale(0.99); }
+.reward-strip__stats { display: flex; align-items: center; gap: var(--space-4); font-size: 0.8125rem; color: var(--color-text-sub); }
+.reward-strip__stats strong { margin-right: 4px; font-family: var(--font-logo); font-size: 1.5rem; font-weight: 600; color: var(--color-text); vertical-align: -2px; }
+.reward-strip__sep { width: 1px; height: 20px; background: var(--color-border); }
+.reward-strip__action { display: flex; align-items: center; justify-content: space-between; gap: var(--space-2); padding-top: var(--space-2); border-top: 1px solid var(--color-hairline); font-size: 0.875rem; font-weight: 600; color: var(--color-olive-hover); }

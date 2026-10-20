@@ -14,6 +14,7 @@ import { HALF_LIMIT, orderKindFor, parseKey, remainingBenefits, sortedKeys } fro
 import { canCancel, getDrink, getStore, isHoliday, reservationEnd } from '../lib/reservation.js';
 import { daysUntil, formatDuration, homeStatus, storeToday } from '../lib/status.js';
 import { drinkPicks } from '../lib/drinkPick.js';
+import { pointBalance, stampCount } from '../lib/rewards.js';
 import { QUESTIONS } from '../lib/recommend.js';
 import { TEMPS } from '../lib/order.js';
 import { addDays, formatDate, formatTime, formatWon, minutesOfDay } from '../lib/time.js';
@@ -52,6 +53,8 @@ export default function HomePage() {
         )}
 
         {(lastOrder || lastPast) && <AgainTiles reservation={lastPast} order={lastOrder} />}
+
+        {user && <RewardStrip />}
 
         <DrinkShelf orders={user ? myOrders : []} now={now} showPicks={status.kind !== 'in-use'} />
 
@@ -285,10 +288,18 @@ function AuloDay({ now }) {
                 <span className="day-card__body">
                   <span className="day-card__kicker" lang="en">{d.en} · {space.name}</span>
                   <span className="day-card__headline">{space.headline}</span>
-                  <span className="day-card__meta">
-                    {space.reservable
-                      ? `${space.unitName} ${store.units[d.type]}개 · ${formatWon(space.pricePerHour)}/시간 · ${space.minHours}~${space.maxHours}시간`
-                      : '예약 없이 음료 주문 후 이용'}
+                  {/* 비교 카드: 특징 아이콘 · 지금 매장 좌석 수 · 이용 시간 범위 · 가격 */}
+                  <span className="day-card__features">
+                    {space.highlights.map((h) => <span key={h.label}><Icon name={h.icon} size={14} />{h.label}</span>)}
+                  </span>
+                  <span className="day-card__facts">
+                    {space.reservable ? (
+                      <>
+                        <span><strong lang="en">{store.units[d.type]}</strong>{space.unitName === '공간' ? '실' : '석'}</span>
+                        <span><strong lang="en">{space.minHours}~{space.maxHours}</strong>시간</span>
+                        <span><strong lang="en">{space.pricePerHour.toLocaleString('ko-KR')}</strong>원/시간</span>
+                      </>
+                    ) : <span>음료 주문 후 이용</span>}
                   </span>
                 </span>
               </Link>
@@ -304,5 +315,27 @@ function AuloDay({ now }) {
         </li>
       </ol>
     </section>
+  );
+}
+
+// 적립 위젯 (로그인): 스탬프·포인트 개수와 지금 할 수 있는 행동 한 줄.
+// 스탬프 교환 혜택은 정책에 없어 개수만 보여 준다. 포인트는 좌석 이용료에만 쓸 수 있다(1P = 1원).
+function RewardStrip() {
+  const { myOrders, myReservations } = useAppData();
+  const now = useNow();
+  const stamps = stampCount(myOrders, myReservations, now);
+  const points = pointBalance(myReservations, now);
+  return (
+    <Link to={points > 0 ? '/reserve' : '/my'} className="reward-strip" aria-label={`적립: 스탬프 ${stamps}개, 포인트 ${points}P`}>
+      <span className="reward-strip__stats">
+        <span><strong lang="en">{stamps}</strong>스탬프</span>
+        <span className="reward-strip__sep" aria-hidden="true" />
+        <span><strong lang="en">{points.toLocaleString('ko-KR')}</strong>포인트</span>
+      </span>
+      <span className="reward-strip__action">
+        {points > 0 ? `다음 좌석 예약에서 ${points.toLocaleString('ko-KR')}원 할인받을 수 있어요` : '좌석 이용료의 10%가 포인트로 쌓여요'}
+        <Icon name="chevron" size={16} />
+      </span>
+    </Link>
   );
 }

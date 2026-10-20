@@ -58,6 +58,8 @@ export const SPACES = {
     image: 'flow-cafe',
     reservable: false,
     summary: '음료 주문 후 이용하는 일반 카페 좌석입니다. 별도 좌석 예약은 없습니다.',
+    // 홈 비교 카드용 짧은 특징 (features·확정 정책에서 뽑은 것)
+    highlights: [{ icon: 'cup', label: '예약 없이 이용' }, { icon: 'bag', label: '매장·테이크아웃' }],
   },
   focus: {
     id: 'focus',
@@ -75,6 +77,7 @@ export const SPACES = {
     extraDrinkDiscount: 0.5,
     requests: [],
     features: ['가림막이 있는 반폐쇄형 개인 좌석', '좌석별 사물함', '추가 음료 50% 할인 (최대 2회)'],
+    highlights: [{ icon: 'partition', label: '가림막 개인 좌석' }, { icon: 'locker', label: '사물함' }, { icon: 'percent', label: '재주문 50%' }],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
     sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
     extendable: true,
@@ -99,6 +102,7 @@ export const SPACES = {
     ],
     // OTT 시청용 헤드셋은 요청 없이 모든 Rest 좌석에 기본 제공 (2026-10-19 확정)
     features: ['실내 반폐쇄형 1인 리클라이너', 'OTT 시청용 헤드셋 기본 제공', '사물함', '담요 무료 요청 (좌석당 1개)', '추가 음료 50% 할인 (최대 2회)'],
+    highlights: [{ icon: 'recliner', label: '리클라이너' }, { icon: 'headphones', label: '헤드셋' }, { icon: 'blanket', label: '담요 요청' }],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
     sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
     extendable: true,
@@ -119,6 +123,7 @@ export const SPACES = {
     drink: 'included', // 기본 음료 포함, 예약 시 선택
     requests: [],
     features: ['문으로 분리된 독립형 오피스', '보관함·공기청정기·냉난방·4구 콘센트', '공간 번호로 음료 배달 주문', '아메리카노·카페라떼 무료 리필 1회, 이후 50% 할인 최대 2회'],
+    highlights: [{ icon: 'door', label: '문 닫히는 방' }, { icon: 'tray', label: '음료 배달' }, { icon: 'repeat', label: '리필 1회' }],
     sameDayApp: false, // 공간 준비가 필요해 사전 예약만 받는다, 당일 예약 불가 (2026-10-19 결정)
     sameDayNote: '공간을 미리 준비해야 해서 사전 예약만 받아요. 당일 예약은 할 수 없어요.',
     extendable: false,

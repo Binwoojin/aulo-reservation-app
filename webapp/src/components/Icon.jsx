@@ -22,6 +22,13 @@ const PATHS = {
   bag: <><path d="M5.5 8h13l-1 11.5h-11z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></>,
   alert: <><path d="M12 4l9 16H3z" /><path d="M12 10v4" /><path d="M12 17h.01" /></>,
   down: <path d="M6 9l6 6 6-6" />,
+  partition: <><path d="M4 19V8l4-3v14" /><path d="M8 19h12" /><path d="M12 15h6" /><path d="M14 15v4" /></>,
+  locker: <><rect x="6" y="4" width="12" height="16" rx="1.5" /><path d="M6 12h12" /><path d="M10 8h1" /><path d="M10 16h1" /></>,
+  percent: <><path d="M6 18L18 6" /><circle cx="7.5" cy="7.5" r="2" /><circle cx="16.5" cy="16.5" r="2" /></>,
+  recliner: <><path d="M6 6l2 8h8l2 3" /><path d="M8 14l-1 5" /><path d="M16 14v5" /><path d="M10 10h5" /></>,
+  headphones: <><path d="M4.5 15v-3a7.5 7.5 0 0 1 15 0v3" /><rect x="4" y="14" width="4" height="6" rx="1.5" /><rect x="16" y="14" width="4" height="6" rx="1.5" /></>,
+  blanket: <><path d="M4 7c2.7-1.5 5.3 1.5 8 0s5.3 1.5 8 0v10c-2.7 1.5-5.3-1.5-8 0s-5.3-1.5-8 0z" /></>,
+  tray: <><path d="M4 15h16" /><path d="M6 15a6 6 0 0 1 12 0" /><path d="M12 7v2" /><path d="M5 18h14" /></>,
   bell: <><path d="M6.5 16.5V11a5.5 5.5 0 0 1 11 0v5.5l1.5 1.5h-14z" /><path d="M10 20.5a2 2 0 0 0 4 0" /></>,
   repeat: <><path d="M5 10a7 7 0 0 1 12-3.5L19 9" /><path d="M19 4.5V9h-4.5" /><path d="M19 14a7 7 0 0 1-12 3.5L5 15" /><path d="M5 19.5V15h4.5" /></>,
 };
