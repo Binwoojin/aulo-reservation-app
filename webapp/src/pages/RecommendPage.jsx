@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { SPACES } from '../config/policy.js';
 import { BrandBand } from '../components/BrandBand.jsx';
@@ -20,8 +20,18 @@ export default function RecommendPage() {
   const [answers, setAnswers] = useState(() => (preset ? { purpose: preset } : {}));
   const [step, setStep] = useState(preset ? 1 : 0);
   const done = step >= QUESTIONS.length;
+  // 마지막 답을 고르면 잠깐 '찾는 중' 화면을 보여 준 뒤 결과가 차례로 떠오른다 (움직임 줄이기면 짧게, 움직임 없이)
+  const [finding, setFinding] = useState(false);
+  useEffect(() => {
+    if (!finding) return undefined;
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const t = window.setTimeout(() => setFinding(false), reduce ? 300 : FINDING_MS);
+    return () => window.clearTimeout(t);
+  }, [finding]);
 
   const back = step > 0 ? () => setStep((s) => s - 1) : false;
+
+  if (done && finding) return <Finding answers={answers} />;
 
   if (done) {
     const result = recommend(answers);
@@ -31,17 +41,17 @@ export default function RecommendPage() {
       <>
         <AppBar back={back} title="추천 결과" />
         <div className="screen-body has-bottom-bar">
-          <article className="result-card">
+          <article className="result-card reveal" style={{ '--i': 0 }}>
             <SpaceImage space={space} eager />
             <div className="result-card__body">
-              <Tag type={result.primary}>추천 · {space.label}</Tag>
-              <h2 className="screen-title" lang="en">{space.name}</h2>
-              <p className="result-card__headline">{space.headline}</p>
-              <p className="muted">{result.reason}</p>
+              <span className="reveal" style={{ '--i': 1 }}><Tag type={result.primary}>추천 · {space.label}</Tag></span>
+              <h2 className="screen-title reveal" style={{ '--i': 1 }} lang="en">{space.name}</h2>
+              <p className="result-card__headline reveal" style={{ '--i': 2 }}>{space.headline}</p>
+              <p className="muted reveal" style={{ '--i': 3 }}>{result.reason}</p>
             </div>
           </article>
           {result.alternatives.length > 0 && (
-            <section className="block" aria-labelledby="alt-title">
+            <section className="block reveal" style={{ '--i': 4 }} aria-labelledby="alt-title">
               <h3 id="alt-title" className="block-title">이런 공간도 있어요</h3>
               <ul className="list-card">
                 {result.alternatives.map((type) => (
@@ -78,6 +88,7 @@ export default function RecommendPage() {
           value={answers[q.id]}
           onChange={(v) => {
             setAnswers((a) => ({ ...a, [q.id]: v }));
+            if (step === QUESTIONS.length - 1) setFinding(true);
             setStep((s) => s + 1);
           }}
         />
@@ -105,10 +116,14 @@ const CHOICE_LOOK = {
       long: { big: '5+', sub: '하루를 길게' },
     },
   },
+  // 환경: 이미지 없이 텍스트 박스로 고른다 (2026-10-20)
   privacy: {
-    // 이미지는 추후 어울리는 것으로 교체 예정: 지금은 아치형 임시 모양만 둔다 (placeholder)
-    layout: 'photo-row',
-    options: { open: { placeholder: true }, semi: { placeholder: true }, closed: { placeholder: true } },
+    layout: 'text',
+    options: {
+      open: { sub: '주변이 보여도 편하게 머물 수 있어요' },
+      semi: { sub: '옆 사람 시선이 가려지는 자리가 좋아요' },
+      closed: { sub: '통화하거나 혼자 집중할 방이 필요해요' },
+    },
   },
 };
 
@@ -123,7 +138,6 @@ function ChoiceCards({ question: q, value, onChange }) {
           <label key={o.id} className="choice" data-checked={value === o.id || undefined}>
             <input type="radio" name={q.id} value={o.id} checked={value === o.id} onChange={() => onChange(o.id)} />
             {v.icon && <span className="choice__icon" aria-hidden="true"><Icon name={v.icon} size={28} /></span>}
-            {v.placeholder && <span className="choice__placeholder" data-asset-slot="privacy-image" aria-hidden="true" />}
             {v.big && <span className="choice__big" lang="en">{v.big}<small>시간</small></span>}
             <span className="choice__text">
               <span className="choice__label">{o.label}</span>
@@ -134,5 +148,24 @@ function ChoiceCards({ question: q, value, onChange }) {
         );
       })}
     </fieldset>
+  );
+}
+
+// 결과를 찾는 동안: 고른 답이 하나씩 떠오르고, 아치 모양이 천천히 채워진다 (브랜드 모션 'Stay in your rhythm')
+const FINDING_MS = 1600;
+function Finding({ answers }) {
+  const picked = QUESTIONS.map((q) => q.options.find((o) => o.id === answers[q.id])?.label).filter(Boolean);
+  return (
+    <>
+      <AppBar title="공간 추천" />
+      <div className="screen-body finding" role="status" aria-live="polite">
+        <span className="finding__arch" aria-hidden="true"><span /></span>
+        <p className="shelf-script" lang="en">finding your space</p>
+        <h2 className="finding__title">답변에 맞는 공간을<br />고르고 있어요</h2>
+        <ul className="finding__answers" aria-label="고른 답">
+          {picked.map((label, i) => <li key={label} style={{ '--i': i }}>{label}</li>)}
+        </ul>
+      </div>
+    </>
   );
 }

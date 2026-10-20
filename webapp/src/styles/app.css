@@ -1335,5 +1335,22 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .choices--icon-grid .choice__text { margin-top: auto; }
 .choices--icon-grid .choice__go { display: none; }
 .choices--icon-grid .choice[data-checked] .choice__icon { background: var(--grad-olive); color: #FFFFFF; }
-/* 환경: 아치형 임시 모양 (추후 이미지로 교체) */
-.choice__placeholder { width: 72px; height: 90px; flex-shrink: 0; border-radius: 50% 50% 10px 10px / 36px 36px 10px 10px; background: linear-gradient(160deg, #EFE4D6 0%, #E4D5C2 100%); box-shadow: inset 0 0 0 1px rgba(121, 88, 68, 0.12); }
+
+/* 환경: 텍스트 박스 */
+.choices--text .choice { align-items: center; gap: var(--space-3); padding: var(--space-4) var(--space-5); min-height: 76px; background: var(--grad-cream); }
+.choices--text .choice__text { flex: 1; }
+
+/* ── 추천: 결과를 찾는 동안 → 결과가 차례로 떠오름 ── */
+.finding { align-items: center; justify-content: center; text-align: center; gap: var(--space-3); min-height: calc(100dvh - var(--bar-h) - var(--tab-h) - 40px); }
+.finding__arch { position: relative; width: 96px; height: 120px; margin-bottom: var(--space-3); border-radius: 50% 50% 16px 16px / 48px 48px 16px 16px; background: var(--cafe-bg); overflow: hidden; box-shadow: inset 0 0 0 1px rgba(121, 88, 68, 0.12); }
+.finding__arch span { position: absolute; left: 0; right: 0; bottom: 0; height: 0; background: var(--grad-olive-glow); animation: arch-fill 1500ms var(--ease-settle) forwards; }
+@keyframes arch-fill { to { height: 100%; } }
+.finding__title { font-size: 1.375rem; font-weight: 700; line-height: 1.4; letter-spacing: -0.02em; animation: reveal-up 640ms var(--ease-settle) both; }
+.finding .shelf-script { animation: reveal-up 640ms var(--ease-settle) both; }
+.finding__answers { display: flex; flex-wrap: wrap; justify-content: center; gap: var(--space-2); margin-top: var(--space-2); }
+.finding__answers li { padding: 6px 12px; border-radius: var(--radius-pill); background: var(--color-surface); box-shadow: var(--shadow-card); font-size: 0.8125rem; font-weight: 600; color: var(--cafe-fg); animation: reveal-up 520ms var(--ease-settle) both; animation-delay: calc(300ms + var(--i) * 260ms); }
+.reveal { animation: reveal-up var(--motion-reveal) var(--ease-settle) both; animation-delay: calc(var(--i, 0) * 120ms); }
+.result-card.reveal .photo img { animation: photo-settle 1100ms var(--ease-settle) both; }
+@keyframes reveal-up { from { opacity: 0; transform: translateY(12px); } }
+@keyframes photo-settle { from { transform: scale(1.08); opacity: 0.4; } }
+@media (prefers-reduced-motion: reduce) { .finding__arch span { height: 100%; animation: none; } .reveal, .finding__title, .finding .shelf-script, .finding__answers li, .result-card.reveal .photo img { animation: none; } }
