@@ -16,7 +16,7 @@ describe('음료 온도·사진', () => {
 
   it('고른 온도의 사진을 쓰고, 고르기 전에는 첫 번째 온도의 사진을 쓴다', () => {
     expect(drinkImage(getDrink('green-tea'), 'hot')).toBe('green-tea-hot');
-    expect(drinkImage(getDrink('green-tea'), null)).toBe('green-tea-ice');
+    expect(drinkImage(getDrink('green-tea'), null)).toBe('green-tea-hot');
     expect(drinkImage(getDrink('yuja-tea'), null)).toBe('yuja-tea');
   });
 

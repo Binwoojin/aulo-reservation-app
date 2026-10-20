@@ -2,7 +2,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { MENU, MENU_CATEGORIES } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import { Segmented } from '../components/ui.jsx';
+import { DrinkThumb, Segmented } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
 import { formatWon } from '../lib/time.js';
 
@@ -35,7 +35,7 @@ export default function OrderPage() {
           {list.map((d) => (
             <li key={d.id}>
               <Link to={`/menu/${d.id}`} className="menu-link">
-                <span className="cup-thumb" aria-hidden="true"><Icon name="cup" size={22} /></span>
+                <DrinkThumb drink={d} size="sm" />
                 <span className="menu-link__name">{d.name}</span>
                 <span className="menu-link__price">{formatWon(d.price)}</span>
                 <Icon name="chevron" size={18} className="list-row__chev" />
