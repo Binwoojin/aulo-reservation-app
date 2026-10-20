@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BEST_MENU, MAX_SHOTS, MENU, MENU_CATEGORIES, OWN_CUP_DISCOUNT, SHOT_PRICE } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
-import { BottomSheet, DrinkThumb, Provisional, Segmented, Stepper, SwitchRow } from '../components/ui.jsx';
+import { BottomSheet, DrinkThumb, NoticeDialog, Provisional, Segmented, Stepper, SwitchRow } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
 import { canAddShot, drinkTemps, fixedTemp, needsTemp } from '../lib/drink.js';
 import { REFILL_DRINKS, TEMPS, drinkLabel, itemKey, unitPriceOf } from '../lib/order.js';
@@ -11,11 +11,13 @@ import NotFoundPage from './NotFoundPage.jsx';
 
 // 음료 상세: 누구나 볼 수 있다. 커피·녹차는 상세에서 아이스·핫을 먼저 고르고(필수, 사진도 바뀜),
 // 한 가지 온도만 있는 음료는 그 온도를 안내만 한다.
-// '주문하기'를 누르면 옵션 창에서 샷 추가(커피)·텀블러(300원 할인)·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
+// 비로그인이면 '주문하기'에서 바로 로그인 안내창을 띄우고(2026-10-20), 로그인하면 이 상세로 돌아온다.
+// 로그인 상태에서 '주문하기'를 누르면 옵션 창에서 샷 추가(커피)·텀블러(300원 할인)·수량을 고른 뒤 장바구니에 담고 장바구니로 넘어간다.
 export default function MenuDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useAppData();
+  const { user, addToCart } = useAppData();
+  const [loginOpen, setLoginOpen] = useState(false);
   const drink = MENU.value.find((d) => d.id === id);
   const [sheetOpen, setSheetOpen] = useState(false);
   // ?temp=hot처럼 기본 온도를 받고 들어오면(홈 대표 메뉴) 그 온도가 선택된 상태로 시작한다
@@ -77,10 +79,20 @@ export default function MenuDetailPage() {
         </ul>
       </div>
       <BottomBar>
-        <button type="button" className="button button--primary" disabled={!ready} onClick={() => setSheetOpen(true)}>
+        <button type="button" className="button button--primary" disabled={!ready} onClick={() => (user ? setSheetOpen(true) : setLoginOpen(true))}>
           {ready ? '주문하기' : '아이스·핫을 골라 주세요'}
         </button>
       </BottomBar>
+
+      <NoticeDialog
+        open={loginOpen}
+        title="로그인이 필요해요"
+        confirmLabel="로그인하기"
+        onConfirm={() => navigate(`/login?redirect=${encodeURIComponent(`/menu/${drink.id}${chooseTemp && temp ? `?temp=${temp}` : ''}`)}`)}
+        onClose={() => setLoginOpen(false)}
+      >
+        음료 주문은 스탬프 적립과 연결돼 로그인해야 이용할 수 있어요. 로그인하면 이 메뉴로 다시 돌아와요.
+      </NoticeDialog>
 
       <BottomSheet
         open={sheetOpen}
