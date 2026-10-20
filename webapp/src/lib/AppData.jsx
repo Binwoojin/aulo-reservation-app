@@ -3,6 +3,7 @@ import { STORES } from '../config/policy.js';
 import { KEYS, loadList, loadValue, saveList, saveValue } from './storage.js';
 import { parseKey } from './order.js';
 import { getDrink } from './reservation.js';
+import { unregister } from './auth.js';
 
 const AppDataContext = createContext(null);
 
@@ -120,6 +121,15 @@ export function AppDataProvider({ children }) {
       storeId,
       store,
       setStoreId,
+      // 회원 탈퇴: 내 예약·주문 기록과 가입 기록을 지우고 로그아웃한다 (스탬프·포인트는 기록에서 계산하므로 함께 사라진다)
+      withdraw: () => {
+        if (!user) return;
+        replaceReservations(reservations.filter((r) => !isMine(r, user)));
+        replaceOrders(orders.filter((o) => !isMine(o, user)));
+        unregister(user.email);
+        cartApi.clearCart();
+        logout();
+      },
       // 데모 시나리오 적용: 로그인 상태·예약·주문을 한 번에 바꾸고 장바구니를 비운다
       loadScenario: ({ email, reservations: rs, orders: os }) => {
         if (email) login(email); else logout();

@@ -12,7 +12,7 @@ import { formatDate, toDateString } from '../lib/time.js';
 import LoginPage from './LoginPage.jsx';
 
 // 하단 '마이' 탭 = 마이페이지. 비로그인이면 그 자리에 바로 로그인 화면을 보여 준다.
-// 구성: 프로필 → 내 현황(스탬프·포인트·예약) → 나의 이용 → 예약 이용 상태 → 적립 기준 → 계정
+// 구성: 프로필 → 내 현황(스탬프·포인트·예약) → 나의 이용 → 예약 이용 상태 → 적립 기준 → 계정 → 회원 탈퇴(작은 링크)
 // 이용 안내·공지·고객 지원은 서랍에 있으므로 여기서 반복하지 않는다 (필수 규칙 6)
 export default function MyPage() {
   const { user, logout, myReservations, myOrders } = useAppData();
@@ -103,6 +103,8 @@ export default function MyPage() {
             </button>
           </li>
         </MySection>
+        {/* 탈퇴는 실수로 누르지 않게 계정 목록 밖, 맨 아래에 작게 둔다 */}
+        <Link to="/my/withdraw" className="my-withdraw">회원 탈퇴</Link>
       </div>
       <NoticeDialog open={kakaoOpen} title="서비스 준비 중" onClose={() => setKakaoOpen(false)}>
         카카오 계정 연결은 준비 중이에요. 지금은 이메일로 로그인해 이용할 수 있어요.

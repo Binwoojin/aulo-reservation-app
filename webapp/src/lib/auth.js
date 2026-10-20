@@ -21,3 +21,5 @@ export const register = (email) => {
   const list = loadList(ACCOUNTS_KEY);
   if (!list.includes(normalize(email))) saveList(ACCOUNTS_KEY, [...list, normalize(email)]);
 };
+// 회원 탈퇴: 이 기기의 가입 기록에서 지운다 (같은 이메일로 다시 가입할 수 있다)
+export const unregister = (email) => saveList(ACCOUNTS_KEY, loadList(ACCOUNTS_KEY).filter((e) => e !== normalize(email)));

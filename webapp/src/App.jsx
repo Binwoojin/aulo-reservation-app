@@ -14,6 +14,7 @@ import DemoPage from './pages/DemoPage.jsx';
 import InfoPage from './pages/InfoPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage, { RequireLogin } from './pages/LoginPage.jsx';
+import WithdrawPage from './pages/WithdrawPage.jsx';
 import MyPage from './pages/MyPage.jsx';
 import MenuDetailPage from './pages/MenuDetailPage.jsx';
 import CartPage from './pages/CartPage.jsx';
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="my" element={<MyPage />} />
         <Route path="my/reservations" element={<RequireLogin><MyReservationsPage /></RequireLogin>} />
         <Route path="my/orders" element={<RequireLogin><MyOrdersPage /></RequireLogin>} />
+        <Route path="my/withdraw" element={<WithdrawPage />} />
         <Route path="info" element={<InfoPage />} />
         <Route path="notice" element={<NoticePage />} />
         <Route path="notice/:id" element={<NoticeDetailPage />} />

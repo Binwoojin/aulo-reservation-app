@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { codeError, confirmError, emailError, isRegistered, passwordError, register } from './auth.js';
+import { codeError, confirmError, emailError, isRegistered, passwordError, register, unregister } from './auth.js';
 
 // 테스트 환경(Node)에는 localStorage가 없어 메모리로 대신한다
 const memory = new Map();
@@ -27,5 +27,12 @@ describe('데모 계정 검증', () => {
     expect(isRegistered('demo@aulo.kr')).toBe(true);
     expect(isRegistered('other@aulo.kr')).toBe(false);
     expect([...memory.values()].join(' ')).not.toMatch(/password|1234/i);
+  });
+  it('탈퇴하면 가입 기록에서 지워져 같은 이메일로 다시 가입할 수 있다', () => {
+    register('a@aulo.kr');
+    register('b@aulo.kr');
+    unregister('A@aulo.kr');
+    expect(isRegistered('a@aulo.kr')).toBe(false);
+    expect(isRegistered('b@aulo.kr')).toBe(true);
   });
 });
