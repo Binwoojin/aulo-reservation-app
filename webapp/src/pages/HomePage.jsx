@@ -196,7 +196,11 @@ function DrinkShelf({ orders, now, showPicks }) {
   return (
     <section aria-labelledby="best-title" className="block drink-shelf">
       <div className="block-head">
-        <h2 id="best-title" className="block-title">머무름에 곁들이는 한 잔</h2>
+        <div>
+          {/* 로고와 같은 Fraunces 소문자로 브랜드 목소리를 한 줄 */}
+          <p className="shelf-script" lang="en">a cup for your stay</p>
+          <h2 id="best-title" className="block-title">머무름에 곁들이는 한 잔</h2>
+        </div>
         <Link to="/order" className="text-link">메뉴 전체</Link>
       </div>
       {hasPicks && (
@@ -207,7 +211,7 @@ function DrinkShelf({ orders, now, showPicks }) {
       )}
       {current === 'picks' ? (
         <p className="shelf-reason">
-          <span className="shelf-reason__kicker" lang="en">{slot.en}</span>
+          <span className="shelf-reason__kicker" lang="en">{slot.en[0]}{slot.en.slice(1).toLowerCase()}</span>
           {slot.reason}{hasRecent ? ' · 지난 주문도 함께 담았어요' : ''}
         </p>
       ) : (
@@ -225,7 +229,7 @@ function DrinkShelf({ orders, now, showPicks }) {
                   {tag && <span className="best-item__tag">{tag}</span>}
                 </span>
                 <span className="best-item__name">{temp ? `${TEMPS.find((t) => t.value === temp).label} ` : ''}{d.name}</span>
-                <span className="best-item__price">{formatWon(d.price)}</span>
+                <span className="best-item__price"><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</span>
               </Link>
             </li>
           );
