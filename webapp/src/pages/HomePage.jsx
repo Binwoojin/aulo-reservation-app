@@ -272,6 +272,9 @@ function AuloDay({ now }) {
   const m = minutesOfDay(now);
   const closed = m < HOURS.open || m >= HOURS.checkout;
   const current = closed ? -1 : DAY.findLastIndex((d) => m >= d.from);
+  // 지금 시간대 카드만 펼쳐 두고, 나머지는 한 줄로 접는다. 접힌 줄을 누르면 그 카드가 펼쳐진다 (한 번에 하나)
+  // 운영 시간 밖이면 아침(오픈) 카드를 펼친다
+  const [open, setOpen] = useState(current >= 0 ? current : 0);
   return (
     <section aria-labelledby="day-title" className="block aulo-day">
       <p className="eyebrow" lang="en">STAY IN YOUR RHYTHM</p>
@@ -284,7 +287,21 @@ function AuloDay({ now }) {
             <li key={d.type} className="day-line__item" data-now={i === current || undefined}>
               <span className="day-line__dot" aria-hidden="true" />
               <p className="day-line__time"><span lang="en">{d.time}</span><span lang="en" className="day-line__en">{d.en}</span>{i === current && <span className="day-line__now">지금</span>}</p>
-              <Link to={space.reservable ? `/reserve/${d.type}` : '/order'} className="day-card">
+              {i !== open ? (
+                <button type="button" className="day-row" onClick={() => setOpen(i)} aria-expanded="false" aria-label={`${d.time} ${space.name} 펼치기`}>
+                  <SpaceImage space={space} />
+                  <span className="day-row__text">
+                    <span className="day-row__name" lang="en">{space.name}</span>
+                    <span className="day-row__meta">
+                      {space.reservable
+                        ? `${store.units[d.type]}${space.unitName === '공간' ? '실' : '석'} · ${formatWon(space.pricePerHour)}/시간`
+                        : '예약 없이 이용'}
+                    </span>
+                  </span>
+                  <Icon name="down" size={18} />
+                </button>
+              ) : (
+              <Link to={space.reservable ? `/reserve/${d.type}` : '/order'} className="day-card day-card--open" aria-expanded="true">
                 <SpaceImage space={space} />
                 <span className="day-card__body">
                   <span className="day-card__kicker" lang="en">{space.name}</span>
@@ -304,6 +321,7 @@ function AuloDay({ now }) {
                   </span>
                 </span>
               </Link>
+              )}
             </li>
           );
         })}
