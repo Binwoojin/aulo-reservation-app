@@ -54,7 +54,7 @@ export default function CartPage() {
   return (
     <>
       <AppBar back title="장바구니" />
-      <div className="screen-body has-bottom-bar">
+      <div className={`screen-body${count > 0 ? ' has-bottom-bar' : ''}`}>
         <StorePicker label="주문 매장" forOrder />
         <OptionList legend="이용 방법" name="serve" value={cart.serve} onChange={setCartServe} options={SERVE_OPTIONS} />
 
@@ -91,13 +91,14 @@ export default function CartPage() {
         {count > 0 && <OrderLines quote={quote} />}
       </div>
 
-      <BottomBar>
+      {/* 비어 있으면 하단 바를 숨기고 '메뉴 보러 가기'만 둔다 */}
+      {count > 0 && <BottomBar>
         <div className="price">
           <span className="price__label">{count}잔</span>
           <span className="price__value">{formatWon(quote.total)}</span>
         </div>
-        <button className="button button--primary" type="button" disabled={!count} onClick={submit}>주문하기</button>
-      </BottomBar>
+        <button className="button button--primary" type="button" onClick={submit}>주문하기</button>
+      </BottomBar>}
     </>
   );
 }

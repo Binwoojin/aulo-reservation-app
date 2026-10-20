@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { BEST_MENU, BEST_MENU_TEMP, HOURS, MENU, SPACES, SPACE_TYPES } from '../config/policy.js';
 import { needsTemp } from '../lib/drink.js';
@@ -25,6 +26,7 @@ export default function HomePage() {
   const status = homeStatus(myReservations, now);
   const lastOrder = user ? lastReorderable(myOrders) : null;
   const lastPast = user && status.kind === 'none' ? lastPastReservation(myReservations, now) : null;
+  const fabHidden = useHideOnScrollDown();
 
   return (
     <>
@@ -107,7 +109,7 @@ export default function HomePage() {
       </div>
 
       {/* 이용 도우미: 오른쪽 아래 고정 버튼. 탭바 위에 떠서 스크롤해도 늘 보인다 */}
-      <Link to="/help" className="help-fab" aria-label="이용 도우미 열기">
+      <Link to="/help" className="help-fab" data-hidden={fabHidden || undefined} aria-label="이용 도우미 열기">
         <Icon name="chat" size={24} />
       </Link>
     </>
@@ -229,4 +231,21 @@ function DrinkPicks({ orders, now }) {
       </ul>
     </section>
   );
+}
+
+// 도우미 버튼: 아래로 내리는 동안에는 숨겨 콘텐츠(섹션 링크 등)를 가리지 않고, 위로 올리거나 맨 위면 다시 보인다
+function useHideOnScrollDown() {
+  const [hidden, setHidden] = useState(false);
+  useEffect(() => {
+    let last = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      if (y < 80 || y < last - 6) setHidden(false);
+      else if (y > last + 6) setHidden(true);
+      last = y;
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+  return hidden;
 }

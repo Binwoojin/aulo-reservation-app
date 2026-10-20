@@ -75,6 +75,7 @@ export function OrderSuccess({ message, quote, order, moreTo = '/order', moreLab
           <h2 className="screen-title">주문이 접수되었어요</h2>
           <p className="muted">{message} 결제는 매장에서 해요. 스탬프 {cups}개가 적립됐어요.</p>
         </div>
+        <OrderSteps />
         <OrderLines quote={quote} />
       </div>
       <BottomBar>
@@ -82,5 +83,23 @@ export function OrderSuccess({ message, quote, order, moreTo = '/order', moreLab
         <Link className="button button--primary" to="/my/orders">주문 내역</Link>
       </BottomBar>
     </>
+  );
+}
+
+// 주문 상태 (필수 규칙 3): 접수 → 준비 중 → 완료. 매장 연동 전이라 데모에서는 '접수'까지만 진행된다 (임시)
+const ORDER_STEPS = ['접수', '준비 중', '완료'];
+const ORDER_STEPS_NOTE = '주문 상태는 매장 연동이 필요해 데모에서는 접수 단계까지만 보여요(임시)';
+export function OrderSteps({ current = 0 }) {
+  return (
+    <section className="order-steps" aria-label="주문 상태">
+      <ol className="order-steps__list">
+        {ORDER_STEPS.map((s, i) => (
+          <li key={s} className="order-steps__step" data-state={i < current ? 'done' : i === current ? 'now' : 'next'} aria-current={i === current ? 'step' : undefined}>
+            <span className="order-steps__dot" aria-hidden="true" />{s}
+          </li>
+        ))}
+      </ol>
+      <p className="order-steps__note">데모에서는 접수 단계까지만 보여요 <Provisional note={ORDER_STEPS_NOTE} /></p>
+    </section>
   );
 }

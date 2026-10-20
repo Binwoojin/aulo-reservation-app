@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
 import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import { REWARD_POLICY } from '../config/policy.js';
+import { PENALTY, REWARD_POLICY } from '../config/policy.js';
+import { penaltyStatus } from '../lib/reservation.js';
+import { formatDate, toDateString } from '../lib/time.js';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { pointBalance, stampCount } from '../lib/rewards.js';
 import LoginPage from './LoginPage.jsx';
@@ -13,6 +15,7 @@ export default function MyPage() {
   if (!user) return <LoginPage inline />;
 
   const upcoming = myReservations.filter((r) => isUpcoming(r, now)).length;
+  const penalty = penaltyStatus([], now);
 
   return (
     <>
@@ -39,6 +42,19 @@ export default function MyPage() {
             </div>
           </div>
           <ul className="note-list">{REWARD_POLICY.map((n) => <li key={n}>{n}</li>)}</ul>
+        </section>
+
+        {/* 예약 이용 상태: 페널티 정책(2026-10-19). 데모에는 매장 체크인이 없어 페널티가 쌓이지 않는다 */}
+        <section className="block" aria-labelledby="penalty-title">
+          <h2 id="penalty-title" className="block-title">예약 이용 상태</h2>
+          <div className="penalty-card" data-ok={penalty.canReserve || undefined}>
+            <Icon name={penalty.canReserve ? 'check' : 'alert'} size={20} />
+            <span>
+              <strong>{penalty.permanent ? '예약 서비스 이용 불가' : penalty.blockedUntil ? `${formatDate(toDateString(penalty.blockedUntil))}까지 예약 제한` : '예약 제한 없음'}</strong>
+              <small>유효 페널티 {penalty.activeCount}회 · 1년 안에 {PENALTY.permanentAt}회 또는 3개월 연속이면 영구 제한</small>
+            </span>
+          </div>
+          <p className="group-hint">데모에는 매장 체크인이 없어 페널티가 실제로 쌓이지 않아요.</p>
         </section>
 
         <ul className="menu-list list-card" aria-label="마이 메뉴">

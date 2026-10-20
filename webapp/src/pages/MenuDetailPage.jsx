@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { BEST_MENU, MAX_SHOTS, MENU, MENU_CATEGORIES, OWN_CUP_DISCOUNT, SHOT_PRICE } from '../config/policy.js';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { BEST_MENU, MAX_SHOTS, MENU, MENU_CATEGORIES, OWN_CUP_DISCOUNT, SHOT_PRICE, SPACES } from '../config/policy.js';
+import Icon from '../components/Icon.jsx';
+import { isInUse } from '../lib/reservation.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { BottomSheet, DrinkThumb, NoticeDialog, Provisional, Segmented, Stepper, SwitchRow } from '../components/ui.jsx';
-import { useAppData } from '../lib/AppData.jsx';
+import { useAppData, useNow } from '../lib/AppData.jsx';
 import { canAddShot, drinkTemps, fixedTemp, needsTemp } from '../lib/drink.js';
 import { REFILL_DRINKS, TEMPS, drinkLabel, itemKey, unitPriceOf } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
@@ -16,7 +18,9 @@ import NotFoundPage from './NotFoundPage.jsx';
 export default function MenuDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, addToCart } = useAppData();
+  const { user, addToCart, myReservations } = useAppData();
+  const now = useNow();
+  const inUse = user ? myReservations.find((r) => isInUse(r, now)) : null;
   const [loginOpen, setLoginOpen] = useState(false);
   const drink = MENU.value.find((d) => d.id === id);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -71,12 +75,18 @@ export default function MenuDetailPage() {
         )}
         <ul className="note-list">
           {isCoffee && <li>샷 추가는 '주문하기'를 누른 뒤 골라요.</li>}
-          <li>텀블러·개인컵으로 주문하면 1잔당 {formatWon(OWN_CUP_DISCOUNT)} 할인돼요.</li>
-          <li>1잔당 스탬프 1개가 적립돼요.</li>
-          <li>포인트는 음료 주문에 쓸 수 없어요.</li>
-          <li>Focus·Rest 이용 중에는 재주문 50% 할인 쿠폰을 최대 2회 쓸 수 있어요.</li>
-          {REFILL_DRINKS.includes(drink.id) && <li>Suite 이용 중 1회 무료 리필 대상 음료예요.</li>}
+          <li>텀블러·개인컵으로 주문하면 1잔당 {formatWon(OWN_CUP_DISCOUNT)} 할인되고, 1잔당 스탬프 1개가 적립돼요.</li>
         </ul>
+        {/* 좌석을 이용 중일 때만: 쿠폰·리필은 좌석 주문에서 쓰므로 그쪽으로 안내한다 */}
+        {inUse && (
+          <Link to={`/reservations/${inUse.id}/order`} className="notice-row help-link">
+            <Icon name="cup" size={20} />
+            <span>{SPACES[inUse.type].drink === 'included'
+              ? `Suite 이용 중이에요. ${REFILL_DRINKS.includes(drink.id) ? '이 음료는 1회 무료 리필 대상이에요. ' : ''}배달 메뉴에서 주문하면 혜택이 적용돼요`
+              : '좌석 이용 중이에요. 추가 주문에서 주문하면 50% 할인 쿠폰(최대 2회)이 적용돼요'}</span>
+            <Icon name="chevron" size={18} />
+          </Link>
+        )}
       </div>
       <BottomBar>
         <button type="button" className="button button--primary" disabled={!ready} onClick={() => (user ? setSheetOpen(true) : setLoginOpen(true))}>

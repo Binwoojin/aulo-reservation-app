@@ -20,6 +20,7 @@ export default function LoginPage({ inline = false }) {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [kakaoOpen, setKakaoOpen] = useState(false);
+  const [soonOpen, setSoonOpen] = useState(null); // '회원가입' | '비밀번호 찾기'
 
   if (user && !inline) return <Navigate to={redirect} replace />;
 
@@ -65,12 +66,20 @@ export default function LoginPage({ inline = false }) {
           </label>
           <button type="submit" className="button button--primary button--block">로그인</button>
         </form>
+        <p className="login-links">
+          <button type="button" className="text-button" onClick={() => setSoonOpen('회원가입')}>회원가입</button>
+          <span aria-hidden="true">·</span>
+          <button type="button" className="text-button" onClick={() => setSoonOpen('비밀번호 찾기')}>비밀번호 찾기</button>
+        </p>
 
         <p className="login-divider">또는</p>
         <button type="button" className="button button--kakao button--block" onClick={() => setKakaoOpen(true)}>카카오로 로그인</button>
         <p className="login-note">데모 버전이라 형식에 맞는 이메일과 비밀번호면 로그인돼요. 정보는 이 기기에만 저장돼요.</p>
       </div>
 
+      <NoticeDialog open={!!soonOpen} title={`${soonOpen ?? ''} 준비 중`} onClose={() => setSoonOpen(null)}>
+        {soonOpen}{soonOpen === '회원가입' ? '은' : '는'} 데모 버전에서 제공하지 않아요. 형식에 맞는 이메일과 8자 이상 비밀번호로 바로 로그인할 수 있어요.
+      </NoticeDialog>
       <NoticeDialog open={kakaoOpen} title="서비스 준비 중" onClose={() => setKakaoOpen(false)}>
         카카오 계정 로그인은 준비 중이에요. 지금은 이메일로 로그인해 주세요.
       </NoticeDialog>

@@ -812,7 +812,7 @@ a.ticket__link:active { background: var(--color-bg); }
   display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
   background: var(--color-surface); color: var(--color-olive-hover);
   border: 1px solid var(--color-hairline); box-shadow: var(--shadow-float);
-  animation: fab-in var(--motion-reveal, 640ms) var(--ease-settle, ease) 240ms both;
+  animation: fab-in var(--motion-reveal, 640ms) var(--ease-settle, ease) 240ms backwards;
   transition: transform 160ms var(--ease-out);
 }
 .help-fab:active { transform: scale(0.94); }
@@ -906,3 +906,39 @@ a.again-card:active { transform: scale(0.99); }
 .pick-row__name { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.9375rem; }
 .pick-row__reason { font-size: 0.8125rem; color: var(--color-text-sub); line-height: 1.45; }
 .pick-row__price { flex-shrink: 0; font-size: 0.875rem; font-weight: 600; color: var(--color-text-sub); }
+
+/* ── 예약 상세: 지금 알아 둘 것 / 전체 규칙 ── */
+.live-panel { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.live-panel__time { font-size: 0.9375rem; }
+.live-panel__time strong { font-size: 1.125rem; font-weight: 700; }
+.status-progress--light { background: var(--color-bg-sub); }
+.status-progress--light span { background: var(--color-olive); }
+.rules { border-radius: var(--radius-lg); background: var(--color-bg-sub); }
+.rules__summary { display: flex; align-items: center; justify-content: space-between; min-height: 52px; padding: 0 var(--space-4); font-size: 0.9375rem; font-weight: 600; cursor: pointer; list-style: none; }
+.rules__summary::-webkit-details-marker { display: none; }
+.rules[open] .rules__summary .icon { transform: rotate(180deg); }
+.rules .note-list { padding: 0 var(--space-4) var(--space-4); }
+
+/* ── 주문 상태 단계 (데모: 접수까지) ── */
+.order-steps { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.order-steps__list { display: grid; grid-template-columns: repeat(3, 1fr); position: relative; }
+.order-steps__list::before { content: ""; position: absolute; top: 6px; left: 16.6%; right: 16.6%; height: 2px; background: var(--color-bg-sub); }
+.order-steps__step { position: relative; display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 0.8125rem; font-weight: 600; color: var(--color-text-sub); }
+.order-steps__dot { width: 14px; height: 14px; border-radius: 50%; background: var(--color-bg-sub); border: 2px solid var(--color-surface); }
+.order-steps__step[data-state="now"], .order-steps__step[data-state="done"] { color: var(--color-olive-hover); }
+.order-steps__step[data-state="now"] .order-steps__dot, .order-steps__step[data-state="done"] .order-steps__dot { background: var(--color-olive); box-shadow: 0 0 0 4px var(--color-olive-light); }
+.order-steps__note { text-align: center; font-size: 0.8125rem; color: var(--color-text-sub); }
+
+/* ── 로그인 보조 링크 ── */
+.login-links { display: flex; justify-content: center; align-items: center; gap: var(--space-2); font-size: 0.875rem; color: var(--color-text-sub); }
+
+/* ── 마이: 예약 이용 상태 ── */
+.penalty-card { display: flex; align-items: flex-start; gap: var(--space-3); margin-top: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-error); }
+.penalty-card[data-ok] { color: var(--color-olive); }
+.penalty-card span { display: flex; flex-direction: column; gap: 2px; color: var(--color-text); }
+.penalty-card strong { font-size: 0.9375rem; }
+.penalty-card small { font-size: 0.8125rem; color: var(--color-text-sub); }
+
+/* ── 홈 도우미 버튼: 아래로 스크롤하는 동안 비켜 준다 ── */
+.help-fab[data-hidden] { transform: translateY(16px) scale(0.85); opacity: 0; pointer-events: none; }
+.help-fab { transition: transform 240ms var(--ease-settle), opacity 240ms ease; }
