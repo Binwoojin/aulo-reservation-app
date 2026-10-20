@@ -49,6 +49,13 @@
   --shadow-card: 0 1px 2px rgba(48, 43, 38, 0.04), 0 6px 20px rgba(48, 43, 38, 0.06);
   --shadow-float: 0 10px 30px rgba(48, 43, 38, 0.14);
   --glass: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  /* 포인트 그라데이션 (2026-10-20): 강조 영역에만, 자연광이 비치는 듯한 부드러운 방향성.
+     흰 글자가 올라가는 올리브 그라데이션은 모든 지점이 4.5:1 이상 (#6B7553 4.89 · #4A5339 8.1) */
+  --grad-olive: linear-gradient(145deg, #6B7553 0%, #596246 50%, #4A5339 100%);
+  --grad-olive-glow: radial-gradient(120% 90% at 100% 0%, rgba(214, 226, 186, 0.32) 0%, rgba(214, 226, 186, 0) 55%), var(--grad-olive);
+  --grad-warm: radial-gradient(90% 70% at 85% 0%, rgba(255, 248, 236, 0.9) 0%, rgba(255, 248, 236, 0) 60%), linear-gradient(170deg, #F2E6D6 0%, #ECDDC9 55%, #F3EADF 100%);
+  --grad-sage: linear-gradient(135deg, #EEF1E5 0%, #FFFDFA 72%);
+  --grad-cream: linear-gradient(180deg, #FFFDFA 0%, #F6EFE5 100%);
 
   --motion: 180ms;
   --press: 120ms;
@@ -165,9 +172,10 @@ a { color: inherit; text-decoration: none; }
   transition: background-color var(--press) var(--ease), transform var(--press) var(--ease), box-shadow var(--press) var(--ease);
 }
 .button:active:not(:disabled) { transform: scale(0.97); }
-.button--primary { background: var(--color-olive); color: #FFFFFF; box-shadow: 0 6px 16px color-mix(in srgb, var(--color-olive) 28%, transparent); }
+.button--primary { background: var(--grad-olive); color: #FFFFFF; box-shadow: 0 6px 16px color-mix(in srgb, var(--color-olive) 28%, transparent); }
 .button--primary:disabled { box-shadow: none; }
 .button--primary:active:not(:disabled) { background: var(--color-olive-hover); }
+.button--primary:disabled { background: var(--color-bg-sub); }
 .button--secondary { background: var(--color-surface); border-color: var(--color-hairline); box-shadow: var(--shadow-card); }
 .button--block { width: 100%; }
 .button:disabled { cursor: not-allowed; background: var(--color-bg-sub); color: var(--color-text-sub); }
@@ -432,7 +440,7 @@ a.ticket__link:active { background: var(--color-bg); }
 .result-card .muted { margin-top: 0; }
 .success-head { display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--space-2); padding: var(--space-6) 0 var(--space-2); }
 .success-head .muted { margin-top: 0; }
-.success-head__icon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--color-olive); color: #FFFFFF; margin-bottom: var(--space-2); animation: pop 520ms var(--ease-out) both; }
+.success-head__icon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--grad-olive-glow); color: #FFFFFF; margin-bottom: var(--space-2); animation: pop 520ms var(--ease-out) both; }
 
 /* ---------- Order ---------- */
 .cup-thumb { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border-radius: var(--radius-md); background: var(--cafe-bg); color: var(--cafe-fg); }
@@ -607,7 +615,7 @@ a.ticket__link:active { background: var(--color-bg); }
   position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
   width: 72px; height: 72px; border-radius: 50%;
-  background: var(--color-olive); color: #FFFFFF; font-size: 0.75rem; font-weight: 700; letter-spacing: -0.01em;
+  background: var(--grad-olive-glow); color: #FFFFFF; font-size: 0.75rem; font-weight: 700; letter-spacing: -0.01em;
   border: 4px solid var(--color-bg);
   box-shadow: 0 8px 20px color-mix(in srgb, var(--color-olive) 38%, transparent), 0 2px 4px rgba(48, 43, 38, 0.12);
   transition: transform var(--press) var(--ease), background-color var(--motion) var(--ease), box-shadow var(--motion) var(--ease);
@@ -615,7 +623,7 @@ a.ticket__link:active { background: var(--color-bg); }
 /* 원 안 아이콘은 다른 탭의 알약 배경을 쓰지 않는다 */
 .tab--primary .tab__bubble .icon { width: 24px; height: 24px; padding: 0; background: none; stroke-width: 2; }
 .tab--primary:active .tab__bubble { transform: translateX(-50%) scale(0.94); }
-.tab--primary.active .tab__bubble { background: var(--color-olive-hover); box-shadow: 0 10px 24px color-mix(in srgb, var(--color-olive) 45%, transparent), 0 2px 4px rgba(48, 43, 38, 0.14); }
+.tab--primary.active .tab__bubble { background: radial-gradient(120% 90% at 100% 0%, rgba(214, 226, 186, 0.22) 0%, rgba(214, 226, 186, 0) 55%), linear-gradient(145deg, #596246 0%, #444D34 100%); box-shadow: 0 10px 24px color-mix(in srgb, var(--color-olive) 45%, transparent), 0 2px 4px rgba(48, 43, 38, 0.14); }
 .tab--primary.active .tab__bubble .icon { stroke-width: 2.25; background: none; }
 .tab-bar, .tab-bar ul, .tab-bar li { overflow: visible; }
 
@@ -840,7 +848,7 @@ a.ticket__link:active { background: var(--color-bg); }
 .status-card {
   display: flex; flex-direction: column; gap: var(--space-2);
   padding: var(--space-5); border-radius: var(--radius-xl);
-  background: var(--color-olive); color: #FFFFFF; box-shadow: var(--shadow-float);
+  background: var(--grad-olive-glow); color: #FFFFFF; box-shadow: var(--shadow-float);
 }
 .status-card__eyebrow { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; font-weight: 600; opacity: 0.88; }
 .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #CFE3B0; box-shadow: 0 0 0 4px rgba(207, 227, 176, 0.25); }
@@ -1003,7 +1011,7 @@ a.again-card:active { transform: scale(0.99); }
 .day-line__item { position: relative; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: var(--space-2); align-items: start; }
 .day-line__time { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding-top: 2px; font-family: var(--font-en); font-size: 0.75rem; font-weight: 700; color: var(--color-text-sub); }
 .day-line__time > span:first-child { position: relative; z-index: 1; padding: 2px 0; background: var(--color-bg); }
-.day-line__now { padding: 1px 7px; border-radius: var(--radius-pill); background: var(--color-olive); color: #FFFFFF; font-family: var(--font-ko, inherit); font-size: 0.6875rem; font-weight: 700; }
+.day-line__now { padding: 1px 7px; border-radius: var(--radius-pill); background: var(--grad-olive); color: #FFFFFF; font-family: var(--font-ko, inherit); font-size: 0.6875rem; font-weight: 700; }
 .day-line__item[data-now] .day-line__time > span:first-child { color: var(--color-olive-hover); }
 .day-card { display: flex; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-text); transition: transform var(--press) var(--ease); }
 .day-card:active { transform: scale(0.98); }
@@ -1013,7 +1021,7 @@ a.again-card:active { transform: scale(0.99); }
 .day-card__kicker { font-family: var(--font-en); font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; color: var(--color-olive); }
 .day-card__headline { font-size: 0.9375rem; font-weight: 700; line-height: 1.4; }
 .day-card__meta { font-size: 0.75rem; color: var(--color-text-sub); line-height: 1.45; }
-.day-line__item[data-now] .day-card { box-shadow: 0 0 0 2px var(--color-olive), var(--shadow-card); }
+.day-line__item[data-now] .day-card { background: var(--grad-sage); box-shadow: 0 0 0 2px var(--color-olive), var(--shadow-card); }
 .day-end { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); background: var(--color-bg-sub); }
 .day-end strong { font-size: 0.9375rem; }
 .day-end span { font-size: 0.8125rem; color: var(--color-text-sub); }
@@ -1023,7 +1031,7 @@ a.again-card:active { transform: scale(0.99); }
    따뜻한 베이지 띠 위에, 로고와 같은 Fraunces 문장·숫자와 아치형 사진 프레임(카페 창문·메뉴판 느낌) */
 .drink-shelf {
   margin-inline: calc(var(--gutter) * -1); padding: var(--space-6) var(--gutter) var(--space-5);
-  background: linear-gradient(180deg, #EFE6D9 0%, #F3ECE2 100%);
+  background: var(--grad-warm);
   border-top: 1px solid rgba(121, 88, 68, 0.12); border-bottom: 1px solid rgba(121, 88, 68, 0.12);
 }
 .drink-shelf .block-head { align-items: flex-end; }
@@ -1047,3 +1055,11 @@ a.again-card:active { transform: scale(0.99); }
 .drink-shelf .best-item__price { text-align: center; color: var(--cafe-fg); font-weight: 600; }
 .drink-shelf .best-item__price [lang="en"] { font-family: var(--font-logo); font-size: 1rem; font-weight: 600; margin-right: 1px; }
 .drink-shelf .best-item:focus-visible { border-radius: 50% 50% 18px 18px / 68px 68px 18px 18px; }
+
+/* 포인트 그라데이션 적용 (나머지) */
+.help-fab { background: var(--grad-cream); }
+.live-panel { background: var(--grad-sage); }
+.order-steps { background: var(--grad-sage); }
+.again-tile__body { background: var(--grad-cream); }
+.status-progress span { background: linear-gradient(90deg, rgba(255, 255, 255, 0.75) 0%, #FFFFFF 100%); }
+.status-progress--light span { background: linear-gradient(90deg, #8A9670 0%, var(--color-olive) 100%); }
