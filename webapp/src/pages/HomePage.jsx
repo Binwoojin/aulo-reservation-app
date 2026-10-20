@@ -45,11 +45,12 @@ export default function HomePage() {
 
         <section aria-labelledby="best-title" className="block">
           <div className="block-head">
-            <h2 id="best-title" className="block-title">음료 베스트</h2>
+            <h2 id="best-title" className="block-title">머무름에 곁들이는 한 잔</h2>
             <Link to="/order" className="text-link">메뉴 전체</Link>
           </div>
-          <p className="group-hint">Aulo가 고른 대표 메뉴예요</p>
-          <ul className="best-list" aria-label="베스트 메뉴">
+          {/* 베스트: 주문 데이터가 없어 운영자가 고른 대표 메뉴. 순위·판매량처럼 읽히는 말은 쓰지 않는다 (필수 규칙 5) */}
+          <p className="group-hint">어떤 시간에도 잘 어울리는, Aulo의 대표 메뉴예요</p>
+          <ul className="best-list" aria-label="대표 메뉴">
             {BEST_MENU.map((id) => MENU.value.find((d) => d.id === id)).map((d) => (
               <li key={d.id}>
                 <Link to={`/menu/${d.id}`} className="best-item">
