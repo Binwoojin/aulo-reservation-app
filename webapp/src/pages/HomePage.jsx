@@ -9,14 +9,15 @@ import ReservationCard from '../components/ReservationCard.jsx';
 import StorePicker from '../components/StorePicker.jsx';
 import { DrinkThumb, SpaceImage } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { lastPastReservation, lastReorderable, rebookPath, reorderItems } from '../lib/again.js';
+import { lastPastReservation, lastReorderable, rebookPath, recentPastReservations, reorderItems } from '../lib/again.js';
 import { HALF_LIMIT, orderKindFor, parseKey, recentOrders, remainingBenefits, sortedKeys } from '../lib/order.js';
 import { canCancel, getDrink, getStore, isHoliday, reservationEnd } from '../lib/reservation.js';
 import { daysUntil, formatDuration, homeStatus, storeToday } from '../lib/status.js';
 import { drinkPicks } from '../lib/drinkPick.js';
 import { pointBalance, stampCount } from '../lib/rewards.js';
 import { QUESTIONS } from '../lib/recommend.js';
-import { TEMPS } from '../lib/order.js';
+import { TEMPS, drinkLabel } from '../lib/order.js';
+import { ORDER_STAGES, STAGE_TITLE, latestActiveOrder, orderStage, stageIndex } from '../lib/orderStatus.js';
 import { addDays, formatDate, formatTime, formatWon, minutesOfDay } from '../lib/time.js';
 
 // 홈: 맨 위에 지금 매장과 내 상태 하나(이용 중 > 다가오는 예약 > 예약 없음, 필수 규칙 2·3),
@@ -26,7 +27,7 @@ export default function HomePage() {
   const now = useNow();
   const status = homeStatus(myReservations, now);
   const lastOrder = user ? lastReorderable(recentOrders(myOrders, now)) : null;
-  const lastPast = user && status.kind === 'none' ? lastPastReservation(myReservations, now) : null;
+  const lastPast = user && status.kind === 'none' ? lastPastReservation(recentPastReservations(myReservations, now), now) : null;
   const fabHidden = useHideOnScrollDown();
 
   return (
@@ -41,12 +42,15 @@ export default function HomePage() {
 
         {status.kind === 'in-use' && <InUseCard status={status} orders={myOrders} />}
         {status.kind === 'upcoming' && <UpcomingCard reservation={status.reservation} now={now} />}
+        {/* 진행 중인 주문 (필수 규칙 3): 상태 카드 바로 아래. 예약이 없을 때는 인사 아래·사진 위 */}
+        {user && status.kind !== 'none' && <ActiveOrderStrip orders={myOrders} />}
         {status.kind === 'none' && (
           <>
             <section className="home-greeting" aria-labelledby="home-title">
               <p className="eyebrow" lang="en">SPACE FOR YOUR NOW</p>
               <h2 id="home-title" className="screen-title">오늘은 어떤 시간을<br />보내실 건가요?</h2>
             </section>
+            {user && <ActiveOrderStrip orders={myOrders} />}
             {/* 예약이 없을 때만: 사진 위 목적 칩으로 공간 찾기를 시작한다. 고른 목적이 첫 질문의 답이 된다 */}
             <PurposeHero />
           </>
@@ -68,6 +72,32 @@ export default function HomePage() {
         <Icon name="chat" size={24} />
       </Link>
     </>
+  );
+}
+
+// 진행 중인 주문 한 줄: 단계 점 5개 + 지금 단계 + 첫 음료. 누르면 주문 현황으로. 진행 중인 주문이 없으면 숨긴다
+function ActiveOrderStrip({ orders }) {
+  const now = useNow(5000);
+  const order = latestActiveOrder(orders, now);
+  if (!order) return null;
+  const stage = orderStage(order, now);
+  const current = stageIndex(stage);
+  const keys = sortedKeys(order.items);
+  const first = parseKey(keys[0] ?? '');
+  const cups = Object.values(order.items).reduce((a, b) => a + b, 0);
+  const name = getDrink(first.id) ? drinkLabel(first.id, first.temp) : '음료';
+  return (
+    <Link to={`/my/orders/${order.id}`} className="active-order" data-stage={stage}>
+      <span className="active-order__pulse" aria-hidden="true" />
+      <span className="active-order__text">
+        <span className="active-order__stage">{STAGE_TITLE[stage]}</span>
+        <span className="active-order__items">{name}{cups > 1 ? ` 외 ${cups - 1}잔` : ''}</span>
+      </span>
+      <span className="active-order__dots" aria-hidden="true">
+        {ORDER_STAGES.map((st, i) => <span key={st.id} data-on={i <= current || undefined} />)}
+      </span>
+      <Icon name="chevron" size={18} />
+    </Link>
   );
 }
 

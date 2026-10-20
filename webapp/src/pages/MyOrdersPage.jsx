@@ -11,6 +11,7 @@ import { useAppData, useNow } from '../lib/AppData.jsx';
 import { ORDER_HISTORY_MONTHS } from '../config/policy.js';
 import { BENEFIT_LABEL, SERVE_LABEL, drinkLabel, optionsText, parseKey, recentOrders, sortedKeys } from '../lib/order.js';
 import { formatDateTime, formatWon } from '../lib/time.js';
+import { ORDER_STAGES, orderStage } from '../lib/orderStatus.js';
 
 const KIND_LABEL = { cafe: '카페 주문', extra: '추가 주문', suite: 'Suite 배달' };
 
@@ -19,7 +20,7 @@ const formatOrderedAt = (iso) => formatDateTime(new Date(iso));
 export default function MyOrdersPage() {
   const { myOrders: orders, reservations } = useAppData();
   const reorder = useReorder();
-  const now = useNow();
+  const now = useNow(5000);
   // 최근 1개월 주문만 보여 준다 (지난 기록은 지우지 않고 숨긴다)
   const list = recentOrders(orders, now).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
@@ -36,12 +37,24 @@ export default function MyOrdersPage() {
               // 어디서 받았는지: 카페는 매장/테이크아웃, 좌석 주문은 공간·번호
               const where = [o.kind === 'cafe' && o.serve ? SERVE_LABEL[o.serve] : null, r ? `${SPACES[r.type].name} ${r.unit}번` : null, store?.name].filter(Boolean).join(' · ');
               const count = Object.values(o.items).reduce((a, b) => a + b, 0);
+              const stage = orderStage(o, now);
+              const active = stage !== 'picked';
               return (
-                <li key={o.id} className="order-card">
+                <li key={o.id} className="order-card" data-active={active || undefined}>
                   <div className="order-card__head">
                     <span className="order-card__kind" data-kind={o.kind}>{KIND_LABEL[o.kind]}</span>
                     <time className="order-card__date" dateTime={o.createdAt}>{formatOrderedAt(o.createdAt)}</time>
                   </div>
+                  {/* 진행 중인 주문만 주문 현황(상세)으로 들어간다. 수령이 끝난 주문은 상세를 볼 수 없다 */}
+                  {active ? (
+                    <Link to={`/my/orders/${o.id}`} className="order-card__status" data-stage={stage}>
+                      <span className="order-card__pulse" aria-hidden="true" />
+                      <span>{ORDER_STAGES.find((x) => x.id === stage).label}</span>
+                      <span className="order-card__status-link">주문 현황 보기<Icon name="chevron" size={16} /></span>
+                    </Link>
+                  ) : (
+                    <p className="order-card__status" data-stage="picked"><Icon name="check" size={16} />수령 완료</p>
+                  )}
                   {where && <p className="order-card__where">{where}</p>}
                   <ul className="order-card__items" aria-label="주문한 음료">
                     {sortedKeys(o.items).map((k) => {

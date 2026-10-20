@@ -218,6 +218,8 @@ export const REWARDS = { stampsPerDrink: 1, pointRate: 0.1 };
 // 주문 내역 보관 (2026-10-20 결정): 최근 1개월 주문만 주문 내역에 보여 준다.
 // 화면에서만 숨기고 기록은 지우지 않는다(스탬프·쿠폰 사용 횟수가 주문 기록으로 계산되기 때문).
 export const ORDER_HISTORY_MONTHS = 1;
+// 내 예약 '지난' 목록도 최근 1개월만 보여 준다 (2026-10-20 결정). 기록은 지우지 않는다(포인트·페널티 계산에 쓰임).
+export const RESERVATION_HISTORY_MONTHS = 1;
 
 export const REWARD_POLICY = [
   '음료 1잔당 스탬프 1개를 적립해요.',

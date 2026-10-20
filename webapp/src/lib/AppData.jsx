@@ -121,6 +121,8 @@ export function AppDataProvider({ children }) {
       storeId,
       store,
       setStoreId,
+      // 음료 수령 확인: 수령 완료로 바꾼다 (이후 상세 조회 불가)
+      markPicked: (orderId) => replaceOrders(orders.map((o) => (o.id === orderId ? { ...o, pickedAt: new Date().toISOString() } : o))),
       // 회원 탈퇴: 내 예약(이용 예정은 자동 취소, 이용 중이면 화면에서 막는다)·주문 기록과 가입 기록을 지우고 로그아웃한다 (스탬프·포인트는 기록에서 계산하므로 함께 사라진다)
       withdraw: () => {
         if (!user) return;
@@ -146,11 +148,12 @@ export function AppDataProvider({ children }) {
 export const useAppData = () => useContext(AppDataContext);
 
 // 현재 시각 (1분마다 갱신)
-export const useNow = () => {
+// 지금 시각. 주문 진행처럼 자주 바뀌는 화면은 intervalMs를 줄여 쓴다.
+export const useNow = (intervalMs = 60_000) => {
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {
-    const id = setInterval(() => setNow(new Date()), 60_000);
+    const id = setInterval(() => setNow(new Date()), intervalMs);
     return () => clearInterval(id);
-  }, []);
+  }, [intervalMs]);
   return now;
 };

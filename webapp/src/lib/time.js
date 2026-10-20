@@ -36,3 +36,14 @@ export const formatDateTime = (date) => {
 export const formatWon = (amount) => `${amount.toLocaleString('ko-KR')}원`;
 
 export const rangesOverlap = (aStart, aEnd, bStart, bEnd) => aStart < bEnd && bStart < aEnd;
+
+// 기록 보관 기간의 시작 시각: months개월 전 같은 날짜·시각 (그 달에 없는 날이면 말일)
+export const historyCutoff = (now, months = 1) => {
+  const d = new Date(now);
+  const day = d.getDate();
+  d.setDate(1);
+  d.setMonth(d.getMonth() - months);
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
+  d.setDate(Math.min(day, lastDay));
+  return d;
+};

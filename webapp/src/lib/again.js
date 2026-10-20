@@ -2,6 +2,8 @@
 import { getDrink } from './reservation.js';
 import { parseKey } from './order.js';
 import { isUpcoming } from './status.js';
+import { RESERVATION_HISTORY_MONTHS } from '../config/policy.js';
+import { historyCutoff, toDateString } from './time.js';
 
 const newestFirst = (a, b) => b.createdAt.localeCompare(a.createdAt);
 
@@ -16,4 +18,9 @@ export const lastReorderable = (orders) => [...orders].sort(newestFirst).find(ca
 // 다시 예약: 지난 예약 중 가장 최근 것. 공간·매장·시작 시각·이용 시간·좌석·음료를 채우고 날짜만 새로 고른다.
 export const lastPastReservation = (reservations, now) =>
   [...reservations].filter((r) => !isUpcoming(r, now)).sort((a, b) => b.date.localeCompare(a.date) || b.start - a.start)[0] ?? null;
+// 지난 예약 목록: 최근 RESERVATION_HISTORY_MONTHS개월(이용 날짜 기준)만 보여 준다. 기록은 지우지 않는다.
+export const recentPastReservations = (reservations, now) => {
+  const from = toDateString(historyCutoff(now, RESERVATION_HISTORY_MONTHS));
+  return reservations.filter((r) => !isUpcoming(r, now) && r.date >= from);
+};
 export const rebookPath = (r) => `/reserve/${r.type}?from=${r.id}`;

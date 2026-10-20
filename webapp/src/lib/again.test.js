@@ -36,3 +36,12 @@ describe('한 번에 다시 하기', () => {
     expect(rebookPath(lastPastReservation(list, NOW))).toBe('/reserve/focus?from=recent');
   });
 });
+
+describe('지난 예약 보관 기간 (최근 1개월)', () => {
+  it('이용 날짜가 한 달 전 같은 날 이후인 지난 예약만', async () => {
+    const { recentPastReservations } = await import('./again.js');
+    const now = new Date('2026-10-20T03:00:00Z');
+    const r = (id, date) => ({ id, date, start: 600, hours: 1 });
+    expect(recentPastReservations([r('a', '2026-09-20'), r('b', '2026-09-19'), r('c', '2026-10-25')], now).map((x) => x.id)).toEqual(['a']);
+  });
+});

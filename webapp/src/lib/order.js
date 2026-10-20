@@ -1,5 +1,6 @@
 import { MENU, ORDER_HISTORY_MONTHS, OWN_CUP_DISCOUNT, SHOT_PRICE, SPACES } from '../config/policy.js';
 import { needsTemp } from './drink.js';
+import { historyCutoff } from './time.js';
 
 // 주문 유형
 // - cafe:  일반 주문, 정상가
@@ -143,16 +144,8 @@ export const SERVE_OPTIONS = [
 export const SERVE_LABEL = { 'dine-in': '매장', takeout: '테이크아웃' };
 
 // 주문 내역 보관 기간: 지금부터 ORDER_HISTORY_MONTHS개월 전(같은 날짜·시각, 그 달에 없는 날이면 말일)까지의 주문만 보여 준다
-export const historyCutoff = (now, months = ORDER_HISTORY_MONTHS) => {
-  const d = new Date(now);
-  const day = d.getDate();
-  d.setDate(1);
-  d.setMonth(d.getMonth() - months);
-  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
-  d.setDate(Math.min(day, lastDay));
-  return d;
-};
+export { historyCutoff };
 export const recentOrders = (orders, now) => {
-  const cutoff = historyCutoff(now).getTime();
+  const cutoff = historyCutoff(now, ORDER_HISTORY_MONTHS).getTime();
   return orders.filter((o) => new Date(o.createdAt).getTime() >= cutoff);
 };

@@ -5,8 +5,8 @@ import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { isInUse } from '../lib/reservation.js';
-import { rebookPath } from '../lib/again.js';
-import { SPACES } from '../config/policy.js';
+import { rebookPath, recentPastReservations } from '../lib/again.js';
+import { RESERVATION_HISTORY_MONTHS, SPACES } from '../config/policy.js';
 
 export default function MyReservationsPage() {
   const { myReservations: reservations } = useAppData();
@@ -14,7 +14,8 @@ export default function MyReservationsPage() {
   const [tab, setTab] = useState('upcoming');
   const byTime = (a, b) => a.date.localeCompare(b.date) || a.start - b.start;
   const upcoming = reservations.filter((r) => isUpcoming(r, now)).sort(byTime);
-  const past = reservations.filter((r) => !isUpcoming(r, now)).sort((a, b) => byTime(b, a));
+  // 지난 예약은 최근 1개월만 (기록은 지우지 않는다)
+  const past = recentPastReservations(reservations, now).sort((a, b) => byTime(b, a));
   const list = tab === 'upcoming' ? upcoming : past;
 
   return (
@@ -27,6 +28,7 @@ export default function MyReservationsPage() {
             <button type="button" role="tab" aria-selected={tab === 'past'} onClick={() => setTab('past')}>지난 {past.length}</button>
           </div>
         </BrandBand>
+        {tab === 'past' && <p className="list-note">최근 {RESERVATION_HISTORY_MONTHS}개월 안에 이용한 예약만 보여 드려요.</p>}
         {list.length ? (
           <ul className="stack">
             {list.map((r) => (
@@ -44,7 +46,7 @@ export default function MyReservationsPage() {
           </ul>
         ) : (
           <div className="empty-state">
-            <p>{tab === 'upcoming' ? '다가오는 예약이 없어요.' : '지난 예약이 없어요.'}</p>
+            <p>{tab === 'upcoming' ? '다가오는 예약이 없어요.' : `최근 ${RESERVATION_HISTORY_MONTHS}개월 동안 지난 예약이 없어요.`}</p>
             {tab === 'upcoming' && <Link className="text-link" to="/reserve">공간 예약하기</Link>}
           </div>
         )}

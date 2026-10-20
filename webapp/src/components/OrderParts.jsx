@@ -1,6 +1,5 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { MENU } from '../config/policy.js';
-import { BottomBar, AppBar } from './AppShell.jsx';
 import Icon from './Icon.jsx';
 import { DrinkThumb, Provisional, Stepper } from './ui.jsx';
 import { formatWon } from '../lib/time.js';
@@ -64,42 +63,7 @@ export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [
 }
 
 // 주문 완료 화면
-export function OrderSuccess({ message, quote, order, moreTo = '/order', moreLabel = '더 주문하기' }) {
-  const cups = Object.values(order.items).reduce((a, b) => a + b, 0);
-  return (
-    <>
-      <AppBar title="" />
-      <div className="screen-body has-bottom-bar">
-        <div className="success-head">
-          <span className="success-head__icon" aria-hidden="true"><Icon name="check" size={32} /></span>
-          <h2 className="screen-title">주문이 접수되었어요</h2>
-          <p className="muted">{message} 결제는 매장에서 해요. 스탬프 {cups}개가 적립됐어요.</p>
-        </div>
-        <OrderSteps />
-        <OrderLines quote={quote} />
-      </div>
-      <BottomBar>
-        <Link className="button button--secondary" to={moreTo}>{moreLabel}</Link>
-        <Link className="button button--primary" to="/my/orders">주문 내역</Link>
-      </BottomBar>
-    </>
-  );
-}
-
-// 주문 상태 (필수 규칙 3): 접수 → 준비 중 → 완료. 매장 연동 전이라 데모에서는 '접수'까지만 진행된다 (임시)
-const ORDER_STEPS = ['접수', '준비 중', '완료'];
-const ORDER_STEPS_NOTE = '주문 상태는 매장 연동이 필요해 데모에서는 접수 단계까지만 보여요(임시)';
-export function OrderSteps({ current = 0 }) {
-  return (
-    <section className="order-steps" aria-label="주문 상태">
-      <ol className="order-steps__list">
-        {ORDER_STEPS.map((s, i) => (
-          <li key={s} className="order-steps__step" data-state={i < current ? 'done' : i === current ? 'now' : 'next'} aria-current={i === current ? 'step' : undefined}>
-            <span className="order-steps__dot" aria-hidden="true" />{s}
-          </li>
-        ))}
-      </ol>
-      <p className="order-steps__note">데모에서는 접수 단계까지만 보여요 <Provisional note={ORDER_STEPS_NOTE} /></p>
-    </section>
-  );
+// 주문 완료: 주문 현황(접수 → 수락 → 제조 중 → 제조 완료 → 수령 완료) 화면으로 바로 보낸다 (필수 규칙 3)
+export function OrderSuccess({ order }) {
+  return <Navigate to={`/my/orders/${order.id}?new=1`} replace />;
 }
