@@ -111,10 +111,9 @@ const MENU = [
   { title: '고객 지원', items: [
     { to: '/help', icon: 'chat', label: '이용 도우미 (데모)' },
   ] },
-  // 포트폴리오 데모: 홈의 상태별 화면을 바로 볼 수 있게 (보조 기능이라 서랍, 규칙 6)
-  { title: '데모', items: [
-    { to: '/demo', icon: 'repeat', label: '데모 시나리오' },
-  ] },
+  // 데모 시나리오(/demo)는 2026-10-20부터 서랍에서 숨긴다. 화면과 경로는 그대로 두어 주소로는 들어갈 수 있다.
+  // 다시 보이려면 아래 주석을 푼다.
+  // { title: '데모', items: [{ to: '/demo', icon: 'repeat', label: '데모 시나리오' }] },
 ];
 
 const DRAWER_EXIT_MS = 320;

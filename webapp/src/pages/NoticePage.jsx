@@ -1,47 +1,81 @@
-import { CLOSING_NOTICES, HOLIDAYS, HOURS } from '../config/policy.js';
-import { BrandBand } from '../components/BrandBand.jsx';
+import { Link, useParams } from 'react-router-dom';
+import { CLOSING_NOTICES, HOLIDAYS } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
+import { BrandBand } from '../components/BrandBand.jsx';
+import Icon from '../components/Icon.jsx';
 import { useNow } from '../lib/AppData.jsx';
-import { formatDate, formatTime, toDateString } from '../lib/time.js';
+import { getNotice, sortedNotices } from '../lib/notices.js';
+import { formatDate, toDateString } from '../lib/time.js';
+import NotFoundPage from './NotFoundPage.jsx';
 
-// 공지사항 (햄버거 서랍, 필수 규칙 6): 확정 정책에서 나온 운영 공지만 싣는다. 이벤트·혜택 공지는 지어내지 않는다.
+const dotDate = (d) => d.replaceAll('-', '.');
+
+// 공지사항 목록 (햄버거 서랍, 필수 규칙 6): 게시판처럼 분류 · 제목 · 날짜 한 줄씩, 중요 공지는 맨 위 고정
 export default function NoticePage() {
-  const now = useNow();
-  const today = toDateString(now);
-  const upcoming = HOLIDAYS.filter((d) => d >= today).slice(0, 6);
+  const list = sortedNotices();
   return (
     <>
       <AppBar back title="공지사항" />
       <div className="screen-body order-body">
-        <BrandBand id="notice-title" script="notice" title="공지사항" hint="확정된 운영 정책에서 나온 소식만 알려 드려요" />
-        <ul className="stack">
-          <li className="notice-card">
-            <span className="notice-card__tag">휴무</span>
-            <h2 className="notice-card__title">공휴일은 쉬어요</h2>
-            <p className="notice-card__body">모든 매장은 공휴일(대체공휴일 포함)에 휴무예요. 노동절은 공휴일이 아니어서 정상 운영해요.</p>
-            {upcoming.length > 0 && (
+        <BrandBand id="notice-title" script="notice" title="공지사항" hint={`전체 ${list.length}건 · 확정된 운영 정책에서 나온 소식만 알려 드려요`} />
+        <ul className="board" aria-label="공지 목록">
+          {list.map((n) => (
+            <li key={n.id}>
+              <Link to={`/notice/${n.id}`} className="board-row" data-pinned={n.pinned || undefined}>
+                <span className="board-row__meta">
+                  {n.pinned && <span className="board-row__pin">중요</span>}
+                  <span className="board-row__cat">{n.category}</span>
+                </span>
+                <span className="board-row__title">{n.title}</span>
+                <span className="board-row__date" lang="en">{dotDate(n.date)}</span>
+                <Icon name="chevron" size={18} className="board-row__chev" />
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </>
+  );
+}
+
+// 공지 상세: 분류 · 제목 · 날짜 머리, 본문, 정책 데이터에서 나온 덧붙임(다가오는 휴무일 · 마감 안내)
+export function NoticeDetailPage() {
+  const { id } = useParams();
+  const now = useNow();
+  const notice = getNotice(id);
+  if (!notice) return <NotFoundPage />;
+  const upcoming = HOLIDAYS.filter((d) => d >= toDateString(now)).slice(0, 8);
+  const list = sortedNotices();
+  const i = list.findIndex((n) => n.id === id);
+  const [prev, next] = [list[i - 1], list[i + 1]];
+  return (
+    <>
+      <AppBar back title="공지사항" />
+      <div className="screen-body">
+        <article className="notice-article" aria-labelledby="notice-h">
+          <header className="notice-article__head">
+            <span className="board-row__meta">
+              {notice.pinned && <span className="board-row__pin">중요</span>}
+              <span className="board-row__cat">{notice.category}</span>
+            </span>
+            <h2 id="notice-h" className="notice-article__title">{notice.title}</h2>
+            <p className="notice-article__date"><span lang="en">{dotDate(notice.date)}</span> · Aulo</p>
+          </header>
+          <div className="notice-article__body">
+            {notice.body.map((p) => <p key={p}>{p}</p>)}
+            {notice.extra === 'holidays' && upcoming.length > 0 && (
               <ul className="notice-card__dates" aria-label="다가오는 휴무일">
                 {upcoming.map((d) => <li key={d}>{formatDate(d)}</li>)}
               </ul>
             )}
-          </li>
-          <li className="notice-card">
-            <span className="notice-card__tag">운영</span>
-            <h2 className="notice-card__title">운영 시간과 마감 안내</h2>
-            <p className="notice-card__body">매일 {formatTime(HOURS.open)}에 열고 {formatTime(HOURS.close)}에 닫아요.</p>
-            <ul className="note-list">{CLOSING_NOTICES.map((n) => <li key={n}>{n}</li>)}</ul>
-          </li>
-          <li className="notice-card">
-            <span className="notice-card__tag">서비스</span>
-            <h2 className="notice-card__title">카카오톡 채널 지각 연락은 준비 중이에요</h2>
-            <p className="notice-card__body">예약 정보와 함께 카카오톡 채널로 연락하는 기능을 준비하고 있어요. 지금은 매장에 직접 연락해 주세요. 미리 연락하면 예약 시작 후 최대 1시간까지 예약을 유지해 드려요.</p>
-          </li>
-          <li className="notice-card">
-            <span className="notice-card__tag">데모</span>
-            <h2 className="notice-card__title">데모 버전 안내</h2>
-            <p className="notice-card__body">가상 브랜드 Aulo의 포트폴리오 데모예요. 실제 예약·결제·주문은 이루어지지 않고, 기록은 이 기기에만 저장돼요.</p>
-          </li>
-        </ul>
+            {notice.extra === 'closing' && <ul className="note-list">{CLOSING_NOTICES.map((n) => <li key={n}>{n}</li>)}</ul>}
+          </div>
+        </article>
+        <nav className="notice-nav" aria-label="다른 공지">
+          {prev && <Link to={`/notice/${prev.id}`} className="notice-nav__row"><span>이전 글</span><strong>{prev.title}</strong></Link>}
+          {next && <Link to={`/notice/${next.id}`} className="notice-nav__row"><span>다음 글</span><strong>{next.title}</strong></Link>}
+          <Link to="/notice" className="button button--secondary button--block">목록으로</Link>
+        </nav>
       </div>
     </>
   );
