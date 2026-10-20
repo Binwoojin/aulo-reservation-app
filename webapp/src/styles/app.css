@@ -1125,3 +1125,31 @@ a.again-card:active { transform: scale(0.99); }
 .day-card--open { animation: day-open 420ms var(--ease-settle) both; }
 @keyframes day-open { from { opacity: 0; transform: translateY(6px); } }
 @media (prefers-reduced-motion: reduce) { .day-card--open { animation: none; } }
+
+/* ── 주문 탭: 홈 음료 섹션과 같은 브랜드 톤 ── */
+.order-body { padding-top: 0; }
+.order-band {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  margin: 0 calc(var(--gutter) * -1); padding: var(--space-3) var(--gutter) 0;
+  background: var(--grad-warm); border-bottom: 1px solid rgba(121, 88, 68, 0.12);
+}
+.order-band .store-picker { align-self: flex-start; margin-left: calc(var(--space-1) * -1); }
+.order-band .shelf-script { margin-top: var(--space-2); }
+.order-band__title { font-size: 1.5rem; font-weight: 700; line-height: 1.35; letter-spacing: -0.02em; }
+.order-band .again-card { margin-top: var(--space-2); background: var(--grad-cream); }
+.order-band .text-tabs { margin-top: var(--space-3); border-bottom: 0; gap: var(--space-5); }
+.order-band .text-tabs button[aria-selected="true"] { color: var(--cafe-fg); }
+.order-band .text-tabs button[aria-selected="true"]::after { background: var(--cafe-fg); height: 3px; }
+.order-intro { margin-top: 0; }
+.order-intro .shelf-reason__kicker { font-family: var(--font-logo); font-size: 1.25rem; font-weight: 500; letter-spacing: -0.01em; color: var(--cafe-fg); margin-bottom: 0; }
+.menu-grid { gap: var(--space-6) var(--space-4); }
+.menu-card { align-items: center; text-align: center; }
+.menu-card .drink-thumb--card {
+  aspect-ratio: 4 / 5; border-radius: 50% 50% 20px 20px / 84px 84px 20px 20px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 10px 24px rgba(121, 88, 68, 0.16);
+  margin-bottom: var(--space-3);
+}
+.menu-card .drink-thumb img { object-position: center 60%; }
+.menu-card__price { color: var(--cafe-fg); }
+.menu-card__price [lang="en"] { font-family: var(--font-logo); font-size: 1.0625rem; font-weight: 600; margin-right: 1px; }
+.menu-card:focus-visible { border-radius: 50% 50% 20px 20px / 84px 84px 20px 20px; }

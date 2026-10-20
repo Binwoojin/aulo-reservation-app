@@ -2,16 +2,22 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { MENU, MENU_CATEGORIES } from '../config/policy.js';
 import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import { DrinkThumb, Segmented } from '../components/ui.jsx';
+import { DrinkThumb } from '../components/ui.jsx';
 import { drinkTemps, needsTemp } from '../lib/drink.js';
 import { lastReorderable } from '../lib/again.js';
 import { ReorderCard } from '../components/AgainCard.jsx';
 import StorePicker from '../components/StorePicker.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { formatWon } from '../lib/time.js';
 
 // 주문 탭: 카테고리(커피 · 논커피 · 에이드·티)별로 메뉴와 가격만 보여 준다.
 // 메뉴를 누르면 상세로, 상세의 '주문하기'로 장바구니에 담긴다. 고른 카테고리는 주소(?cat=)에 남겨 상세에서 돌아와도 유지한다.
+// 카테고리 소개 한 줄 (확정 메뉴·온도 정책에서 나온 사실만)
+const CATEGORY_INTRO = {
+  coffee: { en: 'Coffee', desc: 'ICE·HOT을 고르고, 샷을 더할 수 있어요' },
+  'non-coffee': { en: 'Non-coffee', desc: '커피 없이 부드럽게 즐기는 한 잔' },
+  'ade-tea': { en: 'Ade & Tea', desc: '상큼한 에이드와 차분한 차' },
+};
+
 export default function OrderPage() {
   const { user, cart, myOrders } = useAppData();
   const lastOrder = user ? lastReorderable(myOrders) : null;
@@ -31,17 +37,24 @@ export default function OrderPage() {
           </Link>
         )}
       </AppBar>
-      <div className="screen-body">
-        <StorePicker label="주문 매장" forOrder />
-        {lastOrder && <ReorderCard order={lastOrder} />}
-        <Segmented
-          label="메뉴 카테고리"
-          name="category"
-          value={category}
-          onChange={(v) => setParams({ cat: v }, { replace: true })}
-          options={MENU_CATEGORIES.map((c) => ({ value: c.id, label: c.label }))}
-        />
-        {/* 2열 카드: 큰 정사각형 사진 아래에 메뉴명과 가격만 둔다 */}
+      <div className="screen-body order-body">
+        {/* 홈 음료 섹션과 같은 브랜드 톤: 따뜻한 베이지 띠 + Fraunces 한 줄 + 텍스트 탭 */}
+        <section className="order-band" aria-labelledby="order-title">
+          <StorePicker label="주문 매장" forOrder variant="inline" />
+          <p className="shelf-script" lang="en">aulo menu</p>
+          <h2 id="order-title" className="order-band__title">머무름에 곁들일<br />한 잔을 골라 주세요</h2>
+          {lastOrder && <ReorderCard order={lastOrder} />}
+          <div className="text-tabs" role="tablist" aria-label="메뉴 카테고리">
+            {MENU_CATEGORIES.map((c) => (
+              <button key={c.id} type="button" role="tab" aria-selected={category === c.id} onClick={() => setParams({ cat: c.id }, { replace: true })}>{c.label}</button>
+            ))}
+          </div>
+        </section>
+        <p className="shelf-reason order-intro">
+          <span className="shelf-reason__kicker" lang="en">{CATEGORY_INTRO[category].en}</span>
+          {CATEGORY_INTRO[category].desc}
+        </p>
+        {/* 2열 카드: 아치형 사진 아래에 메뉴명과 가격만 둔다 */}
         <ul className="menu-grid" aria-label={`${MENU_CATEGORIES.find((c) => c.id === category).label} 메뉴`}>
           {list.map((d) => (
             <li key={d.id}>
@@ -49,7 +62,7 @@ export default function OrderPage() {
               <Link to={needsTemp(d) ? `/menu/${d.id}?temp=${drinkTemps(d)[0]}` : `/menu/${d.id}`} className="menu-card">
                 <DrinkThumb drink={d} size="card" />
                 <span className="menu-card__name">{d.name}</span>
-                <span className="menu-card__price">{formatWon(d.price)}</span>
+                <span className="menu-card__price"><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</span>
               </Link>
             </li>
           ))}
