@@ -13,9 +13,9 @@ import { useAppData } from '../lib/AppData.jsx';
 // 메뉴를 누르면 상세로, 상세의 '주문하기'로 장바구니에 담긴다. 고른 카테고리는 주소(?cat=)에 남겨 상세에서 돌아와도 유지한다.
 // 카테고리 소개 한 줄 (확정 메뉴·온도 정책에서 나온 사실만)
 const CATEGORY_INTRO = {
-  coffee: { en: 'Coffee', desc: 'ICE·HOT을 고르고, 샷을 더할 수 있어요' },
-  'non-coffee': { en: 'Non-coffee', desc: '커피 없이 부드럽게 즐기는 한 잔' },
-  'ade-tea': { en: 'Ade & Tea', desc: '상큼한 에이드와 차분한 차' },
+  coffee: 'ICE·HOT을 고르고, 샷을 더할 수 있어요',
+  'non-coffee': '커피 없이 부드럽게 즐기는 한 잔',
+  'ade-tea': '상큼한 에이드와 차분한 차',
 };
 
 export default function OrderPage() {
@@ -51,8 +51,8 @@ export default function OrderPage() {
           </div>
         </section>
         <p className="shelf-reason order-intro">
-          <span className="shelf-reason__kicker" lang="en">{CATEGORY_INTRO[category].en}</span>
-          {CATEGORY_INTRO[category].desc}
+          <span className="shelf-reason__kicker" lang="en">{MENU_CATEGORIES.find((c) => c.id === category).en}</span>
+          {CATEGORY_INTRO[category]}
         </p>
         {/* 2열 카드: 아치형 사진 아래에 메뉴명과 가격만 둔다 */}
         <ul className="menu-grid" aria-label={`${MENU_CATEGORIES.find((c) => c.id === category).label} 메뉴`}>

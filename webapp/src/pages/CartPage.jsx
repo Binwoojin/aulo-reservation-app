@@ -55,7 +55,11 @@ export default function CartPage() {
     <>
       <AppBar back title="장바구니" />
       <div className={`screen-body${count > 0 ? ' has-bottom-bar' : ''}`}>
-        <StorePicker label="주문 매장" forOrder />
+        <section className="order-band cart-band" aria-labelledby="cart-band-title">
+          <StorePicker label="주문 매장" forOrder variant="inline" />
+          <p className="shelf-script" lang="en">your order</p>
+          <h2 id="cart-band-title" className="order-band__title">주문 전에<br />한 번 더 확인해요</h2>
+        </section>
         <OptionList legend="이용 방법" name="serve" value={cart.serve} onChange={setCartServe} options={SERVE_OPTIONS} />
 
         <section className="block" aria-labelledby="cart-title">

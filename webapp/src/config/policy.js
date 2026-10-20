@@ -140,9 +140,9 @@ export const SPACES = {
 // 딸기라떼·에이드는 ICE만. image는 public/images/drinks/의 파일 이름(크기 접미사 -400/-1024와 .webp 제외)이고,
 // 온도를 고르는 음료는 { ice, hot } 두 장을 두고, 온도를 고르기 전에는 temps의 첫 번째(HOT) 사진을 보여 준다(2026-10-20).
 export const MENU_CATEGORIES = [
-  { id: 'coffee', label: '커피' },
-  { id: 'non-coffee', label: '논커피' },
-  { id: 'ade-tea', label: '에이드 · 티' },
+  { id: 'coffee', label: '커피', en: 'Coffee' },
+  { id: 'non-coffee', label: '논커피', en: 'Non-coffee' },
+  { id: 'ade-tea', label: '에이드 · 티', en: 'Ade & Tea' },
 ];
 export const MENU = p(
   [

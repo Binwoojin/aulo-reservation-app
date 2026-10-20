@@ -49,14 +49,15 @@ export default function MenuDetailPage() {
     <>
       <AppBar back title="" />
       <div className="screen-body has-bottom-bar">
-        <DrinkThumb drink={drink} temp={temp} size="lg" />
-        <section className="drink-head" aria-labelledby="drink-title">
+        {/* 주문 탭·홈 음료 섹션과 같은 브랜드 톤: 베이지 띠 위 아치형 사진, Fraunces 카테고리·가격 */}
+        <section className="detail-hero" aria-labelledby="drink-title">
+          <DrinkThumb drink={drink} temp={temp} size="lg" />
           <span className="drink-head__meta">
-            <span className="drink-head__category">{MENU_CATEGORIES.find((c) => c.id === drink.category)?.label}</span>
-            {BEST_MENU.includes(drink.id) && <span className="badge badge--best">베스트</span>}
+            <span className="drink-head__category" lang="en">{MENU_CATEGORIES.find((c) => c.id === drink.category)?.en}</span>
+            {BEST_MENU.includes(drink.id) && <span className="badge badge--best">대표 메뉴</span>}
           </span>
           <h2 id="drink-title" className="screen-title">{drink.name}</h2>
-          <p className="drink-price">{formatWon(drink.price)} <Provisional note={MENU.note} /></p>
+          <p className="drink-price"><span lang="en">{drink.price.toLocaleString('ko-KR')}</span>원 <Provisional note={MENU.note} /></p>
           <p className="drink-desc">{drink.desc}</p>
         </section>
         {chooseTemp && (
