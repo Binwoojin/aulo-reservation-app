@@ -33,7 +33,7 @@ export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [
   const unit = unitPriceOf(itemKey);
   return (
     <li className="cart-item">
-      <Link to={`/menu/${drink.id}`} className="cart-item__media" aria-label={`${drink.name} 상세 보기`}>
+      <Link to={opts.temp ? `/menu/${drink.id}?temp=${opts.temp}` : `/menu/${drink.id}`} className="cart-item__media" aria-label={`${drink.name} 상세 보기`}>
         <DrinkThumb drink={drink} temp={temp} />
       </Link>
       <div className="cart-item__body">

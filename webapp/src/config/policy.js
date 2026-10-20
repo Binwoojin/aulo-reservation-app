@@ -168,6 +168,9 @@ export const OWN_CUP_DISCOUNT = 300;
 
 // 홈 '베스트': 주문 데이터가 쌓이기 전에는 운영자가 고른 대표 메뉴 (2026-10-19 확정). 순위·판매량 숫자는 표시하지 않는다.
 export const BEST_MENU = ['americano', 'latte', 'caramel-macchiato', 'hot-chocolate'];
+// 홈 대표 메뉴의 기본 온도 (2026-10-20 결정: 지금 계절에 맞춰 HOT). ICE/HOT을 고르는 음료는 이 온도의 사진을 보여 주고,
+// 눌러서 들어간 상세에서도 이 온도가 선택된 상태로 시작한다. 계절이 바뀌면 'ice'로 바꾼다.
+export const BEST_MENU_TEMP = 'hot';
 
 // 매장: 2026-10-16 사용자 요청으로 임시 설정. 성수·연남 두 곳 모두 대형 카페로
 // Cafe·Focus·Rest·Suite 네 가지 공간을 모두 운영한다. Suite 공간 수가 매장마다 다르다는 확정 정책과 맞는다.

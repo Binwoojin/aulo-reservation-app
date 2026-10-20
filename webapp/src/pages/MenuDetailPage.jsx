@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { BEST_MENU, MAX_SHOTS, MENU, MENU_CATEGORIES, OWN_CUP_DISCOUNT, SHOT_PRICE } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { BottomSheet, DrinkThumb, Provisional, Segmented, Stepper, SwitchRow } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { canAddShot, fixedTemp, needsTemp } from '../lib/drink.js';
+import { canAddShot, drinkTemps, fixedTemp, needsTemp } from '../lib/drink.js';
 import { REFILL_DRINKS, TEMPS, drinkLabel, itemKey, unitPriceOf } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 import NotFoundPage from './NotFoundPage.jsx';
@@ -18,7 +18,9 @@ export default function MenuDetailPage() {
   const { addToCart } = useAppData();
   const drink = MENU.value.find((d) => d.id === id);
   const [sheetOpen, setSheetOpen] = useState(false);
-  const [temp, setTemp] = useState(null);
+  // ?temp=hot처럼 기본 온도를 받고 들어오면(홈 대표 메뉴) 그 온도가 선택된 상태로 시작한다
+  const [searchParams] = useSearchParams();
+  const [temp, setTemp] = useState(() => (needsTemp(drink) && drinkTemps(drink).includes(searchParams.get('temp')) ? searchParams.get('temp') : null));
   const [shot, setShot] = useState(0);
   const [ownCup, setOwnCup] = useState(false);
   const [qty, setQty] = useState(1);

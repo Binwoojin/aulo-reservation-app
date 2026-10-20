@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { BEST_MENU, MENU, SPACES, SPACE_TYPES } from '../config/policy.js';
+import { BEST_MENU, BEST_MENU_TEMP, MENU, SPACES, SPACE_TYPES } from '../config/policy.js';
+import { needsTemp } from '../lib/drink.js';
 import { AppBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
@@ -53,8 +54,8 @@ export default function HomePage() {
           <ul className="best-list" aria-label="대표 메뉴">
             {BEST_MENU.map((id) => MENU.value.find((d) => d.id === id)).map((d) => (
               <li key={d.id}>
-                <Link to={`/menu/${d.id}`} className="best-item">
-                  <DrinkThumb drink={d} size="sm" />
+                <Link to={needsTemp(d) ? `/menu/${d.id}?temp=${BEST_MENU_TEMP}` : `/menu/${d.id}`} className="best-item">
+                  <DrinkThumb drink={d} temp={BEST_MENU_TEMP} size="sm" />
                   <span className="best-item__name">{d.name}</span>
                   <span className="best-item__price">{formatWon(d.price)}</span>
                 </Link>
