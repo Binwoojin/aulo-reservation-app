@@ -23,3 +23,12 @@ export const formatDuration = (minutes) => {
 };
 // 이용일까지 남은 날 (KST 날짜 기준): 0 오늘, 1 내일
 export const daysUntil = (date, now) => Math.round((Date.parse(`${date}T00:00:00Z`) - Date.parse(`${toDateString(now)}T00:00:00Z`)) / 86_400_000);
+
+// 지금 매장의 오늘 운영 정보 (필수 규칙 4): 오늘 휴무인지, 7일 안에 공휴일 휴무가 있는지
+export const storeToday = (now, isHoliday, addDays) => {
+  const today = toDateString(now);
+  const closed = isHoliday(today);
+  let nextHoliday = null;
+  for (let i = 1; i <= 7 && !nextHoliday; i += 1) if (isHoliday(addDays(today, i))) nextHoliday = addDays(today, i);
+  return { closed, nextHoliday };
+};

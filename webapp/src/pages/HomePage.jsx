@@ -10,8 +10,11 @@ import { DrinkThumb, SpaceImage, Tag } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { lastPastReservation, lastReorderable } from '../lib/again.js';
 import { HALF_LIMIT, orderKindFor, remainingBenefits } from '../lib/order.js';
-import { canCancel, getStore, reservationEnd } from '../lib/reservation.js';
-import { daysUntil, formatDuration, homeStatus } from '../lib/status.js';
+import { canCancel, getStore, isHoliday, reservationEnd } from '../lib/reservation.js';
+import { daysUntil, formatDuration, homeStatus, storeToday } from '../lib/status.js';
+import { drinkPicks } from '../lib/drinkPick.js';
+import { QUESTIONS } from '../lib/recommend.js';
+import { TEMPS } from '../lib/order.js';
 import { addDays, formatDate, formatTime, formatWon } from '../lib/time.js';
 
 // 홈: 맨 위에 지금 매장과 내 상태 하나(이용 중 > 다가오는 예약 > 예약 없음, 필수 규칙 2·3),
@@ -27,7 +30,10 @@ export default function HomePage() {
     <>
       <AppBar />
       <div className="screen-body has-fab">
-        <StorePicker />
+        <div className="home-store">
+          <StorePicker />
+          <StoreToday now={now} />
+        </div>
 
         {status.kind === 'in-use' && <InUseCard status={status} orders={myOrders} />}
         {status.kind === 'upcoming' && <UpcomingCard reservation={status.reservation} now={now} />}
@@ -37,15 +43,8 @@ export default function HomePage() {
               <p className="eyebrow" lang="en">SPACE FOR YOUR NOW</p>
               <h2 id="home-title" className="screen-title">오늘은 어떤 시간을<br />보내실 건가요?</h2>
             </section>
-            {/* 예약이 없을 때만: 상태 카드 자리에 목적별 공간 찾기를 둔다 (추천 탭 바로가기를 늘 반복하지 않게, 규칙 6) */}
-            <Link to="/recommend" className="hero-card">
-              <SpaceImage space={SPACES.cafe} eager />
-              <span className="hero-card__body">
-                <span className="hero-card__title">목적에 맞는 공간 찾기</span>
-                <span className="hero-card__text">세 가지 질문이면 충분해요</span>
-              </span>
-              <span className="hero-card__go" aria-hidden="true"><Icon name="chevron" size={20} /></span>
-            </Link>
+            {/* 예약이 없을 때만: 목적 칩으로 공간 찾기를 시작한다. 고른 목적이 첫 질문의 답이 된다 (홈 구성 결정의 '목적별 추천 칩') */}
+            <PurposeChips />
           </>
         )}
 
@@ -55,6 +54,8 @@ export default function HomePage() {
             {lastOrder && <ReorderCard order={lastOrder} />}
           </div>
         )}
+
+        {status.kind !== 'in-use' && <DrinkPicks orders={user ? myOrders : []} now={now} />}
 
         <section aria-labelledby="best-title" className="block">
           <div className="block-head">
@@ -159,6 +160,73 @@ function UpcomingCard({ reservation: r, now }) {
           ? `${formatDate(addDays(r.date, -1))} 23:59까지 앱에서 취소할 수 있어요.`
           : '오늘 예약이에요. 늦을 것 같으면 매장에 미리 연락해 주세요.'}
       </p>
+    </section>
+  );
+}
+
+// 지금 매장의 오늘: 운영 시간·퇴실 시각, 공휴일 휴무 (정책 데이터만 사용)
+function StoreToday({ now }) {
+  const { closed, nextHoliday } = storeToday(now, isHoliday, addDays);
+  return (
+    <p className="store-today">
+      {closed
+        ? <><span className="store-today__dot store-today__dot--off" aria-hidden="true" />오늘은 공휴일 휴무예요</>
+        : <><span className="store-today__dot" aria-hidden="true" />오늘 {formatTime(HOURS.open)}–{formatTime(HOURS.close)} 운영 · {formatTime(HOURS.checkout)} 퇴실</>}
+      {nextHoliday && <span className="store-today__next">{formatDate(nextHoliday)} 휴무</span>}
+    </p>
+  );
+}
+
+const PURPOSE_ICON = { coffee: 'cup', work: 'clock', rest: 'home', private: 'door' };
+function PurposeChips() {
+  const purpose = QUESTIONS[0];
+  return (
+    <section className="block" aria-labelledby="purpose-title">
+      <h2 id="purpose-title" className="block-title">무엇을 하러 오세요?</h2>
+      <p className="group-hint">고르면 이어서 두 가지만 물어보고 맞는 공간을 찾아 드려요</p>
+      <ul className="purpose-grid">
+        {purpose.options.map((o) => (
+          <li key={o.id}>
+            <Link to={`/recommend?purpose=${o.id}`} className="purpose-chip">
+              <span className="purpose-chip__icon" aria-hidden="true"><Icon name={PURPOSE_ICON[o.id] ?? 'compass'} size={20} /></span>
+              <span className="purpose-chip__label">{o.label}</span>
+            </Link>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+// 음료 추천: 시간대(비로그인)·최근 주문(로그인)을 근거로, 카드마다 이유 한 줄 (필수 규칙 5)
+function DrinkPicks({ orders, now }) {
+  const { slot, picks } = drinkPicks({ orders, now });
+  if (!picks.length) return null;
+  const hasRecent = picks.some((p) => p.basis === 'recent');
+  return (
+    <section className="block" aria-labelledby="picks-title">
+      <div className="block-head">
+        <h2 id="picks-title" className="block-title">지금 마시기 좋은 음료</h2>
+      </div>
+      <p className="group-hint">{hasRecent ? `${slot.label} 시간대와 최근 주문을` : `${slot.label} 시간대를`} 바탕으로 골랐어요</p>
+      <ul className="list-card pick-list">
+        {picks.map(({ drink, temp, reason }) => {
+          const showTemp = needsTemp(drink) ? (temp ?? BEST_MENU_TEMP) : null;
+          const tempInfo = TEMPS.find((t) => t.value === temp);
+          return (
+            <li key={drink.id}>
+              <Link to={showTemp ? `/menu/${drink.id}?temp=${showTemp}` : `/menu/${drink.id}`} className="pick-row">
+                <DrinkThumb drink={drink} temp={showTemp} size="sm" />
+                <span className="pick-row__text">
+                  <span className="pick-row__name">{tempInfo && <span className="temp-chip" data-temp={temp}>{tempInfo.short}</span>}{drink.name}</span>
+                  <span className="pick-row__reason">{reason}</span>
+                </span>
+                <span className="pick-row__price">{formatWon(drink.price)}</span>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
     </section>
   );
 }

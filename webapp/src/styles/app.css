@@ -878,3 +878,31 @@ a.again-card:active { transform: scale(0.99); }
 .order-card__again { align-self: flex-start; margin-top: var(--space-2); }
 .rebook-note { align-items: flex-start; line-height: 1.5; }
 .rebook-note { margin-top: 0; }
+
+/* ── 홈: 지금 매장의 오늘 ── */
+.home-store { display: flex; flex-direction: column; gap: var(--space-2); }
+.store-today { display: flex; flex-wrap: wrap; align-items: center; gap: 6px var(--space-2); font-size: 0.8125rem; color: var(--color-text-sub); padding-left: var(--space-1); }
+.store-today__dot { display: inline-block; width: 7px; height: 7px; margin-right: 6px; border-radius: 50%; background: var(--color-olive); vertical-align: 1px; }
+.store-today__dot--off { background: var(--color-error); }
+.store-today__next { padding: 0 var(--space-2); border-radius: var(--radius-pill); background: var(--color-bg-sub); font-weight: 600; }
+
+/* ── 홈: 목적 칩 ── */
+.purpose-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-2); margin-top: var(--space-3); }
+.purpose-chip {
+  display: flex; align-items: center; gap: var(--space-3); min-height: 64px; padding: var(--space-3);
+  border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-text);
+  transition: transform var(--press) var(--ease);
+}
+.purpose-chip:active { transform: scale(0.97); }
+.purpose-chip__icon { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%; background: var(--cafe-bg); color: var(--cafe-fg); }
+.purpose-chip__label { font-size: 0.9375rem; font-weight: 700; line-height: 1.35; }
+
+/* ── 홈: 음료 추천 (이유 한 줄) ── */
+.pick-list { margin-top: var(--space-3); }
+.pick-row { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); color: var(--color-text); }
+.pick-list > li:last-child .pick-row { border-bottom: 0; }
+.pick-row:active { background: var(--color-bg); }
+.pick-row__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.pick-row__name { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 0.9375rem; }
+.pick-row__reason { font-size: 0.8125rem; color: var(--color-text-sub); line-height: 1.45; }
+.pick-row__price { flex-shrink: 0; font-size: 0.875rem; font-weight: 600; color: var(--color-text-sub); }

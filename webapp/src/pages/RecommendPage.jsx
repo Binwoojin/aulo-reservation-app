@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { SPACES } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
@@ -13,8 +13,11 @@ const actionFor = (type) =>
 
 // 질문 하나씩, 고르면 바로 다음 질문으로 넘어간다
 export default function RecommendPage() {
-  const [answers, setAnswers] = useState({});
-  const [step, setStep] = useState(0);
+  // 홈 목적 칩(?purpose=work)으로 들어오면 첫 질문의 답을 채우고 두 번째 질문부터 시작한다
+  const [params] = useSearchParams();
+  const preset = QUESTIONS[0].options.some((o) => o.id === params.get('purpose')) ? params.get('purpose') : null;
+  const [answers, setAnswers] = useState(() => (preset ? { purpose: preset } : {}));
+  const [step, setStep] = useState(preset ? 1 : 0);
   const done = step >= QUESTIONS.length;
 
   const back = step > 0 ? () => setStep((s) => s - 1) : false;
