@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
+  BOOKING_WINDOW_DAYS,
   CANCEL_POLICY,
   HOURS,
   MENU,
@@ -11,6 +12,7 @@ import {
 } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
+import StorePicker from '../components/StorePicker.jsx';
 import {
   ChipGrid,
   OptionList,
@@ -53,25 +55,41 @@ export default function ReservePage() {
 }
 
 function TypePicker() {
+  const { store } = useAppData();
   return (
     <>
       <AppBar title="공간 예약" />
-      <div className="screen-body">
-        <h2 className="screen-title">어떤 공간을<br />예약할까요?</h2>
+      <div className="screen-body order-body">
+        {/* 음료 화면과 같은 브랜드 톤: 베이지 띠 + Fraunces 한 줄 + 아치형 공간 사진 */}
+        <section className="order-band" aria-labelledby="reserve-title">
+          <StorePicker variant="inline" />
+          <p className="shelf-script" lang="en">find your space</p>
+          <h2 id="reserve-title" className="order-band__title">어떤 공간에서<br />머무를까요?</h2>
+          <p className="order-band__hint">앱 예약은 내일부터 {BOOKING_WINDOW_DAYS}일 안에서 할 수 있어요</p>
+        </section>
         <ul className="type-list">
-          {RESERVABLE.map((t) => (
-            <li key={t}>
-              <Link className="type-row" to={`/reserve/${t}`}>
-                <SpaceImage space={SPACES[t]} />
-                <span className="type-row__body">
-                  <Tag type={t}>{SPACES[t].label}</Tag>
-                  <span className="type-row__name" lang="en">{SPACES[t].name}</span>
-                  <span className="type-row__meta">{formatWon(SPACES[t].pricePerHour)}/시간 · {SPACES[t].minHours}~{SPACES[t].maxHours}시간</span>
-                </span>
-                <Icon name="chevron" size={18} className="list-row__chev" />
-              </Link>
-            </li>
-          ))}
+          {RESERVABLE.map((t) => {
+            const space = SPACES[t];
+            return (
+              <li key={t}>
+                <Link className="type-row" to={`/reserve/${t}`}>
+                  <SpaceImage space={space} />
+                  <span className="type-row__body">
+                    <span className="type-row__name" lang="en">{space.name}</span>
+                    <span className="type-row__headline">{space.headline}</span>
+                    <span className="type-row__features">
+                      {space.highlights.map((h) => <span key={h.label}><Icon name={h.icon} size={13} />{h.label}</span>)}
+                    </span>
+                    <span className="type-row__facts">
+                      <span><strong lang="en">{store.units[t]}</strong>{space.unitName === '공간' ? '실' : '석'}</span>
+                      <span><strong lang="en">{space.minHours}~{space.maxHours}</strong>시간</span>
+                      <span><strong lang="en">{space.pricePerHour.toLocaleString('ko-KR')}</strong>원/시간</span>
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         <Link to="/order" className="notice-row">
           <Icon name="cup" size={20} />
@@ -197,6 +215,14 @@ function ReserveWizard({ type }) {
       <AppBar back={step > 0 ? () => go(step - 1) : true} title={space.name} />
       <StepProgress steps={steps} current={step} label="예약 진행" />
       <div className="screen-body has-bottom-bar">
+        {/* 지금 예약 중인 공간: 작은 아치형 사진 + Fraunces 이름 + 브랜드 문구 (모든 단계 공통) */}
+        <div className="reserve-space">
+          <SpaceImage space={space} />
+          <span>
+            <span className="reserve-space__name" lang="en">{space.name}</span>
+            <span className="reserve-space__headline">{space.headline}</span>
+          </span>
+        </div>
         {stepName === '날짜' && (
           <>
             <h2 className="screen-title">언제 방문하세요?</h2>
