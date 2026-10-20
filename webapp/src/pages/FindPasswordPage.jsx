@@ -69,8 +69,8 @@ export default function FindPasswordPage() {
         <form id="find-form" className="login-form" onSubmit={next} noValidate>
           {step === 0 && (
             <Field label="이메일" error={errors.email}>
-              {({ invalid, describedBy }) => (
-                <input className="field__input" type="email" autoComplete="email" inputMode="email" placeholder="name@example.com"
+              {({ id, invalid, describedBy }) => (
+                <input id={id} className="field__input" type="email" autoComplete="email" inputMode="email" placeholder="name@example.com"
                   value={email} onChange={(e) => { setEmail(e.target.value); clear('email'); }} aria-invalid={invalid} aria-describedby={describedBy} />
               )}
             </Field>
@@ -78,8 +78,8 @@ export default function FindPasswordPage() {
           {step === 1 && (
             <>
               <Field label="인증번호" error={errors.code} hint={`데모에서는 메일이 발송되지 않아요. 아무 ${CODE_LENGTH}자리 숫자를 입력해 주세요.`}>
-                {({ invalid, describedBy }) => (
-                  <input className="field__input field__input--code" inputMode="numeric" autoComplete="one-time-code" maxLength={CODE_LENGTH} placeholder={'0'.repeat(CODE_LENGTH)}
+                {({ id, invalid, describedBy }) => (
+                  <input id={id} className="field__input field__input--code" inputMode="numeric" autoComplete="one-time-code" maxLength={CODE_LENGTH} placeholder={'0'.repeat(CODE_LENGTH)}
                     value={code} onChange={(e) => { setCode(e.target.value.replace(/\D/g, '')); clear('code'); }} aria-invalid={invalid} aria-describedby={describedBy} />
                 )}
               </Field>
