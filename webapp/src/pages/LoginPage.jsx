@@ -1,12 +1,10 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { NoticeDialog } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const MIN_PASSWORD = 8;
+import { EMAIL_RE, MIN_PASSWORD, register } from '../lib/auth.js';
 
 // 로그인 정책: 좌석 예약·음료 주문은 로그인해야 진입한다.
 // 비로그인으로 들어오면 이 화면으로 보내고(redirect), 로그인하면 원래 가려던 화면으로 돌려보낸다.
@@ -21,7 +19,6 @@ export default function LoginPage({ inline = false }) {
   const [password, setPassword] = useState('');
   const [errors, setErrors] = useState({});
   const [kakaoOpen, setKakaoOpen] = useState(false);
-  const [soonOpen, setSoonOpen] = useState(null); // '회원가입' | '비밀번호 찾기'
 
   if (user && !inline) return <Navigate to={redirect} replace />;
 
@@ -32,6 +29,7 @@ export default function LoginPage({ inline = false }) {
     if (password.length < MIN_PASSWORD) next.password = `비밀번호는 ${MIN_PASSWORD}자 이상 입력해 주세요.`;
     setErrors(next);
     if (Object.keys(next).length) return;
+    register(email);
     login(email.trim());
     if (!inline) navigate(redirect, { replace: true });
   };
@@ -67,9 +65,9 @@ export default function LoginPage({ inline = false }) {
           <button type="submit" className="button button--primary button--block">로그인</button>
         </form>
         <p className="login-links">
-          <button type="button" className="text-button" onClick={() => setSoonOpen('회원가입')}>회원가입</button>
+          <Link className="text-button" to={`/signup?redirect=${encodeURIComponent(inline ? '/my' : redirect)}`}>회원가입</Link>
           <span aria-hidden="true">·</span>
-          <button type="button" className="text-button" onClick={() => setSoonOpen('비밀번호 찾기')}>비밀번호 찾기</button>
+          <Link className="text-button" to={`/find-password?redirect=${encodeURIComponent(inline ? '/my' : redirect)}`}>비밀번호 찾기</Link>
         </p>
 
         <p className="login-divider">또는</p>
@@ -77,9 +75,6 @@ export default function LoginPage({ inline = false }) {
         <p className="login-note">데모 버전이라 형식에 맞는 이메일과 비밀번호면 로그인돼요. 정보는 이 기기에만 저장돼요.</p>
       </div>
 
-      <NoticeDialog open={!!soonOpen} title={`${soonOpen ?? ''} 준비 중`} onClose={() => setSoonOpen(null)}>
-        {soonOpen}{soonOpen === '회원가입' ? '은' : '는'} 데모 버전에서 제공하지 않아요. 형식에 맞는 이메일과 8자 이상 비밀번호로 바로 로그인할 수 있어요.
-      </NoticeDialog>
       <NoticeDialog open={kakaoOpen} title="서비스 준비 중" onClose={() => setKakaoOpen(false)}>
         카카오 계정 로그인은 준비 중이에요. 지금은 이메일로 로그인해 주세요.
       </NoticeDialog>

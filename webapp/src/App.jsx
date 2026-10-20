@@ -8,6 +8,8 @@ import OrderPage from './pages/OrderPage.jsx';
 import MyReservationsPage from './pages/MyReservationsPage.jsx';
 import MyOrdersPage from './pages/MyOrdersPage.jsx';
 import NoticePage, { NoticeDetailPage } from './pages/NoticePage.jsx';
+import SignupPage from './pages/SignupPage.jsx';
+import FindPasswordPage from './pages/FindPasswordPage.jsx';
 import DemoPage from './pages/DemoPage.jsx';
 import InfoPage from './pages/InfoPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
@@ -33,6 +35,8 @@ export default function App() {
         <Route path="menu/:id" element={<MenuDetailPage />} />
         <Route path="cart" element={<RequireLogin><CartPage /></RequireLogin>} />
         <Route path="login" element={<LoginPage />} />
+        <Route path="signup" element={<SignupPage />} />
+        <Route path="find-password" element={<FindPasswordPage />} />
         <Route path="my" element={<MyPage />} />
         <Route path="my/reservations" element={<RequireLogin><MyReservationsPage /></RequireLogin>} />
         <Route path="my/orders" element={<RequireLogin><MyOrdersPage /></RequireLogin>} />
