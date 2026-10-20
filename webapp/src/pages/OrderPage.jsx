@@ -31,14 +31,14 @@ export default function OrderPage() {
           onChange={(v) => setParams({ cat: v }, { replace: true })}
           options={MENU_CATEGORIES.map((c) => ({ value: c.id, label: c.label }))}
         />
-        <ul className="list-card" aria-label={`${MENU_CATEGORIES.find((c) => c.id === category).label} 메뉴`}>
+        {/* 2열 카드: 큰 정사각형 사진 아래에 메뉴명과 가격만 둔다 */}
+        <ul className="menu-grid" aria-label={`${MENU_CATEGORIES.find((c) => c.id === category).label} 메뉴`}>
           {list.map((d) => (
             <li key={d.id}>
-              <Link to={`/menu/${d.id}`} className="menu-link">
-                <DrinkThumb drink={d} size="sm" />
-                <span className="menu-link__name">{d.name}</span>
-                <span className="menu-link__price">{formatWon(d.price)}</span>
-                <Icon name="chevron" size={18} className="list-row__chev" />
+              <Link to={`/menu/${d.id}`} className="menu-card">
+                <DrinkThumb drink={d} size="card" />
+                <span className="menu-card__name">{d.name}</span>
+                <span className="menu-card__price">{formatWon(d.price)}</span>
               </Link>
             </li>
           ))}

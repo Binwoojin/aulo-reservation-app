@@ -169,7 +169,7 @@ export function NoticeDialog({ open, title, children, onClose, confirmLabel, onC
 
 // 음료 사진: public/images/drinks/의 사진(400·1024px WebP)을, 온도를 고르는 음료는 고른 온도의 사진을 보여 준다.
 // 사진이 없으면 컵 아이콘 자리표시. 정사각형 비율을 고정해 사진이 바뀌어도 레이아웃이 그대로다.
-const THUMB_SIZES = { sm: '56px', md: '104px', lg: 'min(100vw, 390px)' };
+const THUMB_SIZES = { sm: '56px', md: '104px', card: '180px', lg: 'min(100vw, 390px)' };
 export function DrinkThumb({ drink, temp = null, size = 'md' }) {
   const image = drinkImage(drink, temp);
   return (
