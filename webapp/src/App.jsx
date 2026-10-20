@@ -29,7 +29,7 @@ export default function App() {
         <Route path="reservations/:id/order" element={<RequireLogin><SeatOrderPage /></RequireLogin>} />
         <Route path="order" element={<OrderPage />} />
         <Route path="menu/:id" element={<MenuDetailPage />} />
-        <Route path="cart" element={<CartPage />} />
+        <Route path="cart" element={<RequireLogin><CartPage /></RequireLogin>} />
         <Route path="login" element={<LoginPage />} />
         <Route path="my" element={<MyPage />} />
         <Route path="my/reservations" element={<RequireLogin><MyReservationsPage /></RequireLogin>} />

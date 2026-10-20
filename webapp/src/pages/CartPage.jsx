@@ -1,21 +1,19 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { MENU } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { CartItem, OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
-import { NoticeDialog, OptionList } from '../components/ui.jsx';
+import { OptionList } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
 import { SERVE_OPTIONS, parseKey, priceOrder, sortedKeys } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 
 // 장바구니: 카페 주문 전용. 음료 상세의 '주문하기'로 담은 메뉴를 확인하고, 매장/테이크아웃을 골라 주문한다.
 // 좌석 추가 주문과 Suite 배달은 별도로 운영해 '내 예약 > 예약 상세'에서 들어간다.
+// 로그인한 사용자만 들어온다(라우트에서 RequireLogin). 비로그인 주문은 음료 상세의 '주문하기'에서 막는다.
 export default function CartPage() {
-  const { user, addOrder, cart, setCartQty, setCartServe, clearCart } = useAppData();
-  const navigate = useNavigate();
+  const { addOrder, cart, setCartQty, setCartServe, clearCart } = useAppData();
   const items = cart.items;
-  // 메뉴 보기와 담기는 누구나, '주문하기'는 로그인 후. 비로그인으로 누르면 안내창을 띄우고 진행을 막는다.
-  const [loginOpen, setLoginOpen] = useState(false);
   const [placed, setPlaced] = useState(null);
 
   const quote = priceOrder({ kind: 'cafe', items });
@@ -94,17 +92,8 @@ export default function CartPage() {
           <span className="price__label">{count}잔</span>
           <span className="price__value">{formatWon(quote.total)}</span>
         </div>
-        <button className="button button--primary" type="button" disabled={!count} onClick={() => (user ? submit() : setLoginOpen(true))}>주문하기</button>
+        <button className="button button--primary" type="button" disabled={!count} onClick={submit}>주문하기</button>
       </BottomBar>
-      <NoticeDialog
-        open={loginOpen}
-        title="로그인이 필요해요"
-        confirmLabel="로그인하기"
-        onConfirm={() => navigate(`/login?redirect=${encodeURIComponent('/cart')}`)}
-        onClose={() => setLoginOpen(false)}
-      >
-        음료 주문은 스탬프 적립과 연결돼 로그인해야 이용할 수 있어요. 담은 음료는 로그인 후에도 그대로 남아 있어요.
-      </NoticeDialog>
     </>
   );
 }
