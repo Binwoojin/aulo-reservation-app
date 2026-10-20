@@ -1435,7 +1435,7 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .notice__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 
 /* 로그인: 포트폴리오 데모 계정 안내 */
-.demo-account { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--grad-sage); border: 1px solid var(--color-hairline); }
+.demo-account { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--grad-sage); border: 1px solid var(--color-hairline); }
 .demo-account__text { flex: 1; min-width: 0; }
 .demo-account__title { margin-bottom: var(--space-1); font-size: 0.8125rem; font-weight: 700; color: var(--color-olive-hover); }
 .demo-account__list { display: flex; flex-direction: column; gap: 2px; font-size: 0.875rem; }
@@ -1532,3 +1532,46 @@ a.my-summary__cell:active { background: var(--color-bg); }
   .track__step[data-state="now"] .track__dot, .order-card__pulse, .active-order__pulse { animation: none; }
   .track__fill { transition: none; }
 }
+
+.demo-account__top { display: flex; align-items: center; gap: var(--space-3); }
+.demo-state { display: flex; flex-direction: column; gap: var(--space-2); margin: 0; padding: var(--space-3) 0 0; border: 0; box-shadow: inset 0 1px 0 var(--color-hairline); }
+.demo-state__legend { float: left; width: 100%; padding: 0; margin-bottom: var(--space-2); font-size: 0.8125rem; font-weight: 700; color: var(--color-olive-hover); }
+.demo-state__options { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-2); }
+.demo-state__option { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 60px; padding: var(--space-2) var(--space-1); border: 1px solid var(--color-hairline); border-radius: var(--radius-md); background: var(--color-surface); text-align: center; cursor: pointer; }
+.demo-state__option input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: inherit; }
+.demo-state__option:has(input:checked) { border-color: var(--color-olive); background: var(--color-olive-light); box-shadow: inset 0 0 0 1px var(--color-olive); }
+.demo-state__option:has(input:focus-visible) { outline: 2px solid var(--color-olive); outline-offset: 2px; }
+.demo-state__option[data-disabled] { cursor: not-allowed; border-style: dashed; background: var(--color-bg); color: var(--color-text-sub); }
+.demo-state__label { font-size: 0.8125rem; font-weight: 700; }
+.demo-state__option:has(input:checked) .demo-state__label { color: var(--color-olive-hover); }
+.demo-state__hint { font-size: 0.6875rem; color: var(--color-text-sub); line-height: 1.3; }
+.demo-state__note { font-size: 0.75rem; color: var(--color-text-sub); line-height: 1.5; }
+
+/* ---------- 쿠폰 (쿠폰함·쿠폰 고르기): 왼쪽 절취선 스텁 + 내용 + 남은 장수 ---------- */
+.coupon-pick { display: flex; flex-direction: column; gap: var(--space-2); }
+.coupon-pick__list, .coupon-wallet { display: flex; flex-direction: column; gap: var(--space-2); }
+.coupon-ticket { position: relative; display: flex; align-items: stretch; min-height: 64px; border: 1px solid var(--color-hairline); border-radius: var(--radius-md); background: var(--color-surface); overflow: hidden; cursor: pointer; }
+.coupon-ticket input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: inherit; }
+.coupon-ticket__stub { display: grid; place-items: center; flex: none; width: 64px; border-right: 2px dashed var(--color-surface); background: var(--grad-olive); color: #FFFFFF; font-family: var(--font-logo); font-size: 1.125rem; font-weight: 600; }
+.coupon-ticket__body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 2px; padding: var(--space-3) var(--space-3); }
+.coupon-ticket__body strong { font-size: 0.9375rem; }
+.coupon-ticket__body span { font-size: 0.75rem; color: var(--color-text-sub); }
+.coupon-ticket__count { display: flex; align-items: center; padding-right: var(--space-4); font-size: 0.75rem; color: var(--color-text-sub); white-space: nowrap; }
+.coupon-ticket__count b { font-family: var(--font-logo); font-size: 1.125rem; font-weight: 600; color: var(--color-text); }
+.coupon-ticket:has(input:checked) { border-color: var(--color-olive); box-shadow: inset 0 0 0 1px var(--color-olive); background: var(--color-olive-light); }
+.coupon-ticket:has(input:focus-visible) { outline: 2px solid var(--color-olive); outline-offset: 2px; }
+.coupon-ticket[data-disabled] { cursor: not-allowed; }
+.coupon-ticket[data-disabled] .coupon-ticket__stub { background: var(--color-bg-sub); color: var(--color-text-sub); }
+.coupon-ticket--none .coupon-ticket__body { padding-left: var(--space-4); }
+.coupon-ticket--wallet { cursor: default; }
+.coupon-wallet__actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin-top: var(--space-1); }
+.coupon-next { display: flex; flex-direction: column; border-radius: var(--radius-lg); background: var(--color-surface); border: 1px solid var(--color-hairline); }
+.coupon-next__item { display: flex; align-items: flex-start; gap: var(--space-3); padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--color-hairline); }
+.coupon-next__item:last-child { border-bottom: 0; }
+.coupon-next__item > .icon { flex-shrink: 0; color: var(--color-olive); }
+.coupon-next__text { display: flex; flex-direction: column; gap: 2px; font-size: 0.875rem; }
+.coupon-next__text span { font-size: 0.75rem; color: var(--color-text-sub); }
+/* 홈 이용 중 카드: 남은 쿠폰 → 쿠폰함 */
+.status-card__coupons { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-3); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.16); color: inherit; font-size: 0.875rem; font-weight: 600; }
+.status-card__coupons b { font-family: var(--font-logo); font-size: 1.0625rem; }
+.status-card__coupons-link { margin-left: auto; display: inline-flex; align-items: center; font-size: 0.8125rem; }

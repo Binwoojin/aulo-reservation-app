@@ -8,6 +8,7 @@ import { PENALTY, REWARD_POLICY } from '../config/policy.js';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { isInUse, penaltyStatus } from '../lib/reservation.js';
 import { recentOrders } from '../lib/order.js';
+import { couponWallet } from '../lib/coupons.js';
 import { pointBalance, stampCount } from '../lib/rewards.js';
 import { formatDate, toDateString } from '../lib/time.js';
 import LoginPage from './LoginPage.jsx';
@@ -16,7 +17,7 @@ import LoginPage from './LoginPage.jsx';
 // 구성: 프로필 → 내 현황(스탬프·포인트·예약) → 나의 이용 → 예약 이용 상태 → 적립 기준 → 계정 → 회원 탈퇴(작은 링크)
 // 이용 안내·공지·고객 지원은 서랍에 있으므로 여기서 반복하지 않는다 (필수 규칙 6)
 export default function MyPage() {
-  const { user, logout, myReservations, myOrders } = useAppData();
+  const { user, logout, myReservations, myOrders, orders } = useAppData();
   const now = useNow();
   const [kakaoOpen, setKakaoOpen] = useState(false);
   if (!user) return <LoginPage inline />;
@@ -63,6 +64,7 @@ export default function MyPage() {
 
         <MySection title="나의 이용">
           <MyRow to="/my/reservations" icon="calendar" label="내 예약" value={`다가오는 ${upcoming.length}건`} />
+          <MyRow to="/my/coupons" icon="percent" label="내 쿠폰" value={`${couponWallet(myReservations, orders, now).usableCount}장`} />
           <MyRow to="/my/orders" icon="receipt" label="주문 내역" value={`최근 1개월 ${recentOrders(myOrders, now).length}건`} />
           <li className="my-row">
             <Icon name="pin" /><span className="my-row__label">지금 매장</span>

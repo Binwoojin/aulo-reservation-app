@@ -16,6 +16,7 @@ import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage, { RequireLogin } from './pages/LoginPage.jsx';
 import WithdrawPage from './pages/WithdrawPage.jsx';
 import OrderTrackPage from './pages/OrderTrackPage.jsx';
+import CouponsPage from './pages/CouponsPage.jsx';
 import MyPage from './pages/MyPage.jsx';
 import MenuDetailPage from './pages/MenuDetailPage.jsx';
 import CartPage from './pages/CartPage.jsx';
@@ -43,6 +44,7 @@ export default function App() {
         <Route path="my/reservations" element={<RequireLogin><MyReservationsPage /></RequireLogin>} />
         <Route path="my/orders" element={<RequireLogin><MyOrdersPage /></RequireLogin>} />
         <Route path="my/orders/:id" element={<RequireLogin><OrderTrackPage /></RequireLogin>} />
+        <Route path="my/coupons" element={<RequireLogin><CouponsPage /></RequireLogin>} />
         <Route path="my/withdraw" element={<WithdrawPage />} />
         <Route path="info" element={<InfoPage />} />
         <Route path="notice" element={<NoticePage />} />

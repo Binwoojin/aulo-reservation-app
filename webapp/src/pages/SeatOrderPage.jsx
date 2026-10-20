@@ -6,6 +6,7 @@ import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
 import { DrinkThumb, Stepper } from '../components/ui.jsx';
+import CouponPicker from '../components/CouponPicker.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { BENEFIT_LABEL, couponFor, hasTemp, itemKey, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits, TEMPS } from '../lib/order.js';
 import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
@@ -22,6 +23,7 @@ export default function SeatOrderPage() {
   const [items, setItems] = useState({});
   const [category, setCategory] = useState(MENU_CATEGORIES[0].id);
   const [placed, setPlaced] = useState(null);
+  const [chosen, setChosen] = useState(null); // 고른 쿠폰 (없으면 가장 유리한 쿠폰 자동)
 
   if (!reservation) {
     return (
@@ -40,8 +42,8 @@ export default function SeatOrderPage() {
   const isSuite = kind === 'suite';
   const title = isSuite ? 'Suite 배달 메뉴' : '추가 주문';
   const inUse = isInUse(reservation, now);
-  const quote = priceOrder({ kind, items, reservation, previousOrders: orders });
-  const coupon = couponFor(kind, reservation, orders, items);
+  const quote = priceOrder({ kind, items, reservation, previousOrders: orders, chosen });
+  const coupon = couponFor(kind, reservation, orders, items, chosen);
   const left = remainingBenefits(kind, reservation, orders);
   const count = Object.values(items).reduce((a, b) => a + b, 0);
   const where = isSuite ? `${reservation.unit}번 Suite로 배달해 드려요` : `${space.name} ${reservation.unit}번 ${space.unitName}에서 받아 가세요`;
@@ -82,18 +84,7 @@ export default function SeatOrderPage() {
           </div>
         ) : (
           <>
-            <section className="block" aria-labelledby="coupon-title">
-              <p id="coupon-title" className="group-title">할인 쿠폰</p>
-              {coupon ? (
-                <div className="coupon">
-                  <span className="coupon__icon" aria-hidden="true"><Icon name="check" size={20} /></span>
-                  <span className="coupon__text"><strong>{coupon.title}</strong><span>{coupon.detail}</span></span>
-                  <span className="coupon__state">적용됨</span>
-                </div>
-              ) : (
-                <p className="group-hint">이 예약의 할인 쿠폰을 모두 사용했어요. 이번 주문은 정상가예요.</p>
-              )}
-            </section>
+            <CouponPicker reservation={reservation} orders={orders} items={items} value={quote.benefit} onChange={setChosen} />
 
             <section className="block" aria-labelledby="seat-menu-title">
               <h2 id="seat-menu-title" className="block-title">{isSuite ? '배달 메뉴' : '메뉴'}</h2>

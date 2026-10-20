@@ -6,19 +6,26 @@ import { CartItem, OrderLines, OrderSuccess } from '../components/OrderParts.jsx
 import { OptionList } from '../components/ui.jsx';
 import StorePicker from '../components/StorePicker.jsx';
 import { getStore } from '../lib/reservation.js';
-import { useAppData } from '../lib/AppData.jsx';
-import { SERVE_OPTIONS, parseKey, priceOrder, sortedKeys } from '../lib/order.js';
+import { useAppData, useNow } from '../lib/AppData.jsx';
+import CouponPicker from '../components/CouponPicker.jsx';
+import { isInUse } from '../lib/reservation.js';
+import { BENEFIT_LABEL, SERVE_OPTIONS, parseKey, priceOrder, sortedKeys } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
 
 // 장바구니: 카페 주문 전용. 음료 상세의 '주문하기'로 담은 메뉴를 확인하고, 매장/테이크아웃을 골라 주문한다.
 // 좌석 추가 주문과 Suite 배달은 별도로 운영해 '내 예약 > 예약 상세'에서 들어간다.
 // 로그인한 사용자만 들어온다(라우트에서 RequireLogin). 비로그인 주문은 음료 상세의 '주문하기'에서 막는다.
 export default function CartPage() {
-  const { addOrder, cart, setCartQty, setCartServe, clearCart, storeId } = useAppData();
+  const { addOrder, cart, setCartQty, setCartServe, clearCart, storeId, myReservations, orders } = useAppData();
+  const now = useNow();
   const items = cart.items;
   const [placed, setPlaced] = useState(null);
+  const [chosen, setChosen] = useState(null);
 
-  const quote = priceOrder({ kind: 'cafe', items });
+  // 좌석 이용 중이면 그 예약에 발급된 쿠폰을 카페 주문에도 쓸 수 있다 (2026-10-20 결정)
+  const inUse = myReservations.find((r) => isInUse(r, now)) ?? null;
+  const quote = priceOrder({ kind: 'cafe', items, reservation: inUse, previousOrders: orders, chosen });
+  const usingCoupon = inUse && quote.benefit !== 'normal';
   const count = Object.values(items).reduce((a, b) => a + b, 0);
 
   const submit = () => {
@@ -28,11 +35,11 @@ export default function CartPage() {
       kind: 'cafe',
       storeId, // 홈에서 고른 매장으로 주문한다 (필수 규칙 4)
       serve: cart.serve,
-      reservationId: null,
+      reservationId: usingCoupon ? inUse.id : null, // 쿠폰을 쓰면 발급한 예약에 연결해 남은 장수를 센다
       items,
       total: quote.total,
       benefit: quote.benefit,
-      coupon: null,
+      coupon: usingCoupon ? BENEFIT_LABEL[quote.benefit] : null,
       createdAt: new Date().toISOString(),
     };
     addOrder(order);
@@ -91,6 +98,8 @@ export default function CartPage() {
           )}
           <p className="group-hint">1잔당 스탬프 1개 적립 · 포인트는 음료 주문에 쓸 수 없어요</p>
         </section>
+
+        {count > 0 && inUse && <CouponPicker title="좌석 이용 중 쿠폰" reservation={inUse} orders={orders} items={items} value={quote.benefit} onChange={setChosen} />}
 
         {count > 0 && <OrderLines quote={quote} />}
       </div>

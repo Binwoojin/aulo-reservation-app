@@ -86,9 +86,26 @@ export const orderBenefit = (kind, reservation, previousOrders = [], items = {})
   return 'normal';
 };
 
+// 쿠폰을 고를 수 있는지: 고른 혜택이 이번 주문에 쓸 수 없으면 이유를 돌려준다 (쓸 수 있으면 null)
+export const benefitBlocker = (benefit, kind, reservation, previousOrders = [], items = {}) => {
+  if (benefit === 'normal') return null;
+  const left = remainingBenefits(kind, reservation, previousOrders);
+  if (benefit === 'half') return left.half ? null : '모두 사용했어요';
+  if (benefit === 'refill') {
+    if (!left.refill) return kind === 'suite' ? '이미 사용했어요' : 'Suite 이용 때만 발급돼요';
+    if (!Object.values(items).some((q) => q > 0)) return null;
+    return refillDrinkIn(items, reservation) ? null : '아메리카노·카페라떼를 담으면 쓸 수 있어요';
+  }
+  return '쓸 수 없는 쿠폰이에요';
+};
+
 // items: { [itemKey]: quantity }
-export const priceOrder = ({ kind, items, reservation, previousOrders = [] }) => {
-  const benefit = orderBenefit(kind, reservation, previousOrders, items);
+// chosen: 사용자가 고른 쿠폰('half' | 'refill' | 'normal'). 없거나 이번 주문에 못 쓰면 가장 유리한 쿠폰을 자동으로 고른다.
+// 카페 주문(장바구니)도 이용 중인 예약을 넘기면 그 예약의 쿠폰을 쓸 수 있다 (혜택 종류는 예약 기준).
+export const priceOrder = ({ kind, items, reservation, previousOrders = [], chosen }) => {
+  const couponKind = reservation ? orderKindFor(reservation) : kind;
+  const auto = orderBenefit(couponKind, reservation, previousOrders, items);
+  const benefit = chosen && !benefitBlocker(chosen, couponKind, reservation, previousOrders, items) ? chosen : auto;
   const refillKey = benefit === 'refill' ? refillDrinkIn(items, reservation) : null;
   const lines = sortedKeys(items)
     .map((key) => {
@@ -116,9 +133,10 @@ export const priceOrder = ({ kind, items, reservation, previousOrders = [] }) =>
 };
 
 // 할인 쿠폰: 이용 중인 Focus·Rest·Suite 예약을 주문에 연결하면(예약 확인) 재주문 혜택을 쿠폰으로 자동 적용한다.
-export const couponFor = (kind, reservation, previousOrders = [], items = {}) => {
-  if (kind === 'cafe' || !reservation) return null;
-  const benefit = orderBenefit(kind, reservation, previousOrders, items);
+export const couponFor = (kind, reservation, previousOrders = [], items = {}, chosen) => {
+  if (!reservation) return null;
+  kind = orderKindFor(reservation);
+  const benefit = priceOrder({ kind, items, reservation, previousOrders, chosen }).benefit;
   if (benefit === 'normal') return null;
   const left = remainingBenefits(kind, reservation, previousOrders);
   const name = (id) => MENU.value.find((d) => d.id === id)?.name;

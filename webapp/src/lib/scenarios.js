@@ -7,8 +7,12 @@ import { addDays, minutesOfDay, toDateString } from './time.js';
 export const DEMO_EMAIL = 'demo@aulo.kr';
 // 포트폴리오 공유용 데모 계정. 데모 로그인은 형식만 확인하므로 이 비밀번호를 따로 저장하거나 검사하지 않는다.
 export const DEMO_PASSWORD = 'aulo1234';
-// 데모 계정으로 처음 로그인할 때(기록이 없을 때) 채우는 예시 기록
-export const DEMO_SEED_SCENARIO = 'returning';
+// 로그인 화면에서 고르는 데모 계정의 시작 상태 (2026-10-20). 로그인할 때마다 데모 계정 기록을 이 상태로 새로 만든다.
+export const DEMO_START_STATES = [
+  { id: 'returning', label: '예약 없음', hint: '지난 예약·최근 주문' },
+  { id: 'focus-now', label: 'Focus 이용 중', hint: '50% 쿠폰 2장' },
+  { id: 'suite-now', label: 'Suite 이용 중', hint: '리필 1장 + 50% 2장' },
+];
 
 const reservation = (o) => ({
   owner: DEMO_EMAIL, requests: [], createdAt: new Date().toISOString(), pointsUsed: 0,

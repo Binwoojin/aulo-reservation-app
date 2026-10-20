@@ -10,7 +10,7 @@ import StorePicker from '../components/StorePicker.jsx';
 import { DrinkThumb, SpaceImage } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { lastPastReservation, lastReorderable, rebookPath, recentPastReservations, reorderItems } from '../lib/again.js';
-import { HALF_LIMIT, orderKindFor, parseKey, recentOrders, remainingBenefits, sortedKeys } from '../lib/order.js';
+import { orderKindFor, parseKey, recentOrders, remainingBenefits, sortedKeys } from '../lib/order.js';
 import { canCancel, getDrink, getStore, isHoliday, reservationEnd } from '../lib/reservation.js';
 import { daysUntil, formatDuration, homeStatus, storeToday } from '../lib/status.js';
 import { drinkPicks } from '../lib/drinkPick.js';
@@ -108,11 +108,8 @@ function InUseCard({ status, orders }) {
   const kind = orderKindFor(r);
   const left = remainingBenefits(kind, r, orders);
   const progress = Math.min(100, Math.max(0, ((r.hours * 60 - status.minutesLeft) / (r.hours * 60)) * 100));
-  const tip = kind === 'suite'
-    ? `${left.refill ? '아메리카노·카페라떼 1잔 무료 리필이 남아 있어요. ' : ''}공간 번호로 배달해 드려요.`
-    : left.half
-      ? `이용 중 재주문은 50% 할인 쿠폰을 쓸 수 있어요 (남은 ${left.half}회 / ${HALF_LIMIT}회).`
-      : '50% 할인 쿠폰을 모두 썼어요. 추가 주문은 정상가예요.';
+  // 쿠폰 남은 장수는 아래 쿠폰 줄에서 보여 주므로, 여기서는 받는 방법만
+  const tip = kind === 'suite' ? `주문하면 ${r.unit}번 Suite로 배달해 드려요.` : `추가 주문은 ${r.unit}번 ${space.unitName}에서 받아 가세요.`;
   return (
     <section className="status-card" aria-labelledby="status-title">
       <p className="status-card__eyebrow"><span className="live-dot" aria-hidden="true" />이용 중 · {getStore(r.storeId)?.name}</p>
@@ -123,6 +120,12 @@ function InUseCard({ status, orders }) {
       </div>
       <p className="status-card__meta">{formatTime(r.start)} – {formatTime(reservationEnd(r))} 이용 · {formatTime(HOURS.checkout)}까지 퇴실</p>
       <p className="status-card__tip"><Icon name="cup" size={16} />{tip}</p>
+      {/* 이용 시작과 함께 발급된 재주문 쿠폰의 남은 장수 → 쿠폰함 */}
+      <Link to="/my/coupons" className="status-card__coupons">
+        <Icon name="percent" size={18} />
+        <span>재주문 쿠폰 <b lang="en">{left.half + left.refill}</b>장 남았어요</span>
+        <span className="status-card__coupons-link">내 쿠폰<Icon name="chevron" size={16} /></span>
+      </Link>
       <div className="status-card__actions">
         <Link className="button button--primary" to={`/reservations/${r.id}/order`}>{kind === 'suite' ? '배달 주문하기' : '추가 주문하기'}</Link>
         <Link className="button button--secondary" to={`/reservations/${r.id}`}>예약 상세</Link>
