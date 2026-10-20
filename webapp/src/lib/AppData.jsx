@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { STORES } from '../config/policy.js';
 import { KEYS, loadList, loadValue, saveList, saveValue } from './storage.js';
 import { parseKey } from './order.js';
 import { getDrink } from './reservation.js';
@@ -78,12 +79,25 @@ const useCart = () => {
   return useMemo(() => ({ cart, addToCart, setCartQty, setCartServe, clearCart }), [cart, addToCart, setCartQty, setCartServe, clearCart]);
 };
 
+// 선택한 매장: 홈에서 고르고 앱 전체(홈 상태·공간 정보, 카페 주문, 예약 기본값)가 이 매장을 기준으로 한다 (필수 규칙 4)
+const validStore = (id) => (STORES.value.some((s) => s.id === id) ? id : STORES.value[0].id);
+const useSelectedStore = () => {
+  const [storeId, setStoreIdState] = useState(() => validStore(loadValue(KEYS.store)));
+  const setStoreId = useCallback((id) => {
+    const next = validStore(id);
+    saveValue(KEYS.store, next);
+    setStoreIdState(next);
+  }, []);
+  return { storeId, setStoreId, store: STORES.value.find((s) => s.id === storeId) };
+};
+
 // 예약·주문에는 owner(이메일)를 붙인다. owner가 없는 예전 데모 기록은 누구의 것으로도 본다.
 const isMine = (item, user) => !!user && (!item.owner || item.owner === user.email);
 
 export function AppDataProvider({ children }) {
   const { user, login, logout } = useSession();
   const cartApi = useCart();
+  const { storeId, setStoreId, store } = useSelectedStore();
   const [reservations, addStoredReservation, removeReservation] = useStoredList(KEYS.reservations);
   const [orders, addStoredOrder] = useStoredList(KEYS.orders);
   const addReservation = useCallback((r) => addStoredReservation({ ...r, owner: user?.email ?? null }), [addStoredReservation, user]);
@@ -101,8 +115,11 @@ export function AppDataProvider({ children }) {
       myOrders: orders.filter((o) => isMine(o, user)),
       addOrder,
       ...cartApi,
+      storeId,
+      store,
+      setStoreId,
     }),
-    [user, login, logout, reservations, addReservation, removeReservation, orders, addOrder, cartApi],
+    [user, login, logout, reservations, addReservation, removeReservation, orders, addOrder, cartApi, storeId, store, setStoreId],
   );
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

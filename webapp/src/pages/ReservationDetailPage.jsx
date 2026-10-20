@@ -7,6 +7,7 @@ import ReservationCard from '../components/ReservationCard.jsx';
 import { NoticeDialog } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { canCancel, extensionStatus, isInUse } from '../lib/reservation.js';
+import { rebookPath } from '../lib/again.js';
 import { formatDate } from '../lib/time.js';
 
 // 예약 완료(?new=1)와 예약 상세를 함께 보여준다
@@ -95,7 +96,9 @@ export default function ReservationDetailPage() {
             {space.drink === 'included' ? 'Suite 배달 메뉴' : '추가 주문하기'}
           </Link>
         )}
-        <Link className={`button ${inUse ? 'button--secondary' : 'button--primary button--block'}`} to={isNew ? '/' : '/my/reservations'}>
+        {/* 지난 예약은 같은 조건으로 다시 예약 (필수 규칙 1) */}
+        {!upcoming && <Link className="button button--primary" to={rebookPath(reservation)}>다시 예약</Link>}
+        <Link className={`button ${inUse || !upcoming ? 'button--secondary' : 'button--primary button--block'}`} to={isNew ? '/' : '/my/reservations'}>
           {isNew ? '홈으로' : '내 예약'}
         </Link>
       </BottomBar>

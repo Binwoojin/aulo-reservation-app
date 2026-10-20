@@ -25,6 +25,9 @@ npm run build:artifact  # dist-artifact/ 게시용 빌드 (주소창을 쓰지 �
 | `src/lib/reservation.js` | 시작·이용 시간, 마감 제한, 충돌 방지, 요금 |
 | `src/lib/order.js` | 주문 유형별 할인 (50% 쿠폰 최대 2회, Suite 아메리카노·카페라떼 리필 1회) |
 | `src/lib/recommend.js` | 목적·시간·환경 응답 기반 공간 추천 |
+| `src/lib/status.js` | 홈 최상단 내 상태(이용 중 > 다가오는 예약 > 예약 없음), 남은 시간 표기 |
+| `src/lib/again.js` | 한 번에 다시 하기: 최근 카페 주문 다시 담기, 지난 예약 다시 예약(`/reserve/:type?from=예약id`) |
+| `src/components/StorePicker.jsx` | 지금 매장 선택(홈·주문 탭·장바구니). 고른 매장은 이 기기에 저장되고 앱 전체가 쓴다 |
 | `src/lib/assistant.js` | 이용 도우미(데모 챗봇): AI 없이 `policy.js` 정책과 내 예약으로 답하는 규칙 기반 응답. 모르는 질문은 지어내지 않고 이용 안내로 넘김 |
 | `src/components/AppShell.jsx` | 앱 바, 하단 탭바(주 메뉴), 햄버거 서랍(마이·보조 메뉴), 하단 액션 바 |
 | `src/pages/` | 홈, 공간 추천(질문 3단계), 예약(단계형), 예약 상세, 음료 주문, 내 예약, 주문 내역, 이용 안내, 이용 도우미(홈 오른쪽 아래 고정 버튼, 서랍 '고객 지원', 예약 상세에서 진입) |

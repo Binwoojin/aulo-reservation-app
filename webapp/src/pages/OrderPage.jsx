@@ -4,13 +4,17 @@ import { AppBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import { DrinkThumb, Segmented } from '../components/ui.jsx';
 import { drinkTemps, needsTemp } from '../lib/drink.js';
+import { lastReorderable } from '../lib/again.js';
+import { ReorderCard } from '../components/AgainCard.jsx';
+import StorePicker from '../components/StorePicker.jsx';
 import { useAppData } from '../lib/AppData.jsx';
 import { formatWon } from '../lib/time.js';
 
 // 주문 탭: 카테고리(커피 · 논커피 · 에이드·티)별로 메뉴와 가격만 보여 준다.
 // 메뉴를 누르면 상세로, 상세의 '주문하기'로 장바구니에 담긴다. 고른 카테고리는 주소(?cat=)에 남겨 상세에서 돌아와도 유지한다.
 export default function OrderPage() {
-  const { user, cart } = useAppData();
+  const { user, cart, myOrders } = useAppData();
+  const lastOrder = user ? lastReorderable(myOrders) : null;
   const count = Object.values(cart.items).reduce((a, b) => a + b, 0);
   const [params, setParams] = useSearchParams();
   const category = MENU_CATEGORIES.some((c) => c.id === params.get('cat')) ? params.get('cat') : MENU_CATEGORIES[0].id;
@@ -28,6 +32,8 @@ export default function OrderPage() {
         )}
       </AppBar>
       <div className="screen-body">
+        <StorePicker label="주문 매장" />
+        {lastOrder && <ReorderCard order={lastOrder} />}
         <Segmented
           label="메뉴 카테고리"
           name="category"

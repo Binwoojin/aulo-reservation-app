@@ -2,8 +2,6 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './Icon.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { reservationEnd } from '../lib/reservation.js';
-import { minutesOfDay, toDateString } from '../lib/time.js';
 
 const MenuContext = createContext(() => {});
 
@@ -18,10 +16,7 @@ export const TABS = [
 ];
 const TAB_PATHS = TABS.map((t) => t.to);
 
-export function isUpcoming(r, now) {
-  const today = toDateString(now);
-  return r.date > today || (r.date === today && reservationEnd(r) > minutesOfDay(now));
-}
+export { isUpcoming } from '../lib/status.js';
 
 // 앱 셸: 화면마다 AppBar를 직접 두고, 햄버거 메뉴(마이 페이지)는 셸이 관리한다.
 export default function AppShell() {

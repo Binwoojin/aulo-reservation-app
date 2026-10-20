@@ -814,3 +814,62 @@ a.ticket__link:active { background: var(--color-bg); }
 .help-fab:focus-visible { outline: 2px solid var(--color-olive); outline-offset: 3px; }
 @keyframes fab-in { from { opacity: 0; transform: translateY(8px) scale(0.92); } }
 @media (prefers-reduced-motion: reduce) { .help-fab { animation: none; } }
+
+/* ── 지금 매장 (필수 규칙 4) ── */
+.store-picker {
+  display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
+  min-height: 40px; padding: 0 var(--space-3) 0 var(--space-2);
+  border: 1px solid var(--color-hairline); border-radius: var(--radius-pill);
+  background: var(--color-surface); color: var(--color-text); font: inherit; cursor: pointer;
+  box-shadow: 0 1px 2px rgba(48, 43, 38, 0.05);
+}
+.store-picker:active { transform: scale(0.98); }
+.store-picker .icon:first-child { color: var(--color-olive); }
+.store-picker__label { font-size: 0.8125rem; color: var(--color-text-sub); }
+.store-picker__name { font-size: 0.9375rem; font-weight: 700; }
+
+/* ── 내 상태: 이용 중 (필수 규칙 2·3) ── */
+.status-card {
+  display: flex; flex-direction: column; gap: var(--space-2);
+  padding: var(--space-5); border-radius: var(--radius-xl);
+  background: var(--color-olive); color: #FFFFFF; box-shadow: var(--shadow-float);
+}
+.status-card__eyebrow { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; font-weight: 600; opacity: 0.88; }
+.live-dot { width: 8px; height: 8px; border-radius: 50%; background: #CFE3B0; box-shadow: 0 0 0 4px rgba(207, 227, 176, 0.25); }
+.status-card__title { font-size: 1.25rem; font-weight: 700; line-height: 1.35; }
+.status-card__time { font-size: 0.9375rem; }
+.status-card__time strong { font-size: 1.75rem; font-weight: 700; letter-spacing: -0.01em; margin-right: 2px; }
+.status-progress { height: 6px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.22); overflow: hidden; }
+.status-progress span { display: block; height: 100%; border-radius: inherit; background: #FFFFFF; }
+.status-card__meta { font-size: 0.8125rem; opacity: 0.85; }
+.status-card__tip {
+  display: flex; align-items: flex-start; gap: 6px; margin-top: var(--space-1);
+  padding: var(--space-3); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.12);
+  font-size: 0.875rem; line-height: 1.5;
+}
+.status-card__tip .icon { flex-shrink: 0; margin-top: 2px; }
+.status-card__actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-2); margin-top: var(--space-2); }
+.status-card .button--primary { background: #FFFFFF; color: var(--color-olive-hover); }
+.status-card .button--secondary { background: transparent; color: #FFFFFF; border-color: rgba(255, 255, 255, 0.45); box-shadow: none; }
+.badge--when { margin-left: var(--space-2); vertical-align: 2px; background: var(--color-olive-light); color: var(--color-olive-hover); }
+
+/* ── 한 번에 다시 하기 (필수 규칙 1) ── */
+.again-stack { display: flex; flex-direction: column; gap: var(--space-2); }
+.again-card {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-text);
+}
+a.again-card:active { transform: scale(0.99); }
+.again-card__icon { display: grid; place-items: center; width: 36px; height: 36px; flex-shrink: 0; border-radius: 50%; background: var(--color-olive-light); color: var(--color-olive); }
+.again-card__text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.again-card__label { font-size: 0.75rem; font-weight: 600; color: var(--color-text-sub); }
+.again-card__what { font-size: 0.9375rem; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.again-card__go { display: inline-flex; align-items: center; gap: 2px; flex-shrink: 0; font-size: 0.8125rem; font-weight: 700; color: var(--color-olive-hover); }
+.button--small { min-height: 36px; padding: 0 var(--space-3); font-size: 0.8125rem; flex-shrink: 0; }
+
+.home-demo { align-self: center; margin-top: var(--space-2); }
+
+.order-card__again { align-self: flex-start; margin-top: var(--space-2); }
+.rebook-note { align-items: flex-start; line-height: 1.5; }
+.rebook-note { margin-top: 0; }

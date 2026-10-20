@@ -4,6 +4,8 @@ import { MENU } from '../config/policy.js';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { CartItem, OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
 import { OptionList } from '../components/ui.jsx';
+import StorePicker from '../components/StorePicker.jsx';
+import { getStore } from '../lib/reservation.js';
 import { useAppData } from '../lib/AppData.jsx';
 import { SERVE_OPTIONS, parseKey, priceOrder, sortedKeys } from '../lib/order.js';
 import { formatWon } from '../lib/time.js';
@@ -12,7 +14,7 @@ import { formatWon } from '../lib/time.js';
 // 좌석 추가 주문과 Suite 배달은 별도로 운영해 '내 예약 > 예약 상세'에서 들어간다.
 // 로그인한 사용자만 들어온다(라우트에서 RequireLogin). 비로그인 주문은 음료 상세의 '주문하기'에서 막는다.
 export default function CartPage() {
-  const { addOrder, cart, setCartQty, setCartServe, clearCart } = useAppData();
+  const { addOrder, cart, setCartQty, setCartServe, clearCart, storeId } = useAppData();
   const items = cart.items;
   const [placed, setPlaced] = useState(null);
 
@@ -24,6 +26,7 @@ export default function CartPage() {
     const order = {
       id: crypto.randomUUID(),
       kind: 'cafe',
+      storeId, // 홈에서 고른 매장으로 주문한다 (필수 규칙 4)
       serve: cart.serve,
       reservationId: null,
       items,
@@ -43,7 +46,7 @@ export default function CartPage() {
       <OrderSuccess
         order={placed.order}
         quote={placed.quote}
-        message={`${placed.order.serve === 'takeout' ? '테이크아웃' : '매장'} 주문이에요. 준비되면 카운터에서 픽업해 주세요.`}
+        message={`${getStore(placed.order.storeId)?.name ?? ''} ${placed.order.serve === 'takeout' ? '테이크아웃' : '매장'} 주문이에요. 준비되면 카운터에서 픽업해 주세요.`}
       />
     );
   }
@@ -52,6 +55,7 @@ export default function CartPage() {
     <>
       <AppBar back title="장바구니" />
       <div className="screen-body has-bottom-bar">
+        <StorePicker label="주문 매장" />
         <OptionList legend="이용 방법" name="serve" value={cart.serve} onChange={setCartServe} options={SERVE_OPTIONS} />
 
         <section className="block" aria-labelledby="cart-title">

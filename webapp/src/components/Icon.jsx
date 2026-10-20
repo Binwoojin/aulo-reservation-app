@@ -21,6 +21,8 @@ const PATHS = {
   send: <><path d="M4 12l16-7-6 15-2.5-6.5z" /><path d="M11.5 13.5L20 5" /></>,
   bag: <><path d="M5.5 8h13l-1 11.5h-11z" /><path d="M9 8V6.5a3 3 0 0 1 6 0V8" /></>,
   alert: <><path d="M12 4l9 16H3z" /><path d="M12 10v4" /><path d="M12 17h.01" /></>,
+  down: <path d="M6 9l6 6 6-6" />,
+  repeat: <><path d="M5 10a7 7 0 0 1 12-3.5L19 9" /><path d="M19 4.5V9h-4.5" /><path d="M19 14a7 7 0 0 1-12 3.5L5 15" /><path d="M5 19.5V15h4.5" /></>,
 };
 
 export default function Icon({ name, size = 24, label, className = '' }) {

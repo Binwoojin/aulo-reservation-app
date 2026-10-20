@@ -5,6 +5,7 @@ import ReservationCard from '../components/ReservationCard.jsx';
 import { Segmented } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { isInUse } from '../lib/reservation.js';
+import { rebookPath } from '../lib/again.js';
 import { SPACES } from '../config/policy.js';
 
 export default function MyReservationsPage() {
@@ -33,6 +34,7 @@ export default function MyReservationsPage() {
               <li key={r.id} className="reservation-item">
                 <ReservationCard reservation={r} link />
                 {/* 이용 중인 좌석은 여기서 바로 좌석 주문으로 (카페 장바구니와 따로 운영) */}
+                {tab === 'past' && <Link className="button button--secondary button--block seat-order-link" to={rebookPath(r)}>다시 예약</Link>}
                 {isInUse(r, now) && (
                   <Link className="button button--primary button--block seat-order-link" to={`/reservations/${r.id}/order`}>
                     {SPACES[r.type].drink === 'included' ? 'Suite 배달 메뉴' : '추가 주문하기'}

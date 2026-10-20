@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
   CANCEL_POLICY,
   HOURS,
@@ -102,7 +102,11 @@ function ReserveWizard({ type }) {
   const space = SPACES[type];
   const now = useNow();
   const navigate = useNavigate();
-  const { reservations, myReservations, addReservation } = useAppData();
+  const { reservations, myReservations, addReservation, storeId: homeStoreId } = useAppData();
+  // 다시 예약(?from=예약id): 지난 예약의 매장·시작 시각·이용 시간·좌석·음료를 채우고 날짜만 새로 고른다 (필수 규칙 1)
+  const [params] = useSearchParams();
+  const from = myReservations.find((r) => r.id === params.get('from') && r.type === type) ?? null;
+  const fromDrink = from ? getDrink(from.drinkId) : null;
   const dates = useMemo(() => windowDates(now, type), [now, type]);
   const firstOpen = dates.find((d) => !isHoliday(d) && !hasReservationOn(d, myReservations));
   const today = toDateString(now);
@@ -111,15 +115,16 @@ function ReserveWizard({ type }) {
     ? ['날짜', '시간', '공간', '음료', '확인']
     : ['날짜', '시간', '좌석', type === 'rest' ? '음료·요청' : '음료', '확인'];
   const [step, setStep] = useState(0);
-  const [storeId, setStoreId] = useState(STORES.value[0].id);
+  // 매장은 홈에서 고른 매장으로 시작한다 (필수 규칙 4). 이 예약에서만 바꿀 수 있다.
+  const [storeId, setStoreId] = useState(from?.storeId ?? homeStoreId);
   const [date, setDate] = useState(firstOpen ?? dates[0]);
   const [start, setStart] = useState(null);
   const [hours, setHours] = useState(space.minHours);
   const [unit, setUnit] = useState(null);
-  const [drinkId, setDrinkId] = useState(null);
-  const [drinkTemp, setDrinkTemp] = useState(null);
+  const [drinkId, setDrinkId] = useState(fromDrink ? fromDrink.id : null);
+  const [drinkTemp, setDrinkTemp] = useState(fromDrink && needsTemp(fromDrink) ? from.drinkTemp : null);
   const drinkNeedsTemp = needsTemp(getDrink(drinkId));
-  const [requests, setRequests] = useState([]);
+  const [requests, setRequests] = useState(from?.requests ?? []);
   const [errors, setErrors] = useState([]);
   const [usePoints, setUsePoints] = useState(false);
 
@@ -156,7 +161,19 @@ function ReserveWizard({ type }) {
     확인: true,
   }[stepName];
 
-  const go = (next) => { setStep(next); window.scrollTo(0, 0); };
+  const go = (next) => {
+    // 다시 예약: 다음 단계로 넘어갈 때 지난 예약의 시간·좌석이 지금도 가능하면 채운다 (안 되면 비워 두고 직접 고른다)
+    if (from && next > step) {
+      const nextName = steps[next];
+      if (nextName === '시간' && start == null && starts.includes(from.start) && maxHoursFor(from.start) >= space.minHours) {
+        setStart(from.start);
+        setHours(Math.min(from.hours, maxHoursFor(from.start)));
+      }
+      if ((nextName === '좌석' || nextName === '공간') && unit == null && freeNow.includes(from.unit)) setUnit(from.unit);
+    }
+    setStep(next);
+    window.scrollTo(0, 0);
+  };
 
   const submit = () => {
     const result = createReservation(
@@ -183,6 +200,12 @@ function ReserveWizard({ type }) {
         {stepName === '날짜' && (
           <>
             <h2 className="screen-title">언제 방문하세요?</h2>
+            {from && (
+              <p className="inline-status rebook-note">
+                <Icon name="repeat" size={16} />
+                {formatDate(from.date)} 예약({space.name} {from.unit}번 · {formatTime(from.start)}부터 {from.hours}시간)을 바탕으로 채워요. 날짜만 골라 주세요.
+              </p>
+            )}
             <section className="block">
               <p className="group-title">매장 <Provisional note={STORES.note} /></p>
               <Segmented

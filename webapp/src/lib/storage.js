@@ -19,7 +19,7 @@ const write = (key, value) => {
   }
 };
 
-export const KEYS = { reservations: 'aulo.reservations.v1', orders: 'aulo.orders.v1', session: 'aulo.session.v1' };
+export const KEYS = { reservations: 'aulo.reservations.v1', orders: 'aulo.orders.v1', session: 'aulo.session.v1', store: 'aulo.store.v1' };
 export const loadList = (key) => read(key);
 export const saveList = (key, list) => write(key, list);
 export const loadValue = (key, fallback = null) => read(key, fallback);
