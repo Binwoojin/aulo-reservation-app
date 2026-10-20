@@ -566,29 +566,34 @@ a.ticket__link:active { background: var(--color-bg); }
 .muted-inline { font-size: 0.8125rem; color: var(--color-text-sub); font-weight: 500; }
 .list-card .menu-row { padding: 0 var(--space-4); border-radius: 0; }
 
-/* ---------- 홈 음료 베스트 ---------- */
-.best-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-2); margin-top: var(--space-3); }
-.best-item {
-  display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-1);
-  padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); border: 1px solid var(--color-border);
+/* ---------- 홈 음료 베스트: 사진이 꽉 찬 작은 카드를 가로로 넘겨 본다 (빈 여백 없이, 주문 탭 카드와 같은 결) ---------- */
+.best-list {
+  display: flex; gap: var(--space-3); overflow-x: auto; scroll-snap-type: x mandatory;
+  margin: var(--space-3) calc(var(--gutter) * -1) 0; padding: 0 var(--gutter) var(--space-2); scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
 }
-.best-item:active { background: var(--color-bg-sub); }
-.best-item__name { font-weight: 700; font-size: 0.9375rem; }
-.best-item__price { font-size: 0.8125rem; color: var(--color-text-sub); }
+.best-list::-webkit-scrollbar { display: none; }
+.best-list > li { flex: 0 0 132px; scroll-snap-align: start; }
+.best-item { display: flex; flex-direction: column; gap: 2px; }
+.best-item .drink-thumb--card { width: 100%; margin-bottom: var(--space-2); border-radius: var(--radius-lg); box-shadow: var(--shadow-card); transition: transform var(--press) var(--ease); }
+.best-item:active .drink-thumb--card { transform: scale(0.97); }
+.best-item:focus-visible { outline: 2px solid var(--color-olive); outline-offset: 3px; border-radius: var(--radius-lg); }
+.best-item__name { font-weight: 700; font-size: 0.9375rem; line-height: 1.35; }
+.best-item__price { font-size: 0.875rem; font-weight: 600; color: var(--color-text-sub); }
 .badge--best { background: var(--cafe-bg); color: var(--cafe-fg); }
 .reward-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); margin: var(--space-3) 0; }
 
 /* ---------- 리디자인: 카드 층(elevation)과 눌림 피드백 ---------- */
 /* 테두리 선 대신 그림자로 표면을 띄운다 (목록 안 구분선은 그대로) */
 :is(.space-tile, .ticket, .summary-card, .option-list, .list-card, .type-row, .result-card, .order-card,
-    .info-card, .duration-card, .best-item, .stat, .coupon-cta, .my-head) {
+    .info-card, .duration-card, .stat, .coupon-cta, .my-head) {
   border-color: transparent;
   box-shadow: var(--shadow-card);
 }
 .option-row, .switch-row, .list-row { border-bottom-color: var(--color-hairline); }
 /* 누르면 살짝 작아진다: 레이아웃은 움직이지 않는 transform만 사용 */
-:is(.space-tile, .best-item, .type-row, .hero-card, .stat, .my-head) { transition: transform var(--press) var(--ease), box-shadow var(--press) var(--ease); }
-:is(.space-tile, .best-item, .type-row, .hero-card, a.stat):active { transform: scale(0.98); box-shadow: 0 1px 2px rgba(48, 43, 38, 0.06); }
+:is(.space-tile, .type-row, .hero-card, .stat, .my-head) { transition: transform var(--press) var(--ease), box-shadow var(--press) var(--ease); }
+:is(.space-tile, .type-row, .hero-card, a.stat):active { transform: scale(0.98); box-shadow: 0 1px 2px rgba(48, 43, 38, 0.06); }
 /* 홈 인사말을 조금 더 크게 */
 .home-greeting .screen-title { font-size: 1.75rem; }
 

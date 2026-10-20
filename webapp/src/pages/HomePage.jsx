@@ -67,7 +67,7 @@ export default function HomePage() {
             {BEST_MENU.map((id) => MENU.value.find((d) => d.id === id)).map((d) => (
               <li key={d.id}>
                 <Link to={needsTemp(d) ? `/menu/${d.id}?temp=${BEST_MENU_TEMP}` : `/menu/${d.id}`} className="best-item">
-                  <DrinkThumb drink={d} temp={BEST_MENU_TEMP} size="sm" />
+                  <DrinkThumb drink={d} temp={BEST_MENU_TEMP} size="card" />
                   <span className="best-item__name">{d.name}</span>
                   <span className="best-item__price">{formatWon(d.price)}</span>
                 </Link>
