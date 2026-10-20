@@ -70,7 +70,6 @@ export default function MenuDetailPage() {
           <p className="drink-temp-only">
             <span className="temp-chip" data-temp={onlyTemp.value}>{onlyTemp.short}</span>
             {onlyTemp.value === 'hot' ? '따뜻하게만 준비돼요' : '차갑게만 준비돼요'}
-            {drink.tempsNote && <Provisional note={drink.tempsNote} />}
           </p>
         )}
         <ul className="note-list">

@@ -105,6 +105,7 @@ function TabBar() {
 // 보조 메뉴: 햄버거 서랍 (주 메뉴와 마이는 탭바에 있으므로 반복하지 않는다)
 const MENU = [
   { title: '안내', items: [
+    { to: '/notice', icon: 'bell', label: '공지사항' },
     { to: '/info', icon: 'info', label: '이용 안내·정책' },
   ] },
   { title: '고객 지원', items: [

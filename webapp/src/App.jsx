@@ -7,6 +7,7 @@ import ReservationDetailPage from './pages/ReservationDetailPage.jsx';
 import OrderPage from './pages/OrderPage.jsx';
 import MyReservationsPage from './pages/MyReservationsPage.jsx';
 import MyOrdersPage from './pages/MyOrdersPage.jsx';
+import NoticePage from './pages/NoticePage.jsx';
 import InfoPage from './pages/InfoPage.jsx';
 import NotFoundPage from './pages/NotFoundPage.jsx';
 import LoginPage, { RequireLogin } from './pages/LoginPage.jsx';
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="my/reservations" element={<RequireLogin><MyReservationsPage /></RequireLogin>} />
         <Route path="my/orders" element={<RequireLogin><MyOrdersPage /></RequireLogin>} />
         <Route path="info" element={<InfoPage />} />
+        <Route path="notice" element={<NoticePage />} />
         <Route path="help" element={<HelpPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>
