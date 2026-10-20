@@ -471,10 +471,12 @@ a.ticket__link:active { background: var(--color-bg); }
    닫힐 때는 짧게, 가속하며 오른쪽으로 빠진다. (아래 시트와 같은 속도·곡선) */
 .drawer[open] { animation: scrim-in var(--motion-reveal) ease both; }
 .drawer[data-closing] { animation: scrim-out 320ms ease forwards; }
+/* 가로 여백은 하나(--drawer-gutter)로 맞춘다: 아바타·섹션 제목·메뉴 아이콘·안내 문구가 같은 세로선에서 시작한다 */
 .drawer__panel {
-  display: flex; flex-direction: column; gap: var(--space-5);
+  --drawer-gutter: var(--space-5);
+  display: flex; flex-direction: column;
   width: min(320px, 86%); height: 100%; margin-left: auto;
-  padding: calc(var(--space-3) + env(safe-area-inset-top, 0px)) var(--space-4) calc(var(--space-6) + var(--safe-bottom));
+  padding: env(safe-area-inset-top, 0px) 0 calc(var(--space-5) + var(--safe-bottom));
   overflow-y: auto; overscroll-behavior: contain;
   background: var(--color-bg); box-shadow: -12px 0 32px rgba(48, 43, 38, 0.18);
 }
@@ -483,17 +485,23 @@ a.ticket__link:active { background: var(--color-bg); }
 .drawer[data-closing] .drawer__panel { animation: drawer-out 320ms cubic-bezier(0.4, 0, 1, 1) forwards; }
 @keyframes drawer-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
 @keyframes drawer-out { from { transform: translateX(0); } to { transform: translateX(100%); } }
-.drawer__head { display: flex; align-items: center; gap: var(--space-3); }
-.avatar { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--color-olive-light); color: var(--color-olive); }
-.drawer__who { flex: 1; display: flex; flex-direction: column; align-items: flex-start; }
-.drawer__who strong { font-size: 1.0625rem; }
-.drawer__who span { font-size: 0.8125rem; color: var(--color-text-sub); }
+/* 앱 바와 같은 높이·오른쪽 여백: 닫기 버튼이 햄버거 버튼 자리에 그대로 나타난다 */
+.drawer__bar { display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; height: var(--bar-h); padding: 0 var(--space-2) 0 var(--drawer-gutter); }
+.drawer__script { font-family: var(--font-logo); font-size: 1.0625rem; color: var(--cafe-fg); }
+.drawer__head { display: flex; align-items: center; gap: var(--space-3); margin: var(--space-2) var(--drawer-gutter) var(--space-5); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--grad-cream, var(--color-surface)); border: 1px solid var(--color-hairline); }
+.avatar { display: grid; place-items: center; flex-shrink: 0; width: 44px; height: 44px; border-radius: 50%; background: var(--color-olive-light); color: var(--color-olive); }
+.drawer__who { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.drawer__who strong { max-width: 100%; font-size: 1rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.drawer__who span { font-size: 0.75rem; line-height: 1.45; color: var(--color-text-sub); }
+.drawer__login { min-height: 44px; }
+.drawer__group + .drawer__group { margin-top: var(--space-4); }
 .drawer__stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
 .stat { display: flex; flex-direction: column; gap: 2px; padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); border: 1px solid var(--color-border); }
 .stat:active { background: var(--color-bg-sub); }
 .stat__value { font-family: var(--font-en); font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
 .stat__label { font-size: 0.8125rem; color: var(--color-text-sub); }
-.drawer__section { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; color: var(--color-text-sub); margin: 0 var(--space-2) var(--space-1); }
+.drawer__section { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; color: var(--color-text-sub); margin: 0 var(--drawer-gutter) var(--space-1); }
+.drawer .menu-list { padding: 0 calc(var(--drawer-gutter) - var(--space-2)); }
 .menu-list { display: flex; flex-direction: column; }
 .menu-row { display: flex; align-items: center; gap: var(--space-3); min-height: 52px; padding: 0 var(--space-2); border-radius: var(--radius-md); font-weight: 600; transition: background-color var(--motion) var(--ease); }
 .menu-row span { flex: 1; }
@@ -502,7 +510,7 @@ a.ticket__link:active { background: var(--color-bg); }
 .menu-row:active { background: var(--color-bg-sub); }
 .menu-row.active { background: var(--color-olive-light); }
 .menu-row.active .icon:first-child { color: var(--color-olive); }
-.drawer__foot { margin-top: auto; font-size: 0.75rem; color: var(--color-text-sub); }
+.drawer__foot { margin: auto var(--drawer-gutter) 0; padding-top: var(--space-4); border-top: 1px solid var(--color-hairline); font-size: 0.75rem; line-height: 1.6; color: var(--color-text-sub); }
 
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
 @keyframes fade { from { opacity: 0; } }

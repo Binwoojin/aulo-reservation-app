@@ -158,18 +158,23 @@ function MenuDrawer({ open, onClose }) {
       onClick={(e) => e.target === ref.current && onClose()}
     >
       <div className="drawer__panel" onClick={(e) => e.target.closest('a') && onClose()}>
-        <div className="drawer__head">
-          <span className="avatar" aria-hidden="true"><Icon name="user" /></span>
-          <div className="drawer__who">
-            {user ? <><strong>{user.email}</strong><span>로그인됨 · 내 정보는 마이 탭에서</span></> : <><strong>게스트</strong><Link to="/login" className="text-link">로그인하기</Link></>}
-          </div>
+        {/* 닫기 버튼은 앱 바의 햄버거 버튼과 같은 자리(같은 높이·오른쪽 여백)에 둔다 */}
+        <div className="drawer__bar">
+          <span className="drawer__script" aria-hidden="true">aulo menu</span>
           <button ref={closeRef} type="button" className="icon-button" onClick={onClose} aria-label="메뉴 닫기">
             <Icon name="close" />
           </button>
         </div>
+        <div className="drawer__head">
+          <span className="avatar" aria-hidden="true"><Icon name="user" /></span>
+          <div className="drawer__who">
+            {user ? <><strong>{user.email}</strong><span>로그인됨 · 내 정보는 마이 탭에서</span></> : <><strong>게스트</strong><span>로그인하면 예약·주문과 적립을 쓸 수 있어요</span></>}
+          </div>
+          {!user && <Link to="/login" className="button button--primary button--small drawer__login">로그인</Link>}
+        </div>
 
         {MENU.map((group) => (
-          <nav key={group.title} aria-label={group.title}>
+          <nav key={group.title} aria-label={group.title} className="drawer__group">
             <p className="drawer__section">{group.title}</p>
             <ul className="menu-list">
               {group.items.map((item) => (
