@@ -32,7 +32,9 @@ const useStoredList = (key) => {
     window.addEventListener('storage', onStorage);
     return () => window.removeEventListener('storage', onStorage);
   }, [key]);
-  return [list, add, remove];
+  // 데모 시나리오: 목록 전체를 바꾼다
+  const replace = useCallback((next) => { saveList(key, next); setList(next); }, [key]);
+  return [list, add, remove, replace];
 };
 
 // 데모 로그인: 서버가 없어 이메일만 이 기기에 세션으로 저장한다 (비밀번호는 저장하지 않음)
@@ -98,8 +100,8 @@ export function AppDataProvider({ children }) {
   const { user, login, logout } = useSession();
   const cartApi = useCart();
   const { storeId, setStoreId, store } = useSelectedStore();
-  const [reservations, addStoredReservation, removeReservation] = useStoredList(KEYS.reservations);
-  const [orders, addStoredOrder] = useStoredList(KEYS.orders);
+  const [reservations, addStoredReservation, removeReservation, replaceReservations] = useStoredList(KEYS.reservations);
+  const [orders, addStoredOrder, , replaceOrders] = useStoredList(KEYS.orders);
   const addReservation = useCallback((r) => addStoredReservation({ ...r, owner: user?.email ?? null }), [addStoredReservation, user]);
   const addOrder = useCallback((o) => addStoredOrder({ ...o, owner: user?.email ?? null }), [addStoredOrder, user]);
   const value = useMemo(
@@ -118,8 +120,15 @@ export function AppDataProvider({ children }) {
       storeId,
       store,
       setStoreId,
+      // 데모 시나리오 적용: 로그인 상태·예약·주문을 한 번에 바꾸고 장바구니를 비운다
+      loadScenario: ({ email, reservations: rs, orders: os }) => {
+        if (email) login(email); else logout();
+        replaceReservations(rs);
+        replaceOrders(os);
+        cartApi.clearCart();
+      },
     }),
-    [user, login, logout, reservations, addReservation, removeReservation, orders, addOrder, cartApi, storeId, store, setStoreId],
+    [user, login, logout, reservations, addReservation, removeReservation, orders, addOrder, cartApi, storeId, store, setStoreId, replaceReservations, replaceOrders],
   );
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>;
 }

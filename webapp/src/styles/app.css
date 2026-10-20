@@ -979,3 +979,42 @@ a.again-card:active { transform: scale(0.99); }
 .shelf-reason__kicker { display: block; margin-bottom: 2px; font-family: var(--font-en); font-size: 0.6875rem; font-weight: 700; letter-spacing: 2px; color: var(--color-olive); }
 .best-item__media { position: relative; display: block; }
 .best-item__tag { position: absolute; left: 8px; top: 8px; padding: 2px 8px; border-radius: var(--radius-pill); background: var(--glass); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); font-size: 0.6875rem; font-weight: 700; color: var(--color-text); }
+
+/* ── 데모 시나리오 ── */
+.demo-lead { margin-top: var(--space-3); font-size: 0.9375rem; line-height: 1.6; }
+.scenario-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.scenario {
+  display: flex; align-items: center; gap: var(--space-4); width: 100%; padding: var(--space-4);
+  border: 0; border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card);
+  color: var(--color-text); font: inherit; text-align: left; cursor: pointer; transition: transform var(--press) var(--ease);
+}
+.scenario:active:not(:disabled) { transform: scale(0.98); }
+.scenario:disabled { opacity: 0.55; cursor: default; }
+.scenario__num { font-family: var(--font-en); font-size: 0.8125rem; font-weight: 700; letter-spacing: 1px; color: var(--color-olive); }
+.scenario__text { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.scenario__title { font-size: 1rem; font-weight: 700; }
+.scenario__desc { font-size: 0.8125rem; color: var(--color-text-sub); line-height: 1.5; }
+.scenario .icon { color: var(--color-text-sub); flex-shrink: 0; }
+
+/* ── 홈: Aulo의 하루 (세로 타임라인) ── */
+.aulo-day .eyebrow { margin-bottom: 0; }
+.day-line { position: relative; display: flex; flex-direction: column; gap: var(--space-4); margin-top: var(--space-4); }
+.day-line::before { content: ""; position: absolute; left: 21px; top: 10px; bottom: 10px; width: 1px; background: var(--color-border); }
+.day-line__item { position: relative; display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: var(--space-2); align-items: start; }
+.day-line__time { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding-top: 2px; font-family: var(--font-en); font-size: 0.75rem; font-weight: 700; color: var(--color-text-sub); }
+.day-line__time > span:first-child { position: relative; z-index: 1; padding: 2px 0; background: var(--color-bg); }
+.day-line__now { padding: 1px 7px; border-radius: var(--radius-pill); background: var(--color-olive); color: #FFFFFF; font-family: var(--font-ko, inherit); font-size: 0.6875rem; font-weight: 700; }
+.day-line__item[data-now] .day-line__time > span:first-child { color: var(--color-olive-hover); }
+.day-card { display: flex; gap: var(--space-3); padding: var(--space-2); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-text); transition: transform var(--press) var(--ease); }
+.day-card:active { transform: scale(0.98); }
+.day-card .photo { width: 96px; height: 96px; flex-shrink: 0; aspect-ratio: auto; border-radius: var(--radius-md); overflow: hidden; }
+.day-card .photo img { width: 100%; height: 100%; object-fit: cover; }
+.day-card__body { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; padding-right: var(--space-2); }
+.day-card__kicker { font-family: var(--font-en); font-size: 0.6875rem; font-weight: 700; letter-spacing: 1.2px; color: var(--color-olive); }
+.day-card__headline { font-size: 0.9375rem; font-weight: 700; line-height: 1.4; }
+.day-card__meta { font-size: 0.75rem; color: var(--color-text-sub); line-height: 1.45; }
+.day-line__item[data-now] .day-card { box-shadow: 0 0 0 2px var(--color-olive), var(--shadow-card); }
+.day-end { display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-lg); background: var(--color-bg-sub); }
+.day-end strong { font-size: 0.9375rem; }
+.day-end span { font-size: 0.8125rem; color: var(--color-text-sub); }
+.day-line__item--end[data-now] .day-end { box-shadow: 0 0 0 2px var(--color-olive); }

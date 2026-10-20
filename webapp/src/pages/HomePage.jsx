@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { BEST_MENU, BEST_MENU_TEMP, HOURS, MENU, SPACES, SPACE_TYPES } from '../config/policy.js';
+import { BEST_MENU, BEST_MENU_TEMP, HOURS, MENU, SPACES } from '../config/policy.js';
 import { needsTemp } from '../lib/drink.js';
 import { AppBar } from '../components/AppShell.jsx';
 import { itemsSummary, useReorder } from '../components/AgainCard.jsx';
 import Icon from '../components/Icon.jsx';
 import ReservationCard from '../components/ReservationCard.jsx';
 import StorePicker from '../components/StorePicker.jsx';
-import { DrinkThumb, SpaceImage, Tag } from '../components/ui.jsx';
+import { DrinkThumb, SpaceImage } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { lastPastReservation, lastReorderable, rebookPath, reorderItems } from '../lib/again.js';
 import { HALF_LIMIT, orderKindFor, parseKey, remainingBenefits, sortedKeys } from '../lib/order.js';
@@ -16,7 +16,7 @@ import { daysUntil, formatDuration, homeStatus, storeToday } from '../lib/status
 import { drinkPicks } from '../lib/drinkPick.js';
 import { QUESTIONS } from '../lib/recommend.js';
 import { TEMPS } from '../lib/order.js';
-import { addDays, formatDate, formatTime, formatWon } from '../lib/time.js';
+import { addDays, formatDate, formatTime, formatWon, minutesOfDay } from '../lib/time.js';
 
 // 홈: 맨 위에 지금 매장과 내 상태 하나(이용 중 > 다가오는 예약 > 예약 없음, 필수 규칙 2·3),
 // 그 아래 '한 번에 다시 하기'(규칙 1), 대표 음료, 매장 기준 공간 정보(규칙 4), 맨 아래 데모 안내(규칙 7).
@@ -55,31 +55,7 @@ export default function HomePage() {
 
         <DrinkShelf orders={user ? myOrders : []} now={now} showPicks={status.kind !== 'in-use'} />
 
-        <section aria-labelledby="spaces-title" className="block">
-          <div className="block-head">
-            <h2 id="spaces-title" className="block-title">같은 건물, 다른 머무름</h2>
-          </div>
-          <p className="group-hint">{store.name}에서 운영하는 좌석·공간 수예요</p>
-          <ul className="carousel" aria-label="공간 목록">
-            {SPACE_TYPES.map((type) => {
-              const space = SPACES[type];
-              return (
-                <li key={type}>
-                  <Link to={space.reservable ? `/reserve/${type}` : '/order'} className="space-tile">
-                    <SpaceImage space={space} />
-                    <span className="space-tile__body">
-                      <Tag type={type}>{space.label}</Tag>
-                      <span className="space-tile__name" lang="en">{space.name}</span>
-                      <span className="space-tile__meta">
-                        {space.reservable ? `${space.unitName} ${store.units[type]}개 · ${formatWon(space.pricePerHour)}/시간` : '예약 없이 이용'}
-                      </span>
-                    </span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+        <AuloDay now={now} />
 
         <p className="demo-pill home-demo">데모 · 실제 예약·결제 없음</p>
       </div>
@@ -274,4 +250,55 @@ function useHideOnScrollDown() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
   return hidden;
+}
+
+// Aulo의 하루 (브랜드 'Stay in your rhythm'): 시간 흐름에 따라 어울리는 공간을 세로 타임라인으로 보여 준다.
+// 시간대와 공간의 짝은 이야기일 뿐, 모든 공간은 운영 시간 내내 이용할 수 있다고 함께 알린다. 지금 시간대를 강조한다.
+const DAY = [
+  { from: HOURS.open, time: '08:00', en: 'MORNING', type: 'cafe' },
+  { from: 11 * 60, time: '11:00', en: 'MIDDAY', type: 'focus' },
+  { from: 14 * 60, time: '14:00', en: 'AFTERNOON', type: 'rest' },
+  { from: 17 * 60, time: '17:00', en: 'EVENING', type: 'suite' },
+];
+function AuloDay({ now }) {
+  const { store } = useAppData();
+  const m = minutesOfDay(now);
+  const closed = m < HOURS.open || m >= HOURS.checkout;
+  const current = closed ? -1 : DAY.findLastIndex((d) => m >= d.from);
+  return (
+    <section aria-labelledby="day-title" className="block aulo-day">
+      <p className="eyebrow" lang="en">STAY IN YOUR RHYTHM</p>
+      <h2 id="day-title" className="block-title">Aulo의 하루</h2>
+      <p className="group-hint">모든 공간은 {formatTime(HOURS.open)}–{formatTime(HOURS.checkout)} 이용할 수 있어요 · 좌석 수는 {store.name} 기준</p>
+      <ol className="day-line">
+        {DAY.map((d, i) => {
+          const space = SPACES[d.type];
+          return (
+            <li key={d.type} className="day-line__item" data-now={i === current || undefined}>
+              <span className="day-line__time"><span lang="en">{d.time}</span>{i === current && <span className="day-line__now">지금</span>}</span>
+              <Link to={space.reservable ? `/reserve/${d.type}` : '/order'} className="day-card">
+                <SpaceImage space={space} />
+                <span className="day-card__body">
+                  <span className="day-card__kicker" lang="en">{d.en} · {space.name}</span>
+                  <span className="day-card__headline">{space.headline}</span>
+                  <span className="day-card__meta">
+                    {space.reservable
+                      ? `${space.unitName} ${store.units[d.type]}개 · ${formatWon(space.pricePerHour)}/시간 · ${space.minHours}~${space.maxHours}시간`
+                      : '예약 없이 음료 주문 후 이용'}
+                  </span>
+                </span>
+              </Link>
+            </li>
+          );
+        })}
+        <li className="day-line__item day-line__item--end" data-now={closed || undefined}>
+          <span className="day-line__time"><span lang="en">{formatTime(HOURS.checkout)}</span>{closed && <span className="day-line__now">지금</span>}</span>
+          <p className="day-end">
+            <strong>모든 좌석 퇴실</strong>
+            <span>{formatTime(HOURS.close)}에 문을 닫고, 내일 {formatTime(HOURS.open)}에 다시 열어요</span>
+          </p>
+        </li>
+      </ol>
+    </section>
+  );
 }
