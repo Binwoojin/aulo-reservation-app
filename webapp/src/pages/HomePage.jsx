@@ -10,7 +10,7 @@ import StorePicker from '../components/StorePicker.jsx';
 import { DrinkThumb, SpaceImage } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { lastPastReservation, lastReorderable, rebookPath, reorderItems } from '../lib/again.js';
-import { HALF_LIMIT, orderKindFor, parseKey, remainingBenefits, sortedKeys } from '../lib/order.js';
+import { HALF_LIMIT, orderKindFor, parseKey, recentOrders, remainingBenefits, sortedKeys } from '../lib/order.js';
 import { canCancel, getDrink, getStore, isHoliday, reservationEnd } from '../lib/reservation.js';
 import { daysUntil, formatDuration, homeStatus, storeToday } from '../lib/status.js';
 import { drinkPicks } from '../lib/drinkPick.js';
@@ -25,7 +25,7 @@ export default function HomePage() {
   const { user, myReservations, myOrders, store } = useAppData();
   const now = useNow();
   const status = homeStatus(myReservations, now);
-  const lastOrder = user ? lastReorderable(myOrders) : null;
+  const lastOrder = user ? lastReorderable(recentOrders(myOrders, now)) : null;
   const lastPast = user && status.kind === 'none' ? lastPastReservation(myReservations, now) : null;
   const fabHidden = useHideOnScrollDown();
 

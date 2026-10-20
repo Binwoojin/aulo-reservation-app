@@ -7,6 +7,7 @@ import { NoticeDialog } from '../components/ui.jsx';
 import { PENALTY, REWARD_POLICY } from '../config/policy.js';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { isInUse, penaltyStatus } from '../lib/reservation.js';
+import { recentOrders } from '../lib/order.js';
 import { pointBalance, stampCount } from '../lib/rewards.js';
 import { formatDate, toDateString } from '../lib/time.js';
 import LoginPage from './LoginPage.jsx';
@@ -62,7 +63,7 @@ export default function MyPage() {
 
         <MySection title="나의 이용">
           <MyRow to="/my/reservations" icon="calendar" label="내 예약" value={`다가오는 ${upcoming.length}건`} />
-          <MyRow to="/my/orders" icon="receipt" label="주문 내역" value={`${myOrders.length}건`} />
+          <MyRow to="/my/orders" icon="receipt" label="주문 내역" value={`최근 1개월 ${recentOrders(myOrders, now).length}건`} />
           <li className="my-row">
             <Icon name="pin" /><span className="my-row__label">지금 매장</span>
             <StorePicker variant="inline" />

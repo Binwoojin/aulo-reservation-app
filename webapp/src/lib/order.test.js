@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { couponFor, itemKey, orderKindFor, parseKey, priceOrder } from './order.js';
+import { couponFor, historyCutoff, itemKey, orderKindFor, parseKey, priceOrder, recentOrders } from './order.js';
 import { recommend } from './recommend.js';
 
 const suite = { id: 's1', type: 'suite', drinkId: 'latte' };
@@ -106,5 +106,18 @@ describe('음료 옵션', () => {
   it('텀블러 할인 후에 50% 쿠폰을 적용한다', () => {
     const focus = { id: 'f9', type: 'focus', drinkId: 'americano' };
     expect(priceOrder({ kind: 'extra', items: { 'americano@ice+cup': 1 }, reservation: focus }).total).toBe(1350);
+  });
+});
+
+describe('주문 내역 보관 기간 (최근 1개월)', () => {
+  const at = (iso) => ({ id: iso, createdAt: iso });
+  it('한 달 전 같은 시각까지만 남긴다', () => {
+    const now = new Date('2026-10-20T03:00:00Z');
+    const kept = recentOrders([at('2026-09-20T03:00:00Z'), at('2026-09-20T02:59:00Z'), at('2026-10-19T00:00:00Z')], now).map((o) => o.id);
+    expect(kept).toEqual(['2026-09-20T03:00:00Z', '2026-10-19T00:00:00Z']);
+  });
+  it('전달에 같은 날이 없으면 말일로 맞춘다 (3/31 → 2/28)', () => {
+    const cut = historyCutoff(new Date(2027, 2, 31, 12));
+    expect([cut.getMonth(), cut.getDate()]).toEqual([1, 28]);
   });
 });

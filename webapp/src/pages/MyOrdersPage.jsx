@@ -7,8 +7,9 @@ import Icon from '../components/Icon.jsx';
 import { DrinkThumb } from '../components/ui.jsx';
 import { canReorder } from '../lib/again.js';
 import { getDrink, getStore } from '../lib/reservation.js';
-import { useAppData } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, SERVE_LABEL, drinkLabel, optionsText, parseKey, sortedKeys } from '../lib/order.js';
+import { useAppData, useNow } from '../lib/AppData.jsx';
+import { ORDER_HISTORY_MONTHS } from '../config/policy.js';
+import { BENEFIT_LABEL, SERVE_LABEL, drinkLabel, optionsText, parseKey, recentOrders, sortedKeys } from '../lib/order.js';
 import { formatDateTime, formatWon } from '../lib/time.js';
 
 const KIND_LABEL = { cafe: '카페 주문', extra: '추가 주문', suite: 'Suite 배달' };
@@ -18,13 +19,15 @@ const formatOrderedAt = (iso) => formatDateTime(new Date(iso));
 export default function MyOrdersPage() {
   const { myOrders: orders, reservations } = useAppData();
   const reorder = useReorder();
-  const list = [...orders].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const now = useNow();
+  // 최근 1개월 주문만 보여 준다 (지난 기록은 지우지 않고 숨긴다)
+  const list = recentOrders(orders, now).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
   return (
     <>
       <AppBar back title="주문 내역" />
       <div className="screen-body order-body">
-        <BrandBand id="orders-title" script="my orders" title="주문 내역" hint="최근 주문부터 보여 드려요. 카페 주문은 같은 옵션으로 다시 담을 수 있어요." />
+        <BrandBand id="orders-title" script="my orders" title="주문 내역" hint={`최근 ${ORDER_HISTORY_MONTHS}개월 주문을 최신순으로 보여 드려요. ${ORDER_HISTORY_MONTHS}개월이 지난 주문은 목록에서 사라져요. 카페 주문은 같은 옵션으로 다시 담을 수 있어요.`} />
         {list.length ? (
           <ul className="stack">
             {list.map((o) => {
@@ -72,7 +75,7 @@ export default function MyOrdersPage() {
           </ul>
         ) : (
           <div className="empty-state">
-            <p>아직 주문 내역이 없어요.</p>
+            <p>{orders.length ? `최근 ${ORDER_HISTORY_MONTHS}개월 동안 주문 내역이 없어요.` : '아직 주문 내역이 없어요.'}</p>
             <Link className="text-link" to="/order">음료 주문하기</Link>
           </div>
         )}
