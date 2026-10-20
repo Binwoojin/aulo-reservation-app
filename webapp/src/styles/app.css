@@ -1327,3 +1327,13 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .my-row--logout > .icon:first-child { color: var(--color-error); }
 .my-row__hint { padding: var(--space-3) var(--space-4) var(--space-4); font-size: 0.8125rem; line-height: 1.55; color: var(--color-text-sub); background: var(--color-bg); }
 .my-row .store-picker--inline { min-height: 32px; }
+
+/* 목적: 아이콘 카드 2×2 (사진 없이) */
+.choices--icon-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.choices--icon-grid .choice { flex-direction: column; align-items: flex-start; gap: var(--space-4); min-height: 156px; padding: var(--space-4); background: var(--grad-cream); }
+.choice__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50% 50% 14px 14px / 28px 28px 14px 14px; background: var(--cafe-bg); color: var(--cafe-fg); }
+.choices--icon-grid .choice__text { margin-top: auto; }
+.choices--icon-grid .choice__go { display: none; }
+.choices--icon-grid .choice[data-checked] .choice__icon { background: var(--grad-olive); color: #FFFFFF; }
+/* 환경: 아치형 임시 모양 (추후 이미지로 교체) */
+.choice__placeholder { width: 72px; height: 90px; flex-shrink: 0; border-radius: 50% 50% 10px 10px / 36px 36px 10px 10px; background: linear-gradient(160deg, #EFE4D6 0%, #E4D5C2 100%); box-shadow: inset 0 0 0 1px rgba(121, 88, 68, 0.12); }

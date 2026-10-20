@@ -86,15 +86,15 @@ export default function RecommendPage() {
   );
 }
 
-// 질문별 보기 모양 (홈의 사진 카드·Fraunces 숫자 톤): 목적은 사진 2×2, 시간은 큰 숫자 카드, 환경은 아치형 사진 줄
+// 질문별 보기 모양: 목적은 아이콘 카드 2×2, 시간은 Fraunces 큰 숫자 카드, 환경은 아치형 이미지 자리(임시 모양) 줄
 const CHOICE_LOOK = {
   purpose: {
-    layout: 'photo-grid',
+    layout: 'icon-grid',
     options: {
-      coffee: { space: 'cafe', sub: '음료와 함께 편하게' },
-      work: { space: 'focus', sub: '오래 집중할 자리' },
-      rest: { space: 'rest', sub: '기대어 쉬어 가기' },
-      private: { space: 'suite', sub: '방해 없이 나만의 공간' },
+      coffee: { icon: 'cup', sub: '음료와 함께 편하게' },
+      work: { icon: 'partition', sub: '오래 집중할 자리' },
+      rest: { icon: 'recliner', sub: '기대어 쉬어 가기' },
+      private: { icon: 'door', sub: '방해 없이 나만의 공간' },
     },
   },
   duration: {
@@ -106,8 +106,9 @@ const CHOICE_LOOK = {
     },
   },
   privacy: {
+    // 이미지는 추후 어울리는 것으로 교체 예정: 지금은 아치형 임시 모양만 둔다 (placeholder)
     layout: 'photo-row',
-    options: { open: { space: 'cafe' }, semi: { space: 'focus' }, closed: { space: 'suite' } },
+    options: { open: { placeholder: true }, semi: { placeholder: true }, closed: { placeholder: true } },
   },
 };
 
@@ -121,7 +122,8 @@ function ChoiceCards({ question: q, value, onChange }) {
         return (
           <label key={o.id} className="choice" data-checked={value === o.id || undefined}>
             <input type="radio" name={q.id} value={o.id} checked={value === o.id} onChange={() => onChange(o.id)} />
-            {v.space && <SpaceImage space={SPACES[v.space]} />}
+            {v.icon && <span className="choice__icon" aria-hidden="true"><Icon name={v.icon} size={28} /></span>}
+            {v.placeholder && <span className="choice__placeholder" data-asset-slot="privacy-image" aria-hidden="true" />}
             {v.big && <span className="choice__big" lang="en">{v.big}<small>시간</small></span>}
             <span className="choice__text">
               <span className="choice__label">{o.label}</span>
