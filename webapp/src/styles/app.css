@@ -457,7 +457,10 @@ a.ticket__link:active { background: var(--color-bg); }
   background: rgba(48, 43, 38, 0.42); color: var(--color-text);
 }
 .drawer::backdrop { background: transparent; }
-.drawer[open] { animation: fade 200ms ease-out; }
+/* 'Stay in your rhythm': 배경만 서서히 어두워지고(불투명도 대신 배경색), 패널은 불투명한 채로 오른쪽에서 천천히 들어와 내려앉는다.
+   닫힐 때는 짧게, 가속하며 오른쪽으로 빠진다. (아래 시트와 같은 속도·곡선) */
+.drawer[open] { animation: scrim-in var(--motion-reveal) ease both; }
+.drawer[data-closing] { animation: scrim-out 320ms ease forwards; }
 .drawer__panel {
   display: flex; flex-direction: column; gap: var(--space-5);
   width: min(320px, 86%); height: 100%; margin-left: auto;
@@ -465,10 +468,14 @@ a.ticket__link:active { background: var(--color-bg); }
   overflow-y: auto; overscroll-behavior: contain;
   background: var(--color-bg); box-shadow: -12px 0 32px rgba(48, 43, 38, 0.18);
 }
-.drawer[open] .drawer__panel { animation: slide-in 280ms var(--ease-out); }
+.drawer__panel { will-change: transform; }
+.drawer[open] .drawer__panel { animation: drawer-in var(--motion-reveal) var(--ease-settle) both; }
+.drawer[data-closing] .drawer__panel { animation: drawer-out 320ms cubic-bezier(0.4, 0, 1, 1) forwards; }
+@keyframes drawer-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
+@keyframes drawer-out { from { transform: translateX(0); } to { transform: translateX(100%); } }
 .drawer__head { display: flex; align-items: center; gap: var(--space-3); }
 .avatar { display: grid; place-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--color-olive-light); color: var(--color-olive); }
-.drawer__who { flex: 1; display: flex; flex-direction: column; }
+.drawer__who { flex: 1; display: flex; flex-direction: column; align-items: flex-start; }
 .drawer__who strong { font-size: 1.0625rem; }
 .drawer__who span { font-size: 0.8125rem; color: var(--color-text-sub); }
 .drawer__stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-2); }
@@ -488,7 +495,6 @@ a.ticket__link:active { background: var(--color-bg); }
 .drawer__foot { margin-top: auto; font-size: 0.75rem; color: var(--color-text-sub); }
 
 @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
-@keyframes slide-in { from { transform: translateX(100%); } }
 @keyframes fade { from { opacity: 0; } }
 @keyframes pop { 0% { transform: scale(0.6); opacity: 0; } 70% { transform: scale(1.06); opacity: 1; } 100% { transform: none; } }
 

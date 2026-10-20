@@ -117,24 +117,45 @@ const MENU = [
   ] },
 ];
 
+const DRAWER_EXIT_MS = 320;
 function MenuDrawer({ open, onClose }) {
   const ref = useRef(null);
   const { user } = useAppData();
 
+  const [closing, setClosing] = useState(false);
+  const exitTimer = useRef(0);
+  const closeRef = useRef(null);
+
   // 네이티브 <dialog>: 포커스 가두기·Esc 닫기·배경 비활성화를 브라우저가 처리한다
+  // 닫을 때는 패널이 오른쪽으로 빠지는 모션(DRAWER_EXIT_MS)을 보여 준 뒤 닫는다. 메뉴를 눌러 화면이 바뀔 때도 같다.
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
-    if (open && !dialog.open) dialog.showModal();
-    if (!open && dialog.open) dialog.close();
+    window.clearTimeout(exitTimer.current);
+    if (open) {
+      setClosing(false);
+      if (!dialog.open) {
+        dialog.showModal();
+        // 열리면 닫기 버튼에 포커스 (첫 링크 '로그인하기'에 포커스 테두리가 생기지 않게)
+        closeRef.current?.focus({ focusVisible: false });
+      }
+      return;
+    }
+    if (!dialog.open) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) { dialog.close(); return; }
+    setClosing(true);
+    exitTimer.current = window.setTimeout(() => { dialog.close(); setClosing(false); }, DRAWER_EXIT_MS);
   }, [open]);
+  useEffect(() => () => window.clearTimeout(exitTimer.current), []);
 
   return (
     <dialog
       ref={ref}
       className="drawer"
+      data-closing={closing || undefined}
       aria-label="메뉴"
-      onClose={onClose}
+      onCancel={(e) => { e.preventDefault(); onClose(); }}
+      onClose={() => open && onClose()}
       onClick={(e) => e.target === ref.current && onClose()}
     >
       <div className="drawer__panel" onClick={(e) => e.target.closest('a') && onClose()}>
@@ -143,7 +164,7 @@ function MenuDrawer({ open, onClose }) {
           <div className="drawer__who">
             {user ? <><strong>{user.email}</strong><span>로그인됨 · 내 정보는 마이 탭에서</span></> : <><strong>게스트</strong><Link to="/login" className="text-link">로그인하기</Link></>}
           </div>
-          <button type="button" className="icon-button" onClick={onClose} aria-label="메뉴 닫기" autoFocus>
+          <button ref={closeRef} type="button" className="icon-button" onClick={onClose} aria-label="메뉴 닫기">
             <Icon name="close" />
           </button>
         </div>
