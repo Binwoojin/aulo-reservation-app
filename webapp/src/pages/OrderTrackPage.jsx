@@ -47,6 +47,10 @@ export default function OrderTrackPage() {
   const cups = Object.values(order.items).reduce((a, b) => a + b, 0);
   const orderNo = order.id.replace(/-/g, '').slice(-4).toUpperCase();
   const leftSec = Math.max(0, Math.ceil((times.ready - now.getTime()) / 1000));
+  // 막대 채움(%): 단계 하나 = 1칸. 제조 중에는 제조 시작~완료 사이 경과만큼 다음 칸으로 이어서 채운다
+  const span = 100 / (ORDER_STAGES.length - 1);
+  const makingRatio = stage === 'making' ? Math.min(1, (now.getTime() - times.making) / (times.ready - times.making)) : 0;
+  const fill = Math.min(100, (current + makingRatio) * span);
 
   const pick = () => {
     markPicked(order.id);
@@ -67,22 +71,24 @@ export default function OrderTrackPage() {
 
         <section className="track" aria-labelledby="track-steps-title">
           <h3 id="track-steps-title" className="visually-hidden">진행 단계</h3>
+          {/* 가로 막대: 단계 사이를 채워 가며 진행을 보여 준다. 제조 중에는 제조 완료까지 남은 시간만큼 이어서 찬다 */}
+          <div className="track__bar" role="progressbar" aria-label="주문 진행" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(fill)} aria-valuetext={ORDER_STAGES[current].label}>
+            <span className="track__fill" style={{ width: `${fill}%` }} />
+          </div>
           <ol className="track__list">
             {ORDER_STAGES.map((s, i) => {
               const state = i < current ? 'done' : i === current ? 'now' : 'next';
               const at = times[s.id];
               return (
                 <li key={s.id} className="track__step" data-state={state} aria-current={state === 'now' ? 'step' : undefined}>
-                  <span className="track__dot" aria-hidden="true">{state === 'done' && <Icon name="check" size={14} />}</span>
+                  <span className="track__dot" aria-hidden="true">{state === 'done' && <Icon name="check" size={12} />}</span>
                   <span className="track__label">{s.label}</span>
-                  <span className="track__time" lang="en">
-                    {state !== 'next' && at ? clock(at) : ''}
-                    {s.id === 'making' && state === 'now' && <span className="track__left">약 {leftSec}초 남음</span>}
-                  </span>
+                  <span className="track__time" lang="en">{state !== 'next' && at ? clock(at) : ''}</span>
                 </li>
               );
             })}
           </ol>
+          {stage === 'making' && <p className="track__left" aria-live="polite">제조 완료까지 약 <b lang="en">{leftSec}</b>초</p>}
           <p className="track__note"><Icon name="info" size={16} />데모: 매장 연동 대신 주문 후 시간에 따라 진행돼요 (수락 {DEMO_FLOW.acceptSec}초 · 제조 잔당 {DEMO_FLOW.perCupSec}초)</p>
         </section>
 
