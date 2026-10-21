@@ -17,6 +17,15 @@ npm run build    # dist/ 정적 빌드 (어느 경로에 올려도 동작)
 npm run build:artifact  # dist-artifact/ 게시용 빌드 (주소창을 쓰지 않는 메모리 라우터)
 ```
 
+## 배포 (GitHub Pages)
+
+`.github/workflows/deploy-pages.yml`이 main에 `webapp/` 변경이 올라올 때마다 테스트 → 빌드 → 배포합니다.
+Actions 탭의 'Deploy webapp to GitHub Pages' → Run workflow로 직접 실행할 수도 있습니다.
+
+- 처음 한 번: 저장소 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 바꿉니다.
+- 주소: `https://binwoojin.github.io/aulo-reservation-app/` (해시 라우터라 새로고침·직접 링크도 동작)
+- 테스트가 실패하면 배포하지 않습니다.
+
 ## 데모 계정
 
 - 아이디 `demo@aulo.kr` · 비밀번호 `aulo1234` (로그인 화면의 '채우기' 버튼으로 입력)
