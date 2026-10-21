@@ -393,15 +393,18 @@ a.ticket__link:active { background: var(--color-bg); }
 .duration-card__range { font-family: var(--font-en); font-size: 1.125rem; font-weight: 700; margin-top: 2px; }
 .inline-status { display: flex; align-items: center; gap: var(--space-1); font-size: 0.8125rem; color: var(--color-olive); font-weight: 600; margin-top: calc(var(--space-2) * -1); }
 
-.stepper { display: inline-flex; align-items: center; gap: var(--space-1); }
+/* 수량·샷 스테퍼: 작은 알약 안에 32px 버튼 (2026-10-21, 44px 원형 버튼이 너무 커서 장바구니·좌석 주문과 같은 크기로 통일). 누르는 영역은 ::after로 44px 유지 */
+.stepper { display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: var(--radius-pill); background: var(--color-bg-sub); }
 .stepper button {
-  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
-  border: 0; background: var(--color-bg-sub); cursor: pointer;
+  position: relative; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
+  border: 0; background: var(--color-surface); color: var(--color-text); box-shadow: 0 1px 2px rgba(48, 43, 38, 0.08); cursor: pointer;
   transition: transform var(--press) var(--ease), background-color var(--motion) var(--ease);
 }
-.stepper button:active:not(:disabled) { transform: scale(0.92); background: var(--color-bg); }
-.stepper button:disabled { color: var(--color-border-control); background: transparent; box-shadow: inset 0 0 0 1px var(--color-border); cursor: not-allowed; }
-.stepper output { min-width: 48px; text-align: center; font-weight: 700; }
+.stepper button::after { content: ""; position: absolute; inset: -6px; }
+.stepper button .icon { width: 16px; height: 16px; }
+.stepper button:active:not(:disabled) { transform: scale(0.9); background: var(--color-bg); }
+.stepper button:disabled { color: var(--color-border-control); background: transparent; box-shadow: none; cursor: not-allowed; }
+.stepper output { min-width: 30px; text-align: center; font-family: var(--font-logo); font-size: 1rem; font-weight: 600; }
 
 /* 스위치 */
 .switch-row { cursor: pointer; }
@@ -686,11 +689,6 @@ a.ticket__link:active { background: var(--color-bg); }
 .cart-item__total { display: flex; align-items: baseline; gap: var(--space-1); font-family: var(--font-en); font-size: 1.0625rem; font-weight: 700; white-space: nowrap; }
 .cart-item__total s { font-size: 0.8125rem; font-weight: 500; color: var(--color-text-sub); }
 /* 카드 안 수량 버튼: 작게 보이되 터치 영역은 44px */
-.cart-item .stepper { gap: 2px; padding: 2px; border-radius: var(--radius-pill); background: var(--color-bg-sub); }
-.cart-item .stepper button { position: relative; width: 30px; height: 30px; background: var(--color-surface); box-shadow: 0 1px 2px rgba(48, 43, 38, 0.08); }
-.cart-item .stepper button:disabled { background: transparent; box-shadow: none; }
-.cart-item .stepper button .icon { width: 16px; height: 16px; }
-.cart-item .stepper button::after { content: ""; position: absolute; inset: -7px; }
 .cart-item .stepper output { min-width: 28px; font-size: 0.9375rem; }
 .drink-head__meta { display: flex; align-items: center; gap: var(--space-2); }
 .drink-head__category { font-size: 0.8125rem; font-weight: 600; color: var(--color-text-sub); }
@@ -710,11 +708,6 @@ a.ticket__link:active { background: var(--color-bg); }
 .drink-thumb--sm { width: 56px; border-radius: var(--radius-md); flex-shrink: 0; }
 .drink-thumb--sm .icon { width: 24px; height: 24px; }
 /* 메뉴 목록 안 수량 버튼: 작게 보이되 터치 영역은 44px */
-.seat-menu .stepper { gap: 2px; padding: 2px; border-radius: var(--radius-pill); background: var(--color-bg-sub); }
-.seat-menu .stepper button { position: relative; width: 30px; height: 30px; background: var(--color-surface); box-shadow: 0 1px 2px rgba(48, 43, 38, 0.08); }
-.seat-menu .stepper button:disabled { background: transparent; box-shadow: none; }
-.seat-menu .stepper button .icon { width: 16px; height: 16px; }
-.seat-menu .stepper button::after { content: ""; position: absolute; inset: -7px; }
 .seat-menu .stepper output { min-width: 24px; font-size: 0.9375rem; }
 .reservation-item { display: flex; flex-direction: column; gap: var(--space-2); }
 .seat-order-link { min-height: 48px; }
