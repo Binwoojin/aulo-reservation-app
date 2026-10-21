@@ -30,7 +30,6 @@
   --font-ko: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-en: "Manrope", var(--font-ko);
   --font-logo: "Fraunces", Georgia, "Times New Roman", serif; /* 로고 워드마크 전용 */
-  --font-title: "Gowun Batang", "Noto Serif KR", "AppleMyungjo", serif; /* 화면·섹션 제목 (2026-10-21: 브랜드 톤에 맞춰 세리프, 고운바탕 시안) */
 
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 48px;
@@ -1577,11 +1576,4 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .status-card__coupons b { font-family: var(--font-logo); font-size: 1.0625rem; }
 .status-card__coupons-link { margin-left: auto; display: inline-flex; align-items: center; font-size: 0.8125rem; }
 
-/* ---------- 제목 서체 (2026-10-21): Aulo의 차분한 톤에 맞춰 화면·섹션 제목은 한글 세리프 ----------
-   본문·입력·목록 이름·앱 바는 읽기 쉬운 산세리프를 유지한다 */
-:is(.screen-title, .block-title, .order-band__title, .status-card__title, .purpose-hero__title,
-    .sheet__title, .notice__title, .notice-article__title, .my-profile__name, .finding__title,
-    .day-card__headline, .result-card__headline, .withdraw-cancel__title, .withdraw-block__title) {
-  font-family: var(--font-title); font-weight: 700; letter-spacing: -0.02em;
-}
 #again-title + .group-hint { margin-top: var(--space-1); }
