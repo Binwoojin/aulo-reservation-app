@@ -18,6 +18,7 @@ import SeatMap from '../components/SeatMap.jsx';
 import { seatZone } from '../lib/seatLayout.js';
 import {
   DrinkThumb,
+  OptionList,
   Provisional,
   Segmented,
   SpaceImage,
@@ -121,26 +122,27 @@ const DRINK_CAT_INTRO = {
   'ade-tea': '상큼한 에이드와 차분한 차',
 };
 
-// 예약 음료 옵션 화면: 음료 상세와 같은 구성(아치형 큰 사진 · 카테고리 · 이름 · 가격 · 설명)에 아이스·핫 선택.
+// 예약 음료 옵션 화면: 옵션만 보여 준다(아이스·핫, 온도별 사진). 2026-10-21 사용자 요청으로 큰 사진·설명은 뺐다.
 // 예약 음료는 1잔이고 샷 추가·텀블러 할인은 예약 결제에 정해진 기준이 없어 넣지 않는다.
 function DrinkOptions({ drink, temp, onTemp, included, onBack }) {
   return (
     <>
-      <section className="detail-hero" aria-labelledby="resv-drink-title">
-        <DrinkThumb drink={drink} temp={temp} size="lg" />
-        <span className="drink-head__meta">
-          <span className="drink-head__category" lang="en">{MENU_CATEGORIES.find((c) => c.id === drink.category)?.en}</span>
-        </span>
-        <h2 id="resv-drink-title" className="screen-title">{drink.name}</h2>
-        <p className="drink-price">{included ? '이용료에 포함' : <><span lang="en">{drink.price.toLocaleString('ko-KR')}</span>원</>} <Provisional note={MENU.note} /></p>
-        <p className="drink-desc">{drink.desc}</p>
-      </section>
-      <section className="drink-temp" aria-labelledby="resv-opt-temp">
-        <p id="resv-opt-temp" className="group-title">아이스 · 핫 <span className="sheet-required">필수</span></p>
-        <Segmented label="온도" name="resv-temp" value={temp} onChange={onTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
-        <p className="group-hint">가격은 같아요 · 다음을 누르면 이 음료로 예약을 이어 가요</p>
-      </section>
-      <button type="button" className="text-link resv-drink-back" onClick={onBack}>다른 음료 고르기</button>
+      <h2 className="screen-title">온도를<br />골라 주세요</h2>
+      <p className="muted">{drink.name} · {included ? '이용료에 포함' : formatWon(drink.price)} <Provisional note={MENU.note} /></p>
+      <OptionList
+        legend={<>아이스 · 핫 <span className="sheet-required">필수</span></>}
+        name="resv-temp"
+        value={temp}
+        onChange={onTemp}
+        hint="가격은 같아요 · 다음을 누르면 이 음료로 예약을 이어 가요"
+        options={drinkTemps(drink).map((t) => ({
+          value: t,
+          label: `${TEMPS.find((x) => x.value === t).label} ${drink.name}`,
+          detail: t === 'ice' ? '차갑게 준비해요' : '따뜻하게 준비해요',
+          leading: <DrinkThumb drink={drink} temp={t} size="sm" />,
+        }))}
+      />
+      <button type="button" className="resv-drink-back" onClick={onBack}>다른 음료 고르기</button>
     </>
   );
 }
@@ -380,24 +382,27 @@ function ReserveWizard({ type }) {
               <span className="shelf-reason__kicker" lang="en">{MENU_CATEGORIES.find((c) => c.id === drinkCat).en}</span>
               {DRINK_CAT_INTRO[drinkCat]} <Provisional note={MENU.note} />
             </p>
-            {/* 주문 탭과 같은 2열 사진 카드. ICE/HOT 음료는 누르면 옵션 화면으로 넘어간다 */}
-            <ul className="menu-grid swap" key={drinkCat} aria-label={`${MENU_CATEGORIES.find((c) => c.id === drinkCat).label} 음료`}>
+            {/* 한 줄에 하나씩 목록. ICE/HOT 음료는 '>'(옵션 화면으로), 한 가지 온도 음료는 바로 선택(체크) */}
+            <ul className="drink-list swap" key={drinkCat} aria-label={`${MENU_CATEGORIES.find((c) => c.id === drinkCat).label} 음료`}>
               {MENU.value.filter((d) => d.category === drinkCat).map((d) => {
                 const selected = drinkId === d.id;
-                const temp = selected && drinkTemp ? drinkTemp : drinkTemps(d)[0] ?? null;
+                const withTemp = needsTemp(d);
                 return (
                   <li key={d.id}>
-                    <button type="button" className="menu-card menu-card--pick" aria-pressed={selected} onClick={() => pickDrink(d)}
-                      aria-label={`${d.name}${needsTemp(d) ? ', 아이스·핫 선택' : ''}${selected ? ', 선택됨' : ''}`}>
-                      <span className="menu-card__media">
-                        <DrinkThumb drink={d} temp={needsTemp(d) ? temp : null} size="card" />
-                        {selected && <span className="menu-card__check" aria-hidden="true"><Icon name="check" size={18} /></span>}
+                    <button type="button" className="drink-row" aria-pressed={selected} onClick={() => pickDrink(d)}
+                      aria-label={`${d.name}, ${space.drink === 'included' ? '포함' : formatWon(d.price)}${withTemp ? ', 아이스·핫 선택으로 이동' : ''}${selected ? ', 선택됨' : ''}`}>
+                      <DrinkThumb drink={d} temp={withTemp ? (selected && drinkTemp ? drinkTemp : drinkTemps(d)[0]) : null} size="sm" />
+                      <span className="drink-row__text">
+                        <span className="drink-row__name">
+                          {d.name}
+                          {selected && drinkTemp && <span className="temp-chip" data-temp={drinkTemp}>{TEMPS.find((t) => t.value === drinkTemp).short}</span>}
+                        </span>
+                        <span className="drink-row__desc">{d.desc}</span>
+                        <span className="drink-row__price">{space.drink === 'included' ? '이용료에 포함' : <><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</>}</span>
                       </span>
-                      <span className="menu-card__name">{d.name}</span>
-                      <span className="menu-card__price">
-                        {space.drink === 'included' ? '포함' : <><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</>}
-                        {selected && drinkTemp && <span className="menu-card__temp"> · {TEMPS.find((t) => t.value === drinkTemp).short}</span>}
-                      </span>
+                      {withTemp && !selected
+                        ? <Icon name="chevron" size={20} className="drink-row__go" />
+                        : <span className="drink-row__check" aria-hidden="true"><Icon name="check" size={16} /></span>}
                     </button>
                   </li>
                 );
