@@ -47,7 +47,6 @@
   --radius-pill: 999px;
   --arch: 999px 999px var(--radius-card) var(--radius-card); /* 앱과 같은 아치형 사진 틀 */
 
-  --header-h: 104px;
   --motion: 180ms;          /* 버튼·칩 등 UI 반응 */
   --motion-reveal: 760ms;   /* 스크롤 등장: 느리게, 나만의 속도 */
   --motion-slow: 1200ms;    /* 사진 확대·빛 */
@@ -55,6 +54,8 @@
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* 좁은 화면은 위쪽 메뉴를 숨겨 헤더가 한 줄(로고 · 공간 문의 · 앱 체험)이다 (2026-10-21 사용자 요청) */
+:root { --header-h: 60px; }
 @media (min-width: 768px) {
   :root { --gutter: 40px; --header-h: 72px; }
 }
@@ -226,6 +227,10 @@ h2 {
   line-height: 44px;
 }
 .site-nav { grid-area: nav; }
+@media (max-width: 767px) {
+  .site-nav { display: none; }
+  .site-header__inner { grid-template-areas: "brand cta"; min-height: var(--header-h); padding-block: var(--space-2); }
+}
 .header-actions { grid-area: cta; display: flex; align-items: center; gap: var(--space-2); }
 .site-nav ul { display: flex; gap: var(--space-1); margin-inline: calc(var(--space-3) * -1); }
 .site-nav a {
@@ -750,33 +755,73 @@ h2 {
 @keyframes settle-down { from { opacity: 0; transform: translateY(-4px); } }
 
 /* ---------- Service CTA (올리브) ---------- */
-.service-cta { background: var(--color-olive); color: #FFFFFF; padding-block: var(--space-7) 0; overflow: hidden; }
-.service-cta__inner { display: grid; gap: var(--space-6); align-items: center; }
+.service-cta { position: relative; background: var(--color-olive); color: #FFFFFF; padding-block: var(--space-6) 0; overflow: hidden; }
+/* 스크롤에 맞춰 옆으로 흐르는 큰 문장 (script.js가 위치를 정한다) */
+.cta-marquee {
+  display: flex;
+  gap: 0.6em;
+  margin-bottom: var(--space-6);
+  font-family: var(--font-en);
+  font-size: clamp(3.5rem, 2rem + 8vw, 9rem);
+  font-weight: 600;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(231, 235, 221, 0.4);
+  user-select: none;
+  will-change: transform;
+}
+.service-cta__inner { display: grid; gap: var(--space-6); align-items: start; }
 .service-cta__copy { display: grid; justify-items: start; gap: var(--space-3); }
 .service-cta .section-label { color: var(--color-olive-light); margin-bottom: 0; }
-.service-cta h2 { font-size: clamp(2.25rem, 1.4rem + 3.6vw, 3.75rem); line-height: 1.15; }
+.cta-title { font-size: clamp(2.25rem, 1.4rem + 3.6vw, 3.75rem); line-height: 1.15; }
+.cta-title .line { display: block; overflow: hidden; padding-bottom: 0.06em; }
+.cta-title .word { display: inline-block; }
 .service-cta__copy > p:not([class]) { color: var(--color-olive-light); font-size: var(--fs-lead); }
-.demo-account { display: grid; grid-template-columns: repeat(2, auto); gap: var(--space-2) var(--space-5); margin-top: var(--space-2); padding: var(--space-3) var(--space-4); border: 1px solid rgba(255, 255, 255, 0.28); border-radius: var(--radius-panel); background: rgba(255, 255, 255, 0.06); }
-.demo-account dt { font-size: var(--fs-label); color: var(--color-olive-light); }
-.demo-account dd { font-size: var(--fs-lead); font-weight: 600; }
-.service-cta__hint { font-size: var(--fs-small); color: var(--color-olive-light); }
-.service-cta .button { margin-top: var(--space-2); }
+.cta-actions { display: grid; justify-items: start; gap: var(--space-3); margin-top: var(--space-2); }
 .service-cta__status { max-width: 36em; font-size: var(--fs-small); color: var(--color-olive-light); }
 .service-cta :focus-visible { outline-color: #FFFFFF; }
+
+/* 공간 문의 */
+.inquiry { width: 100%; max-width: 34rem; margin-top: var(--space-5); padding-top: var(--space-4); border-top: 1px solid rgba(231, 235, 221, 0.3); }
+.inquiry h3 { margin-bottom: var(--space-3); font-size: var(--fs-lead); font-weight: 600; }
+.inquiry dl { display: grid; }
+.inquiry dl > div { display: grid; grid-template-columns: 7.5em 1fr; gap: var(--space-3); padding-block: var(--space-2); border-bottom: 1px solid rgba(231, 235, 221, 0.18); font-size: var(--fs-small); }
+.inquiry dt { color: var(--color-olive-light); }
+.inquiry dd { font-weight: 600; }
+.inquiry dd small { font-weight: 400; color: var(--color-olive-light); }
+.inquiry__note { margin-top: var(--space-3); font-size: var(--fs-label); color: var(--color-olive-light); }
+
 .service-cta__visual { position: relative; height: 380px; }
 .phone--cta { position: absolute; left: 50%; bottom: -120px; width: 220px; margin-left: -60px; rotate: 5deg; z-index: 1; }
 .phone--back { margin-left: -190px; bottom: -170px; rotate: -7deg; z-index: 0; opacity: 0.9; }
 @media (min-width: 900px) {
-  .service-cta { padding-block: var(--space-8) 0; }
+  .service-cta { padding-block: var(--space-7) 0; }
   .service-cta__inner { grid-template-columns: 6fr 5fr; }
   .service-cta__copy { padding-bottom: var(--space-8); }
-  .service-cta__visual { height: 100%; min-height: 560px; }
+  .service-cta__visual { align-self: stretch; height: auto; min-height: 560px; }
   .phone--cta { width: 260px; bottom: -80px; }
   .phone--back { bottom: -150px; margin-left: -230px; }
 }
 
 /* ---------- Footer ---------- */
-.site-footer { padding-block: var(--space-6); border-top: 1px solid var(--color-border); }
+.site-footer { overflow: hidden; padding-block: 0 var(--space-6); border-top: 1px solid var(--color-border); }
+/* 큰 워드마크: 화면 폭을 채우는 로고 글자 */
+.site-footer .footer-mark {
+  display: flex;
+  justify-content: center;
+  margin: var(--space-4) 0 var(--space-5);
+  font-family: var(--font-logo);
+  font-size: clamp(7rem, 2rem + 26vw, 20rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.05em;
+  color: var(--color-bg-sub);
+  -webkit-text-stroke: 1px var(--color-border);
+  user-select: none;
+}
+.footer-mark span { display: inline-block; }
 .site-footer__inner { display: grid; gap: var(--space-4); }
 .site-footer .brand { display: inline-block; margin-bottom: var(--space-1); }
 .site-footer p, .site-footer small { font-size: var(--fs-small); color: var(--color-text-sub); }
@@ -868,6 +913,27 @@ h2 {
   .motion-ready .app-step .phone--inline.is-settled .phone-chip { opacity: 1; transform: none; }
 }
 
+/* 6-2. 마지막 화면(CTA): 제목 단어가 아래서 올라오고, 휴대폰 두 대가 차례로 솟아오르며, 문의 줄이 하나씩 놓인다.
+   큰 영문 문장은 스크롤에 맞춰 옆으로 흐른다(script.js) */
+.motion-ready .cta-title .word { transform: translateY(105%); transition: transform 1000ms var(--ease-out); transition-delay: calc(var(--i, 0) * 110ms + 100ms); }
+.motion-ready .service-cta.is-in .cta-title .word { transform: none; }
+.motion-ready .phone--cta { opacity: 0; transform: translateY(160px); transition: opacity 900ms var(--ease-out), transform 1300ms var(--ease-out); transition-delay: 350ms; }
+.motion-ready .phone--back { transition-delay: 150ms; }
+.motion-ready .service-cta.is-in .phone--cta { opacity: 1; transform: none; }
+.motion-ready .service-cta.is-in .phone--back { opacity: 0.9; }
+.motion-ready .inquiry { border-top-color: transparent; position: relative; }
+.motion-ready .inquiry::before { content: ""; position: absolute; left: 0; right: 0; top: -1px; height: 1px; background: rgba(231, 235, 221, 0.3); transform: scaleX(0); transform-origin: left; transition: transform var(--motion-slow) var(--ease-out); }
+.motion-ready .service-cta.is-in .inquiry::before { transform: scaleX(1); }
+.motion-ready .inquiry [data-reveal] { transform: translateX(-20px); }
+.motion-ready .inquiry [data-reveal].is-visible { transform: none; }
+
+/* 6-3. 바닥글: 큰 워드마크 글자가 하나씩 올라오고, 이어서 바닥글 내용이 차례로 놓인다.
+   바닥글은 페이지 맨 끝이라 스크롤 등장 대신 바닥글이 보이기 시작할 때 함께 시작한다 */
+.motion-ready .site-footer__inner > * { opacity: 0; transform: translateY(16px); transition: opacity 700ms var(--ease-out), transform 700ms var(--ease-out); transition-delay: calc(var(--i, 0) * 120ms + 450ms); }
+.motion-ready .site-footer.is-in .site-footer__inner > * { opacity: 1; transform: none; }
+.motion-ready .footer-mark span { opacity: 0; transform: translateY(40%) rotate(6deg); transition: opacity 700ms var(--ease-out), transform 1100ms var(--ease-out), color 900ms var(--ease); transition-delay: calc(var(--i, 0) * 120ms); }
+.motion-ready .site-footer.is-in .footer-mark span { opacity: 1; transform: none; }
+
 /* 7. 헤더: 스크롤을 시작하면 경계선이 드러난다 */
 .motion-ready .site-header { border-bottom-color: transparent; transition: border-color var(--motion) var(--ease), background-color var(--motion) var(--ease); }
 .motion-ready .site-header.is-scrolled { border-bottom-color: var(--color-border); }
@@ -876,6 +942,7 @@ h2 {
 @media (hover: hover) {
   .principles__list li:hover { transform: translateY(-4px); border-color: var(--color-olive); box-shadow: 0 16px 30px -18px rgba(48, 43, 38, 0.35); }
   .space-card:hover .photo > img { transform: scale(1.04); }
+  .footer-mark span:hover { color: var(--color-olive-light); transition-delay: 0s; }
   .button:hover > span[aria-hidden] { transform: translateX(4px); }
   .button:hover { transform: translateY(-1px); }
 }

@@ -14,6 +14,11 @@
     [...list.children].forEach((li, i) => li.style.setProperty('--i', i));
   });
   document.querySelectorAll('.space-card').forEach((card, i) => card.style.setProperty('--i', i));
+  document.querySelectorAll('.cta-title .word').forEach((el, i) => el.style.setProperty('--i', i));
+  document.querySelectorAll('.footer-mark span').forEach((el, i) => el.style.setProperty('--i', i));
+  document.querySelectorAll('.inquiry dl, .site-footer__inner').forEach((list) => {
+    [...list.children].forEach((el, i) => el.style.setProperty('--i', i));
+  });
 
   // 브랜드 문장을 단어로 나눈다 (읽는 만큼 밝아지게). 글자는 그대로라 스크린리더는 한 문장으로 읽는다
   const statement = document.querySelector('[data-words]');
@@ -48,6 +53,16 @@
       });
     }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
     document.querySelectorAll('[data-reveal], .space-card, .app-step').forEach((el) => revealObserver.observe(el));
+
+    // 마지막 화면·바닥글: 조금 보이기 시작하면 제목·휴대폰·워드마크 등장을 시작한다
+    const sceneObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-in');
+        sceneObserver.unobserve(entry.target);
+      });
+    }, { threshold: 0.05 });
+    document.querySelectorAll('.service-cta, .site-footer').forEach((el) => sceneObserver.observe(el));
 
     // 앵커로 이동하거나 포커스가 들어간 요소는 즉시 보이게 한다
     document.addEventListener('focusin', (e) => {
@@ -88,6 +103,7 @@
   const screens = [...document.querySelectorAll('.phone--stage > img')];
   const counter = document.querySelector('.app-story__current');
   const inlinePhones = [...document.querySelectorAll('.phone--inline')];
+  const marquee = document.querySelector('.cta-marquee');
   const narrowQuery = window.matchMedia('(max-width: 899px)');
   let activeScreen = 'find';
 
@@ -141,6 +157,15 @@
     if (dayLine) {
       const r = dayLine.getBoundingClientRect();
       dayLine.style.setProperty('--progress', clamp((vh * 0.75 - r.top) / (r.height + vh * 0.2)).toFixed(3));
+    }
+
+    // 큰 영문 문장: 마지막 화면이 올라오는 동안 오른쪽에서 왼쪽으로 흐른다
+    if (marquee) {
+      const r = marquee.parentElement.getBoundingClientRect();
+      if (r.top < vh && r.bottom > 0) {
+        const p = clamp((vh - r.top) / (vh + r.height));
+        marquee.style.transform = `translateX(${(10 - p * 45).toFixed(2)}%)`;
+      }
     }
 
     // 앱 단계 휴대폰(좁은 화면): 아래에서 들어올 때는 뒤로 눕고 작게, 화면 가운데에서 바로 서고, 지나가면 살짝 기운다.

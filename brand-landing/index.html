@@ -373,18 +373,32 @@
 
     <!-- 07 서비스 진입: 데모 웹앱(app/). 실제 예약처럼 오인되지 않도록 데모 안내를 함께 둔다 -->
     <section id="service-entry" class="service-cta" aria-labelledby="cta-title">
+      <!-- 스크롤에 맞춰 옆으로 흐르는 큰 문장 (반복 재생 없음, 장식) -->
+      <p class="cta-marquee" aria-hidden="true" lang="en"><span>Stay in your rhythm.</span><span>Stay in your rhythm.</span><span>Stay in your rhythm.</span></p>
       <div class="container service-cta__inner">
-        <div class="service-cta__copy" data-reveal>
-          <p class="section-label" lang="en">YOUR SPACE, YOUR RHYTHM</p>
-          <h2 id="cta-title">지금, 나에게<br>필요한 공간.</h2>
-          <p>오늘의 목적에 맞는 머무름을 앱에서 직접 찾아보세요.</p>
-          <dl class="demo-account">
-            <div><dt>데모 계정</dt><dd lang="en">demo@aulo.kr</dd></div>
-            <div><dt>비밀번호</dt><dd lang="en">aulo1234</dd></div>
-          </dl>
-          <p class="service-cta__hint">로그인 화면의 '채우기'로 바로 입력되고, 이용 중 화면을 시작 상태로 고를 수 있어요.</p>
-          <a class="button button--inverse" href="app/" aria-describedby="demo-status" data-action="open-service">공간 이용 체험하기 <span aria-hidden="true">→</span></a>
-          <p id="demo-status" class="service-cta__status">Aulo 데모 앱으로 이동해요. 가상 브랜드의 포트폴리오 데모라 실제 예약·결제는 없어요.</p>
+        <div class="service-cta__copy">
+          <p class="section-label" lang="en" data-reveal>YOUR SPACE, YOUR RHYTHM</p>
+          <h2 id="cta-title" class="cta-title" aria-label="지금, 나에게 필요한 공간.">
+            <span class="line" aria-hidden="true"><span class="word">지금,</span> <span class="word">나에게</span></span>
+            <span class="line" aria-hidden="true"><span class="word">필요한</span> <span class="word">공간.</span></span>
+          </h2>
+          <p data-reveal>오늘의 목적에 맞는 머무름을 앱에서 직접 찾아보세요.</p>
+          <div class="cta-actions" data-reveal>
+            <!-- 데모 웹앱으로 이동 (같은 사이트의 app/). 실제 예약처럼 오인되지 않도록 데모 안내를 함께 둔다 -->
+            <a class="button button--inverse" href="app/" aria-describedby="demo-status" data-action="open-service">공간 이용 체험하기 <span aria-hidden="true">→</span></a>
+            <p id="demo-status" class="service-cta__status">Aulo 데모 앱으로 이동해요. 가상 브랜드의 포트폴리오 데모라 실제 예약·결제는 없어요.</p>
+          </div>
+          <!-- 공간 문의: 문의 채널은 정해지지 않아 '준비 중'으로 두고, 확정 정책에서 나온 안내만 쓴다 -->
+          <section id="contact" class="inquiry" aria-labelledby="inquiry-title">
+            <h3 id="inquiry-title">공간 문의</h3>
+            <dl>
+              <div data-reveal><dt>문의 채널</dt><dd>카카오톡 채널 · 준비 중</dd></div>
+              <div data-reveal><dt>운영 시간</dt><dd>08:00–23:00 · 공휴일 휴무</dd></div>
+              <div data-reveal><dt>매장</dt><dd>Aulo 성수 · Aulo 연남 <small>(임시 설정)</small></dd></div>
+              <div data-reveal><dt>예약 변경·취소</dt><dd>앱 '내 예약'에서 · 이용 전날 23:59까지</dd></div>
+            </dl>
+            <p class="inquiry__note" data-reveal>가상 브랜드 프로젝트라 실제 문의는 받지 않아요.</p>
+          </section>
         </div>
         <div class="service-cta__visual" aria-hidden="true">
           <div class="phone phone--cta" data-parallax="-0.1"><img src="assets/app/home-inuse.webp" width="600" height="1298" alt="" loading="lazy" decoding="async"></div>
@@ -394,7 +408,9 @@
     </section>
   </main>
 
-  <footer id="contact" class="site-footer">
+  <footer class="site-footer">
+    <!-- 큰 워드마크: 바닥글이 보이면 글자가 하나씩 올라온다 (장식) -->
+    <p class="footer-mark" aria-hidden="true"><span>a</span><span>u</span><span>l</span><span>o</span></p>
     <div class="container site-footer__inner">
       <div>
         <a class="brand" href="#home" aria-label="페이지 처음으로">aulo</a>
@@ -406,7 +422,6 @@
       <div class="site-footer__meta">
         <p>가상 브랜드 프로젝트 · 실제 운영 매장이 아닙니다.</p>
         <p>사진은 AI 생성 참고 이미지, 가격은 임시 설정입니다.</p>
-        <p>문의 채널은 준비 중입니다.</p>
         <small>© Aulo</small>
       </div>
     </div>
