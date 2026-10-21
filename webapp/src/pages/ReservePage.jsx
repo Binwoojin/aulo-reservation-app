@@ -127,7 +127,7 @@ const DRINK_CAT_INTRO = {
 };
 
 // 예약 음료 옵션 화면 (2026-10-21 사용자 요청): 옵션만 — 아이스·핫(음료 상세와 같은 구성), 샷 추가(커피)·텀블러 사용.
-function DrinkOptions({ drink, temp, onTemp, shot, onShot, ownCup, onOwnCup, included, onBack }) {
+function DrinkOptions({ drink, temp, onTemp, shot, onShot, ownCup, onOwnCup, included, onBack, extra }) {
   const onlyTemp = TEMPS.find((t) => t.value === fixedTemp(drink));
   return (
     <>
@@ -169,6 +169,7 @@ function DrinkOptions({ drink, temp, onTemp, shot, onShot, ownCup, onOwnCup, inc
         </div>
         {included && canAddShot(drink) && <p className="group-hint">기본 음료는 포함이고, 샷 추가 금액만 방문 후 함께 결제해요.</p>}
       </section>
+      {extra}
       <button type="button" className="resv-drink-back" onClick={onBack}>다른 음료 고르기</button>
     </>
   );
@@ -286,6 +287,23 @@ function ReserveWizard({ type }) {
   };
 
   const store = STORES.value.find((s) => s.id === storeId);
+  // Rest 무료 요청: 음료 목록과 옵션 화면 모두에 둔다 (옵션 화면에서 '다음'을 누르면 바로 확인 단계로 가기 때문)
+  const requestsBlock = space.requests.length > 0 && (
+    <section className="block">
+      <p className="group-title">무료 요청</p>
+      <div className="list-card">
+        {space.requests.map((r) => (
+          <SwitchRow
+            key={r.id}
+            label={r.label}
+            detail="무료"
+            checked={requests.includes(r.id)}
+            onChange={(on) => setRequests((prev) => (on ? [...prev, r.id] : prev.filter((x) => x !== r.id)))}
+          />
+        ))}
+      </div>
+    </section>
+  );
   const endLabel = start != null ? formatTime(start + hours * 60) : '';
 
   return (
@@ -293,14 +311,14 @@ function ReserveWizard({ type }) {
       <AppBar back={drinkDetail ? () => { setDrinkDetail(false); window.scrollTo(0, 0); } : step > 0 ? () => go(step - 1) : true} title={space.name} />
       <StepProgress steps={steps} current={step} label="예약 진행" />
       <div className="screen-body has-bottom-bar">
-        {/* 지금 예약 중인 공간: 작은 아치형 사진 + Fraunces 이름 + 브랜드 문구 (모든 단계 공통) */}
-        <div className="reserve-space">
+        {/* 지금 예약 중인 공간: 작은 아치형 사진 + Fraunces 이름 + 브랜드 문구 (확인 단계는 예약 카드에 담기므로 숨김) */}
+        {stepName !== '확인' && <div className="reserve-space">
           <SpaceImage space={space} />
           <span>
             <span className="reserve-space__name" lang="en">{space.name}</span>
             <span className="reserve-space__headline">{space.headline}</span>
           </span>
-        </div>
+        </div>}
         {stepName === '날짜' && (
           <>
             <h2 className="screen-title">언제 방문하세요?</h2>
@@ -391,7 +409,7 @@ function ReserveWizard({ type }) {
         )}
 
         {(stepName === '음료' || stepName === '음료·요청') && drinkDetail && getDrink(drinkId) && (
-          <DrinkOptions drink={getDrink(drinkId)} temp={drinkTemp} onTemp={setDrinkTemp} shot={drinkShot} onShot={setDrinkShot} ownCup={drinkOwnCup} onOwnCup={setDrinkOwnCup} included={space.drink === 'included'} onBack={() => { setDrinkDetail(false); window.scrollTo(0, 0); }} />
+          <DrinkOptions drink={getDrink(drinkId)} temp={drinkTemp} onTemp={setDrinkTemp} shot={drinkShot} onShot={setDrinkShot} ownCup={drinkOwnCup} onOwnCup={setDrinkOwnCup} included={space.drink === 'included'} onBack={() => { setDrinkDetail(false); window.scrollTo(0, 0); }} extra={requestsBlock} />
         )}
 
         {(stepName === '음료' || stepName === '음료·요청') && !drinkDetail && (
@@ -437,38 +455,56 @@ function ReserveWizard({ type }) {
                 );
               })}
             </ul>
-            {space.requests.length > 0 && (
-              <section className="block">
-                <p className="group-title">무료 요청</p>
-                <div className="list-card">
-                  {space.requests.map((r) => (
-                    <SwitchRow
-                      key={r.id}
-                      label={r.label}
-                      detail="무료"
-                      checked={requests.includes(r.id)}
-                      onChange={(on) => setRequests((prev) => (on ? [...prev, r.id] : prev.filter((x) => x !== r.id)))}
-                    />
-                  ))}
-                </div>
-              </section>
-            )}
+            {requestsBlock}
           </>
         )}
 
         {stepName === '확인' && (
           <>
             <h2 className="screen-title">예약 내용을<br />확인해 주세요</h2>
-            <dl className="kv summary-card">
-              <div><dt>공간</dt><dd>{space.name} {unit}번{seatZone(type, store.units[type], unit) && ` · ${seatZone(type, store.units[type], unit).label}`}</dd></div>
-              <div><dt>매장</dt><dd>{store.name}</dd></div>
-              <div><dt>일시</dt><dd>{formatDate(date)}<br />{formatTime(start)}–{endLabel} ({hours}시간)</dd></div>
-              <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
-              <div><dt>음료</dt><dd>{drinkLabel(drinkId, drinkNeedsTemp ? drinkTemp : null)}{drinkOptionsText({ type, drinkShot, drinkOwnCup }) && <><br /><small className="kv__sub">{drinkOptionsText({ type, drinkShot, drinkOwnCup })}</small></>}<br />{space.drink === 'included' ? (drinkCost ? `포함 · 샷 추가 ${formatWon(drinkCost)}` : '포함') : formatWon(drinkCost)}</dd></div>
-              {requests.length > 0 && <div><dt>무료 요청</dt><dd>{requests.map((id) => space.requests.find((r) => r.id === id).label).join(', ')}</dd></div>}
-              {pointsUsed > 0 && <div><dt>포인트 사용</dt><dd>−{formatWon(pointsUsed)}</dd></div>}
-              <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(fee - pointsUsed + drinkCost)}</dd></div>
-            </dl>
+            {/* 예약 카드: 공간 머리(아치 사진·Fraunces 이름) → 날짜·시간 → 절취선 → 음료·요청 → 금액 */}
+            <article className="stay-card" aria-label="예약 내용">
+              <header className="stay-card__head">
+                <SpaceImage space={space} />
+                <div className="stay-card__who">
+                  <p className="shelf-script" lang="en">your stay</p>
+                  <p className="stay-card__space" lang="en">{space.name}</p>
+                  <p className="stay-card__where">{store.name} · {unit}번 {space.unitName}{seatZone(type, store.units[type], unit) && ` · ${seatZone(type, store.units[type], unit).label}`}</p>
+                </div>
+              </header>
+              <div className="stay-card__when">
+                <div>
+                  <span className="stay-card__label">날짜</span>
+                  <span className="stay-card__big" lang="en">{date.slice(5).replace('-', '.')}</span>
+                  <span className="stay-card__small">{formatDate(date).replace(/^\d+월 \d+일 /, '')}</span>
+                </div>
+                <div>
+                  <span className="stay-card__label">시간</span>
+                  <span className="stay-card__big" lang="en">{formatTime(start)}<span className="stay-card__dash">–</span>{endLabel}</span>
+                  <span className="stay-card__chip">{hours}시간 이용</span>
+                </div>
+              </div>
+              <div className="stay-card__cut" aria-hidden="true" />
+              <div className="stay-card__drink">
+                <DrinkThumb drink={getDrink(drinkId)} temp={drinkNeedsTemp ? drinkTemp : null} size="sm" />
+                <span className="stay-card__drink-text">
+                  <span className="stay-card__label">{space.drink === 'included' ? '기본 음료' : '이용 전 음료'}</span>
+                  <strong>{drinkLabel(drinkId, drinkNeedsTemp ? drinkTemp : null)}</strong>
+                  {drinkOptionsText({ type, drinkShot, drinkOwnCup }) && <span className="stay-card__opts">{drinkOptionsText({ type, drinkShot, drinkOwnCup })}</span>}
+                </span>
+              </div>
+              {requests.length > 0 && (
+                <ul className="stay-card__requests" aria-label="무료 요청">
+                  {requests.map((id) => <li key={id}>{space.requests.find((r) => r.id === id).label} · 무료</li>)}
+                </ul>
+              )}
+              <dl className="stay-card__price">
+                <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd><span lang="en">{formatWon(space.pricePerHour)}</span> × {hours}시간</dd></div>
+                <div><dt>음료</dt><dd>{space.drink === 'included' ? (drinkCost ? `포함 · 샷 ${formatWon(drinkCost)}` : '포함') : formatWon(drinkCost)}</dd></div>
+                {pointsUsed > 0 && <div><dt>포인트 사용</dt><dd>−{formatWon(pointsUsed)}</dd></div>}
+                <div className="stay-card__total"><dt>결제 예정 <small>방문 후 매장에서</small></dt><dd lang="en">{formatWon(fee - pointsUsed + drinkCost)}</dd></div>
+              </dl>
+            </article>
             <SwitchRow
               label={`포인트 사용 · 보유 ${balance.toLocaleString('ko-KR')}P`}
               detail={balance > 0 ? '좌석 이용료에만 쓸 수 있어요. 음료 금액에는 쓸 수 없어요.' : '이용을 시작하면 좌석 이용료의 10%가 적립돼요.'}
