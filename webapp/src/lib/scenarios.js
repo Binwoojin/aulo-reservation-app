@@ -42,7 +42,7 @@ export const SCENARIOS = [
   {
     id: 'returning',
     title: '예약 없이 다시 방문',
-    desc: '지난 예약과 최근 주문이 있어요. 지난번처럼 다시 예약·다시 담기가 보여요.',
+    desc: '지난 예약과 최근 주문이 있어요. 최근 이용 다시 하기(다시 예약·다시 담기)가 보여요.',
     build: (now, storeId) => {
       const today = toDateString(now);
       return {

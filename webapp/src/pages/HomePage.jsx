@@ -189,9 +189,18 @@ function AgainTiles({ reservation: r, order }) {
   const reorder = useReorder();
   const first = order ? parseKey(sortedKeys(reorderItems(order))[0]) : null;
   const drink = first ? getDrink(first.id) : null;
+  // 제목은 보여 주는 것에 맞춘다 ('지난번처럼'은 무엇을 다시 하는지 알 수 없어 2026-10-21 변경)
+  const both = r && order && drink;
+  const title = both ? '최근 이용 다시 하기' : r ? '지난 예약 다시 하기' : '최근 주문 다시 담기';
+  const hint = both
+    ? '지난 예약과 최근 주문을 같은 조건으로 한 번에 다시 시작해요.'
+    : r ? '공간·시간·좌석·음료를 채워 두고 날짜만 고르면 돼요.' : '같은 음료·옵션으로 장바구니에 담아요.';
   return (
     <section className="block" aria-labelledby="again-title">
-      <h2 id="again-title" className="block-title">지난번처럼</h2>
+      <div>
+        <h2 id="again-title" className="block-title">{title}</h2>
+        <p className="group-hint">{hint}</p>
+      </div>
       <div className={`again-tiles${r && order && drink ? '' : ' again-tiles--single'}`}>
         {r && (
           <Link to={rebookPath(r)} className="again-tile">

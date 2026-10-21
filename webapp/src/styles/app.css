@@ -30,6 +30,7 @@
   --font-ko: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-en: "Manrope", var(--font-ko);
   --font-logo: "Fraunces", Georgia, "Times New Roman", serif; /* 로고 워드마크 전용 */
+  --font-title: "Noto Serif KR", "Nanum Myeongjo", "AppleMyungjo", serif; /* 화면·섹션 제목 (2026-10-21: 브랜드 톤에 맞춰 세리프) */
 
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 48px;
@@ -963,7 +964,7 @@ a.again-card:active { transform: scale(0.99); }
 .glass-chip:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.3); }
 .glass-chip:focus-visible { outline: 2px solid #FFFFFF; outline-offset: 2px; }
 
-/* 지난번처럼: 사진 타일 두 장 */
+/* 최근 이용 다시 하기: 사진 타일 두 장 */
 .again-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--space-3); margin-top: var(--space-3); }
 .again-tile { display: flex; flex-direction: column; padding: 0; border: 0; border-radius: var(--radius-lg); overflow: hidden; background: var(--color-surface); box-shadow: var(--shadow-card); color: var(--color-text); font: inherit; text-align: left; cursor: pointer; transition: transform var(--press) var(--ease); }
 .again-tile:active { transform: scale(0.98); }
@@ -1575,3 +1576,12 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .status-card__coupons { display: flex; align-items: center; gap: var(--space-2); min-height: 44px; padding: 0 var(--space-3); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.16); color: inherit; font-size: 0.875rem; font-weight: 600; }
 .status-card__coupons b { font-family: var(--font-logo); font-size: 1.0625rem; }
 .status-card__coupons-link { margin-left: auto; display: inline-flex; align-items: center; font-size: 0.8125rem; }
+
+/* ---------- 제목 서체 (2026-10-21): Aulo의 차분한 톤에 맞춰 화면·섹션 제목은 한글 세리프 ----------
+   본문·입력·목록 이름·앱 바는 읽기 쉬운 산세리프를 유지한다 */
+:is(.screen-title, .block-title, .order-band__title, .status-card__title, .purpose-hero__title,
+    .sheet__title, .notice__title, .notice-article__title, .my-profile__name, .finding__title,
+    .day-card__headline, .result-card__headline, .withdraw-cancel__title, .withdraw-block__title) {
+  font-family: var(--font-title); font-weight: 700; letter-spacing: -0.02em;
+}
+#again-title + .group-hint { margin-top: var(--space-1); }
