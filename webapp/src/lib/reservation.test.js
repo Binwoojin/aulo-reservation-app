@@ -265,8 +265,8 @@ describe('예약 음료 옵션 (샷·텀블러)', async () => {
     expect(drinkFee('focus', 'lemon-ade', { shot: 2 })).toBe(drinkFee('focus', 'lemon-ade'));
     expect(drinkFee('focus', 'latte', { shot: 5 })).toBe(4000 + 1000);
   });
-  it('Suite: 음료는 포함, 샷만 받고 텀블러 할인은 없다', () => {
-    expect(drinkFee('suite', 'latte', { shot: 1, ownCup: true })).toBe(500);
+  it('Suite: 음료·샷 추가 모두 포함, 텀블러 할인은 없다', () => {
+    expect(drinkFee('suite', 'latte', { shot: 1, ownCup: true })).toBe(0);
     expect(drinkOptionsText({ type: 'suite', drinkShot: 1, drinkOwnCup: true })).toBe('샷 1회 추가 · 텀블러');
   });
 });

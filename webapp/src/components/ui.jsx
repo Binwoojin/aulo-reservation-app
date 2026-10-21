@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Icon from './Icon.jsx';
 import { drinkImage } from '../lib/drink.js';
 
@@ -32,12 +33,27 @@ export function Tag({ type, children }) {
   return <span className="tag" data-service={type}>{children}</span>;
 }
 
-// 미확정 정책 임시값 표시
+// 미확정 정책 임시값 표시 (2026-10-21 정리): 값 옆에 작은 점선 밑줄 '임시'만 두어 눈에 덜 띄게 하고,
+// 누르면 왜 임시인지 화면 아래에 한 줄로 알려 준다. 안내는 body에 띄운다(떠오르는 애니메이션의 transform 안에서도 고정되게)
 export function Provisional({ note }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return undefined;
+    const t = setTimeout(() => setOpen(false), 4000);
+    return () => clearTimeout(t);
+  }, [open]);
   return (
-    <span className="provisional" title={note}>
-      임시<span className="visually-hidden">: {note}</span>
-    </span>
+    <>
+      <button type="button" className="provisional" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        임시<span className="visually-hidden">값 안내: {note}</span>
+      </button>
+      {open && createPortal(
+        <div className="provisional-tip" role="status" onClick={() => setOpen(false)}>
+          <span className="provisional-tip__kicker">임시값</span>{note}
+        </div>,
+        document.body,
+      )}
+    </>
   );
 }
 

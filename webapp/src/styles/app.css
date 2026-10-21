@@ -245,11 +245,24 @@ a { color: inherit; text-decoration: none; }
 [data-service="focus"] { --tag-fg: var(--focus-fg); --tag-bg: var(--focus-bg); }
 [data-service="rest"] { --tag-fg: var(--rest-fg); --tag-bg: var(--rest-bg); }
 [data-service="suite"] { --tag-fg: var(--suite-fg); --tag-bg: var(--suite-bg); }
+/* 임시값 표시: 작은 점선 밑줄 글자 (2026-10-21, 배지 → 조용한 표시). 누르는 영역은 24px 이상 */
 .provisional {
-  display: inline-flex; align-items: center; vertical-align: 1px;
-  padding: 0 6px; border: 1px dashed var(--color-border-control); border-radius: var(--radius-pill);
-  font-size: 0.6875rem; font-weight: 600; line-height: 1.6; color: var(--color-text-sub); background: var(--color-bg);
+  display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; padding: 0 3px; vertical-align: middle;
+  border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 0.6875rem; font-weight: 500; line-height: 1; color: var(--color-text-sub);
+  text-decoration: underline dotted; text-underline-offset: 3px;
 }
+.provisional:focus-visible { outline: 2px solid var(--color-olive); outline-offset: 1px; border-radius: 4px; }
+.provisional-tip {
+  position: fixed; z-index: 60; left: 50%; bottom: calc(var(--tab-h) + var(--safe-bottom) + var(--space-4));
+  width: min(calc(100vw - 2 * var(--gutter)), calc(var(--app-width) - 2 * var(--gutter))); transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 2px; padding: var(--space-3) var(--space-4); border-radius: var(--radius-md);
+  background: var(--color-text); color: #FFFFFF; font-size: 0.8125rem; line-height: 1.5; box-shadow: var(--shadow-float);
+  animation: tip-in 240ms var(--ease-settle, ease);
+}
+.provisional-tip__kicker { font-size: 0.6875rem; font-weight: 700; opacity: 0.7; }
+@keyframes tip-in { from { opacity: 0; transform: translate(-50%, 8px); } }
+@media (prefers-reduced-motion: reduce) { .provisional-tip { animation: none; } }
 .badge { white-space: nowrap; margin-left: var(--space-2); padding: 0 6px; border-radius: var(--radius-pill); background: var(--color-olive-light); font-size: 0.6875rem; font-weight: 700; vertical-align: 1px; }
 .photo { position: relative; aspect-ratio: 3 / 2; overflow: hidden; background: var(--color-bg-sub); }
 .photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }

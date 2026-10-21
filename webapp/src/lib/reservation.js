@@ -152,8 +152,9 @@ export const drinkOptions = (drinkId, { shot = 0, ownCup = false } = {}) => ({
 });
 export const drinkFee = (type, drinkId, options) => {
   const { shot, ownCup } = drinkOptions(drinkId, options);
+  // Suite(기본 음료 포함)는 샷 추가도 이용료에 포함, 텀블러 할인은 없다 (2026-10-21 사용자 결정)
+  if (SPACES[type].drink === 'included') return 0;
   const shotFee = shot * SHOT_PRICE.value;
-  if (SPACES[type].drink === 'included') return shotFee;
   return Math.max(0, (getDrink(drinkId)?.price ?? 0) + shotFee - (ownCup ? OWN_CUP_DISCOUNT : 0));
 };
 // '샷 1회 추가 · 텀블러'처럼 예약 음료 옵션 한 줄 (없으면 빈 문자열)

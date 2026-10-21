@@ -4,7 +4,7 @@ import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import { Field, PasswordField } from '../components/AuthFields.jsx';
 import { BrandBand } from '../components/BrandBand.jsx';
 import Icon from '../components/Icon.jsx';
-import { BottomSheet, Provisional } from '../components/ui.jsx';
+import { BottomSheet } from '../components/ui.jsx';
 import { REWARD_POLICY } from '../config/policy.js';
 import { useAppData } from '../lib/AppData.jsx';
 import { CODE_LENGTH, MIN_PASSWORD, codeError, confirmError, emailError, isRegistered, passwordError, register } from '../lib/auth.js';
@@ -167,7 +167,7 @@ export default function SignupPage() {
 function TermsBody({ terms }) {
   return (
     <div className="terms-doc">
-      <p className="terms-doc__note"><Provisional note={TERMS_NOTE} /> {TERMS_NOTE}</p>
+      <p className="terms-doc__note"><span className="provisional">임시</span> {TERMS_NOTE}</p>
       {terms.table && (
         <table className="terms-doc__table">
           <tbody>

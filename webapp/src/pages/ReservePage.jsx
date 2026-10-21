@@ -154,7 +154,9 @@ function DrinkOptions({ drink, temp, onTemp, shot, onShot, ownCup, onOwnCup, inc
             <div className="list-row drink-opts__row">
               <span className="option-row__text">
                 <span className="option-row__label">샷 추가</span>
-                <span className="option-row__detail">1회 +{formatWon(SHOT_PRICE.value)} · 최대 {MAX_SHOTS}회 <Provisional note={SHOT_PRICE.note} /></span>
+                <span className="option-row__detail">{included
+                  ? <>최대 {MAX_SHOTS}회 · 이용료에 포함</>
+                  : <>1회 +{formatWon(SHOT_PRICE.value)} · 최대 {MAX_SHOTS}회 <Provisional note={SHOT_PRICE.note} /></>}</span>
               </span>
               <Stepper label="샷 추가" value={shot} onChange={onShot} min={0} max={MAX_SHOTS} />
             </div>
@@ -166,7 +168,7 @@ function DrinkOptions({ drink, temp, onTemp, shot, onShot, ownCup, onOwnCup, inc
             onChange={onOwnCup}
           />
         </div>
-        {included && canAddShot(drink) && <p className="group-hint">기본 음료는 포함이고, 샷 추가 금액만 방문 후 함께 결제해요.</p>}
+        {included && canAddShot(drink) && <p className="group-hint">기본 음료와 샷 추가 모두 이용료에 포함돼요.</p>}
       </section>
       {extra}
       <button type="button" className="resv-drink-back" onClick={onBack}>다른 음료 고르기</button>
