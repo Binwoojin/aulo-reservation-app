@@ -402,7 +402,7 @@ function ReserveWizard({ type }) {
       <BottomBar>
         <div className="price">
           <span className="price__label">결제 예정</span>
-          <span className="price__value">{formatWon(fee - pointsUsed + drinkCost)}</span>
+          <span className="price__value" key={fee - pointsUsed + drinkCost}>{formatWon(fee - pointsUsed + drinkCost)}</span>
         </div>
         {stepName === '확인' ? (
           <button type="button" className="button button--primary" onClick={submit}>예약하기</button>

@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import Icon from './Icon.jsx';
 import { useAppData } from '../lib/AppData.jsx';
+import { useScrollReveal } from '../lib/useScrollReveal.js';
 
 const MenuContext = createContext(() => {});
 
@@ -21,8 +22,9 @@ export { isUpcoming } from '../lib/status.js';
 // 앱 셸: 화면마다 AppBar를 직접 두고, 햄버거 메뉴(마이 페이지)는 셸이 관리한다.
 export default function AppShell() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const mainRef = useRef(null);
+  useScrollReveal(pathname + search);
   const showTabs = TAB_PATHS.includes(pathname);
 
   useEffect(() => {

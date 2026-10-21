@@ -30,7 +30,7 @@ export default function MyReservationsPage() {
         </BrandBand>
         {tab === 'past' && <p className="list-note">최근 {RESERVATION_HISTORY_MONTHS}개월 안에 이용한 예약만 보여 드려요.</p>}
         {list.length ? (
-          <ul className="stack">
+          <ul className="stack swap" key={tab}>
             {list.map((r) => (
               <li key={r.id} className="reservation-item">
                 <ReservationCard reservation={r} link />

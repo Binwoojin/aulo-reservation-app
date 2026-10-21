@@ -93,7 +93,7 @@ export default function SeatOrderPage() {
                   <button key={c.id} type="button" role="tab" aria-selected={category === c.id} onClick={() => setCategory(c.id)}>{c.label}</button>
                 ))}
               </div>
-              <ul className="seat-menu">
+              <ul className="seat-menu swap" key={category}>
                 {MENU.value.filter((d) => d.category === category).map((d) => {
                   const badges = [
                     isSuite && reservation.drinkId === d.id && '기본 음료',
@@ -138,7 +138,7 @@ export default function SeatOrderPage() {
         <BottomBar note={<>{quote.benefit === 'normal' ? '이번 주문' : '쿠폰 적용'} <strong>{BENEFIT_LABEL[quote.benefit]}</strong></>}>
           <div className="price">
             <span className="price__label">{count}잔</span>
-            <span className="price__value">{formatWon(quote.total)}</span>
+            <span className="price__value" key={quote.total}>{formatWon(quote.total)}</span>
           </div>
           <button className="button button--primary" type="button" disabled={!count} onClick={submit}>{isSuite ? '배달 주문하기' : '주문하기'}</button>
         </BottomBar>

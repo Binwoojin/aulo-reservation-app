@@ -2,6 +2,14 @@ import { useEffect, useId, useRef, useState } from 'react';
 import Icon from './Icon.jsx';
 import { drinkImage } from '../lib/drink.js';
 
+// 사진이 다 내려오면 부드럽게 나타나게 한다 (이미 캐시된 사진은 바로 표시, 실패해도 숨기지 않는다)
+const markLoaded = (img) => img?.setAttribute('data-loaded', '');
+const fadeOnLoad = {
+  ref: (img) => { if (img?.complete) markLoaded(img); },
+  onLoad: (e) => markLoaded(e.currentTarget),
+  onError: (e) => markLoaded(e.currentTarget),
+};
+
 export function SpaceImage({ space, eager = false, className = '' }) {
   return (
     <figure className={`photo ${className}`}>
@@ -14,6 +22,7 @@ export function SpaceImage({ space, eager = false, className = '' }) {
         alt=""
         loading={eager ? 'eager' : 'lazy'}
         decoding="async"
+        {...fadeOnLoad}
       />
     </figure>
   );
@@ -184,6 +193,7 @@ export function DrinkThumb({ drink, temp = null, size = 'md' }) {
             alt=""
             loading={size === 'lg' ? 'eager' : 'lazy'}
             decoding="async"
+            {...fadeOnLoad}
           />
         )
         : <Icon name="cup" size={size === 'lg' ? 72 : 32} />}

@@ -1589,3 +1589,58 @@ a.my-summary__cell:active { background: var(--color-bg); }
 :is(.option-group, .coupon-pick) > legend.group-title { float: left; width: 100%; margin: 0; }
 .option-group > .group-title + .group-hint { margin-top: calc(4px - var(--space-3)); }
 .coupon-pick > .group-title + .group-hint { margin-top: calc(4px - var(--space-2)); }
+
+/* ---------- 모션 (2026-10-21): 'Stay in your rhythm' — 천천히 떠오르고 부드럽게 내려앉는다 ----------
+   모든 모션은 움직임 줄이기 설정에서 꺼진다(맨 위 공통 규칙 + 아래 개별 규칙). */
+
+/* 1) 화면 열기: 첫 화면 요소가 한꺼번에가 아니라 차례로 떠오른다 */
+.screen-body > * { animation-duration: 520ms; animation-timing-function: var(--ease-settle); }
+.screen-body > :nth-child(2) { animation-delay: 60ms; }
+.screen-body > :nth-child(3) { animation-delay: 120ms; }
+.screen-body > :nth-child(4) { animation-delay: 180ms; }
+.screen-body > :nth-child(5) { animation-delay: 240ms; }
+.screen-body > :nth-child(n + 6) { animation-delay: 300ms; }
+/* 탭 전환으로 다시 그려진 내용과 추천 결과(자체 순서 있음)는 화면 열기 순서를 따르지 않는다 */
+.screen-body > .swap { animation-delay: 0ms; }
+.screen-body > .reveal { animation-delay: calc(var(--i, 0) * 120ms); }
+
+/* 2) 스크롤 등장: 첫 화면 아래 요소는 화면에 들어올 때 떠오른다 (useScrollReveal) */
+[data-reveal] { animation: none !important; }
+:is([data-reveal=""], [data-reveal="in"]) { transition: opacity var(--motion-reveal) var(--ease-settle), transform var(--motion-reveal) var(--ease-settle) !important; }
+[data-reveal=""] { opacity: 0; transform: translateY(18px); }
+[data-reveal="in"] { opacity: 1; transform: none; }
+
+/* 3) 탭 전환: 바뀐 내용이 살짝 떠오르고, 목록은 카드가 차례로. 선택 밑줄은 가운데서 펼쳐진다 */
+.swap { animation: swap-in 420ms var(--ease-settle) both; }
+.swap > li { animation: swap-in 460ms var(--ease-settle) both; }
+.swap > li:nth-child(2) { animation-delay: 50ms; }
+.swap > li:nth-child(3) { animation-delay: 100ms; }
+.swap > li:nth-child(4) { animation-delay: 150ms; }
+.swap > li:nth-child(n + 5) { animation-delay: 200ms; }
+@keyframes swap-in { from { opacity: 0; transform: translateY(8px); } }
+.text-tabs button { transition: color var(--motion) var(--ease); }
+.text-tabs button[aria-selected="true"]::after { animation: tab-line 360ms var(--ease-out) both; transform-origin: center; }
+@keyframes tab-line { from { transform: scaleX(0.2); opacity: 0; } }
+
+/* 4) 사진: 내려오면 부드럽게 나타난다. 홈 큰 사진은 살짝 당겨졌다가 내려앉는다 */
+.photo img, .drink-thumb img { opacity: 0; transition: opacity 600ms ease; }
+.photo img[data-loaded], .drink-thumb img[data-loaded] { opacity: 1; }
+.purpose-hero .photo img { transform: scale(1.06); transition: opacity 700ms ease, transform 1400ms var(--ease-settle); }
+.purpose-hero .photo img[data-loaded] { transform: none; }
+
+/* 5) 금액이 바뀌면 숫자가 아래에서 살짝 올라온다 (key로 다시 그림) */
+.price__value { display: inline-block; animation: price-in 360ms var(--ease-out) both; }
+@keyframes price-in { from { opacity: 0.2; transform: translateY(6px); } }
+
+/* 6) 하단 바는 아래에서 올라오고, 진행 막대·선택 상태는 부드럽게 바뀐다 */
+.bottom-bar { animation: bar-up 560ms var(--ease-settle) both; }
+@keyframes bar-up { from { transform: translateX(-50%) translateY(100%); } to { transform: translateX(-50%) translateY(0); } }
+.status-progress span { transition: width 900ms var(--ease-settle); }
+:is(.coupon-ticket, .demo-state__option, .time-slot, .chip, .date-chip, .choice, .segmented label) { transition: background-color var(--motion) var(--ease), border-color var(--motion) var(--ease), box-shadow var(--motion) var(--ease), color var(--motion) var(--ease), transform var(--press, 120ms) var(--ease); }
+.active-order__dots span { transition: background-color 400ms var(--ease-settle); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal=""] { opacity: 1; transform: none; }
+  .photo img, .drink-thumb img { opacity: 1; transition: none; }
+  .purpose-hero .photo img { transform: none; }
+}

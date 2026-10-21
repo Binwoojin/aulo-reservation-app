@@ -52,12 +52,12 @@ export default function OrderPage() {
             ))}
           </div>
         </section>
-        <p className="shelf-reason order-intro">
+        <p className="shelf-reason order-intro swap" key={`intro-${category}`}>
           <span className="shelf-reason__kicker" lang="en">{MENU_CATEGORIES.find((c) => c.id === category).en}</span>
           {CATEGORY_INTRO[category]}
         </p>
         {/* 2열 카드: 아치형 사진 아래에 메뉴명과 가격만 둔다 */}
-        <ul className="menu-grid" aria-label={`${MENU_CATEGORIES.find((c) => c.id === category).label} 메뉴`}>
+        <ul className="menu-grid swap" key={category} aria-label={`${MENU_CATEGORIES.find((c) => c.id === category).label} 메뉴`}>
           {list.map((d) => (
             <li key={d.id}>
               {/* 사진에 보이는 온도(ICE/HOT 음료는 HOT)가 상세에서 선택된 상태로 열린다 */}

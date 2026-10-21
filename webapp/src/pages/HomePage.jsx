@@ -255,15 +255,15 @@ function DrinkShelf({ orders, now, showPicks }) {
         </div>
       )}
       {current === 'picks' ? (
-        <p className="shelf-reason">
+        <p className="shelf-reason swap" key="picks">
           <span className="shelf-reason__kicker" lang="en">{slot.en[0]}{slot.en.slice(1).toLowerCase()}</span>
           {slot.reason}{hasRecent ? ' · 지난 주문도 함께 담았어요' : ''}
         </p>
       ) : (
         // 베스트: 주문 데이터가 없어 운영자가 고른 대표 메뉴. 순위·판매량처럼 읽히는 말은 쓰지 않는다 (필수 규칙 5)
-        <p className="shelf-reason">어떤 시간에도 잘 어울리는, Aulo의 대표 메뉴예요</p>
+        <p className="shelf-reason swap" key="best">어떤 시간에도 잘 어울리는, Aulo의 대표 메뉴예요</p>
       )}
-      <ul className="best-list" aria-label={current === 'picks' ? '지금 추천 음료' : '대표 메뉴'}>
+      <ul className="best-list swap" key={current} aria-label={current === 'picks' ? '지금 추천 음료' : '대표 메뉴'}>
         {items.map(({ drink: d, temp, tag }) => {
           const showTemp = needsTemp(d) ? (temp ?? BEST_MENU_TEMP) : null;
           return (

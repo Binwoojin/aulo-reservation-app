@@ -108,7 +108,7 @@ export default function CartPage() {
       {count > 0 && <BottomBar>
         <div className="price">
           <span className="price__label">{count}잔</span>
-          <span className="price__value">{formatWon(quote.total)}</span>
+          <span className="price__value" key={quote.total}>{formatWon(quote.total)}</span>
         </div>
         <button className="button button--primary" type="button" onClick={submit}>주문하기</button>
       </BottomBar>}
