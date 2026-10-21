@@ -13,9 +13,13 @@ export const TABS = [
   // 주문을 가운데에 두고 강조한다 (2026-10-19 사용자 요청)
   { to: '/order', icon: 'cup', label: '주문', primary: true },
   { to: '/reserve', icon: 'calendar', label: '예약' },
-  { to: '/my', icon: 'user', label: '마이', end: true },
+  // 마이 아래 화면(내 예약·주문 내역·내 쿠폰)에서도 마이 탭이 켜진다
+  { to: '/my', icon: 'user', label: '마이' },
 ];
 const TAB_PATHS = TABS.map((t) => t.to);
+// 탭바를 함께 보여 주는 하위 화면 (2026-10-21): 아래쪽에 자기 버튼 바가 없는 둘러보기 화면.
+// 예약 단계·음료 상세·장바구니·주문 현황·로그인·회원가입·도우미처럼 하단 버튼이 있거나 진행 중인 흐름은 숨긴다.
+const TAB_SUBPAGES = [/^\/my\/(reservations|orders|coupons)$/, /^\/info$/, /^\/notice(\/[^/]+)?$/, /^\/demo$/];
 
 export { isUpcoming } from '../lib/status.js';
 
@@ -25,7 +29,7 @@ export default function AppShell() {
   const { pathname, search } = useLocation();
   const mainRef = useRef(null);
   useScrollReveal(pathname + search);
-  const showTabs = TAB_PATHS.includes(pathname);
+  const showTabs = TAB_PATHS.includes(pathname) || TAB_SUBPAGES.some((re) => re.test(pathname));
 
   useEffect(() => {
     window.scrollTo(0, 0);
