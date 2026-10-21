@@ -12,10 +12,11 @@ import { couponWallet } from '../lib/coupons.js';
 import { pointBalance, stampCount } from '../lib/rewards.js';
 import { formatDate, toDateString } from '../lib/time.js';
 import LoginPage from './LoginPage.jsx';
+import { MyRow, MySection, SupportSection } from '../components/MySection.jsx';
 
 // 하단 '마이' 탭 = 마이페이지. 비로그인이면 그 자리에 바로 로그인 화면을 보여 준다.
-// 구성: 프로필 → 내 현황(스탬프·포인트·예약) → 나의 이용 → 예약 이용 상태 → 적립 기준 → 계정 → 회원 탈퇴(작은 링크)
-// 이용 안내·공지·고객 지원은 서랍에 있으므로 여기서 반복하지 않는다 (필수 규칙 6)
+// 구성: 프로필 → 내 현황(스탬프·포인트·예약) → 나의 이용 → 예약 이용 상태 → 적립 기준 → 안내 · 고객 지원 → 계정 → 회원 탈퇴(작은 링크)
+// 이용 안내·공지·고객 지원은 계정 위 '안내 · 고객 지원' 묶음 (필수 규칙 6, 2026-10-21 서랍 대신)
 export default function MyPage() {
   const { user, logout, myReservations, myOrders, orders } = useAppData();
   const now = useNow();
@@ -91,6 +92,8 @@ export default function MyPage() {
           <ul className="note-list">{REWARD_POLICY.map((n) => <li key={n}>{n}</li>)}</ul>
         </details>
 
+        <SupportSection />
+
         <MySection title="계정">
           <li className="my-row">
             <Icon name="user" /><span className="my-row__label">로그인 방식</span><span className="my-row__value">이메일</span>
@@ -113,26 +116,5 @@ export default function MyPage() {
         카카오 계정 연결은 준비 중이에요. 지금은 이메일로 로그인해 이용할 수 있어요.
       </NoticeDialog>
     </>
-  );
-}
-
-function MySection({ title, children }) {
-  return (
-    <section className="my-section" aria-label={title}>
-      <h3 className="my-section__title">{title}</h3>
-      <ul className="my-list">{children}</ul>
-    </section>
-  );
-}
-
-function MyRow({ to, icon, label, value }) {
-  return (
-    <li>
-      <Link to={to} className="my-row my-row--button">
-        <Icon name={icon} /><span className="my-row__label">{label}</span>
-        {value && <span className="my-row__value">{value}</span>}
-        <Icon name="chevron" size={18} />
-      </Link>
-    </li>
   );
 }

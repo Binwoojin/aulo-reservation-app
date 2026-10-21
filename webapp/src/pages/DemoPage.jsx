@@ -5,7 +5,7 @@ import Icon from '../components/Icon.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { SCENARIOS, canBeInUse } from '../lib/scenarios.js';
 
-// 데모 시나리오 (햄버거 서랍 > 데모): 고르면 그 상태의 기록으로 바꾸고 홈으로 간다.
+// 데모 시나리오 (메뉴에서 숨김, /demo 주소로만): 고르면 그 상태의 기록으로 바꾸고 홈으로 간다.
 // 이 기기의 데모 기록(로그인·예약·주문·장바구니)을 덮어쓴다.
 export default function DemoPage() {
   const { loadScenario, storeId } = useAppData();
