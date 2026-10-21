@@ -578,7 +578,45 @@ h2 {
 .app-step__no { font-size: var(--fs-label); font-weight: 600; letter-spacing: 1.5px; color: var(--color-olive); }
 .app-step h3 { font-size: clamp(1.375rem, 1.1rem + 1vw, 1.875rem); font-weight: 600; line-height: 1.3; letter-spacing: -0.02em; }
 .app-step > p:not([class]) { color: var(--color-text-sub); max-width: 30em; }
-.phone--inline { width: min(68%, 260px); margin: var(--space-4) auto 0; }
+.phone--inline { width: min(64%, 250px); margin: var(--space-5) auto 0; }
+/* 휴대폰 옆 라벨: 그 화면에서 눈여겨볼 한 가지 (캡처에 있는 내용만) */
+.phone-chip {
+  position: absolute;
+  top: 22%;
+  right: -18%;
+  z-index: 3;
+  display: grid;
+  gap: 1px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-panel);
+  background: var(--color-surface);
+  box-shadow: 0 14px 30px -14px rgba(48, 43, 38, 0.45);
+  white-space: nowrap;
+}
+.phone-chip b { font-size: var(--fs-small); font-weight: 700; color: var(--color-text); }
+.phone-chip small { font-size: var(--fs-label); color: var(--color-text-sub); }
+.app-step:nth-child(even) .phone-chip { right: auto; left: -18%; top: 58%; }
+
+/* 좁은 화면: 단계 옆 진행 선과 점, 지금 단계 표시 */
+@media (max-width: 899px) {
+  .app-steps { --progress: 0; position: relative; padding-left: var(--space-5); }
+  .app-steps::before, .app-steps::after { content: ""; position: absolute; left: 5px; top: 6px; bottom: 0; width: 1px; background: var(--color-border); }
+  .app-steps::after { left: 4.5px; width: 2px; background: var(--color-olive); transform: scaleY(var(--progress)); transform-origin: top; }
+  .app-step { position: relative; }
+  .app-step::before {
+    content: "";
+    position: absolute;
+    left: calc(var(--space-5) * -1);
+    top: 4px;
+    z-index: 1;
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    border: 2px solid var(--color-border-control);
+    transition: background-color 300ms var(--ease), border-color 300ms var(--ease), transform 300ms var(--ease-out);
+  }
+  .app-step.is-active::before { background: var(--color-olive); border-color: var(--color-olive); transform: scale(1.25); }
+}
 
 @media (min-width: 900px) {
   .app-story { grid-template-columns: 5fr 6fr; gap: var(--space-8); align-items: start; }
@@ -811,6 +849,24 @@ h2 {
 .space-card__body > :nth-child(6) { transition-delay: 300ms; }
 .space-card__body > :nth-child(7) { transition-delay: 360ms; }
 .space-card__body > :nth-child(8) { transition-delay: 420ms; }
+
+/* 6-1. 앱 단계(좁은 화면): 글이 차례로 놓이고, 휴대폰은 스크롤에 맞춰 기울어진 채 올라와 자리를 잡는다.
+   라벨은 휴대폰이 자리 잡은 뒤 옆으로 튀어나온다 (값은 script.js) */
+.motion-ready .app-step > :not(figure) { opacity: 0; transform: translateY(18px); transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out); }
+.motion-ready .app-step > :nth-child(2) { transition-delay: 80ms; }
+.motion-ready .app-step > :nth-child(3) { transition-delay: 160ms; }
+.motion-ready .app-step.is-in > :not(figure) { opacity: 1; transform: none; }
+@media (max-width: 899px) {
+  .motion-ready .phone--inline {
+    transform: perspective(1000px) translateY(var(--ty, 0px)) rotateX(var(--rx, 0deg)) rotateZ(var(--rz, 0deg)) scale(var(--sc, 1));
+    transform-origin: 50% 100%;
+    opacity: var(--op, 1);
+    will-change: transform;
+  }
+  .motion-ready .phone-chip { opacity: 0; transform: translateX(-16px) scale(0.85); transition: opacity 500ms var(--ease-out), transform 600ms var(--ease-out); }
+  .motion-ready .app-step:nth-child(even) .phone-chip { transform: translateX(16px) scale(0.85); }
+  .motion-ready .app-step .phone--inline.is-settled .phone-chip { opacity: 1; transform: none; }
+}
 
 /* 7. 헤더: 스크롤을 시작하면 경계선이 드러난다 */
 .motion-ready .site-header { border-bottom-color: transparent; transition: border-color var(--motion) var(--ease), background-color var(--motion) var(--ease); }

@@ -40,20 +40,20 @@
       entries.forEach((entry) => {
         if (!entry.isIntersecting) return;
         const el = entry.target;
-        el.classList.add(el.classList.contains('space-card') ? 'is-in' : 'is-visible');
+        el.classList.add(el.matches('.space-card, .app-step') ? 'is-in' : 'is-visible');
         el.addEventListener('transitionend', (e) => {
           if (e.target === el && e.propertyName === 'opacity') el.classList.add('is-settled');
         });
         revealObserver.unobserve(el);
       });
     }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
-    document.querySelectorAll('[data-reveal], .space-card').forEach((el) => revealObserver.observe(el));
+    document.querySelectorAll('[data-reveal], .space-card, .app-step').forEach((el) => revealObserver.observe(el));
 
     // 앵커로 이동하거나 포커스가 들어간 요소는 즉시 보이게 한다
     document.addEventListener('focusin', (e) => {
       const el = e.target.closest('[data-reveal]');
       if (el) el.classList.add('is-visible');
-      const card = e.target.closest('.space-card');
+      const card = e.target.closest('.space-card, .app-step');
       if (card) card.classList.add('is-in');
     });
 
@@ -87,6 +87,8 @@
   const stepList = document.querySelector('.app-steps');
   const screens = [...document.querySelectorAll('.phone--stage > img')];
   const counter = document.querySelector('.app-story__current');
+  const inlinePhones = [...document.querySelectorAll('.phone--inline')];
+  const narrowQuery = window.matchMedia('(max-width: 899px)');
   let activeScreen = 'find';
 
   const update = () => {
@@ -139,6 +141,25 @@
     if (dayLine) {
       const r = dayLine.getBoundingClientRect();
       dayLine.style.setProperty('--progress', clamp((vh * 0.75 - r.top) / (r.height + vh * 0.2)).toFixed(3));
+    }
+
+    // 앱 단계 휴대폰(좁은 화면): 아래에서 들어올 때는 뒤로 눕고 작게, 화면 가운데에서 바로 서고, 지나가면 살짝 기운다.
+    // p는 휴대폰이 화면 아래 끝(0)에서 위 끝(1)까지 지나간 정도
+    if (narrowQuery.matches) {
+      inlinePhones.forEach((ph, i) => {
+        const r = ph.getBoundingClientRect();
+        if (r.bottom < -100 || r.top > vh + 100) return;
+        const p = clamp((vh - r.top) / (vh + r.height));
+        const enter = clamp((0.45 - p) / 0.45);   // 들어오는 중 1 → 자리 0
+        const leave = clamp((p - 0.6) / 0.4);     // 자리 0 → 나가는 중 1
+        const side = i % 2 ? -1 : 1;
+        ph.style.setProperty('--ty', `${(enter * 70 - leave * 20).toFixed(1)}px`);
+        ph.style.setProperty('--rx', `${(enter * 22).toFixed(2)}deg`);
+        ph.style.setProperty('--rz', `${(side * (enter * 5 + leave * 3)).toFixed(2)}deg`);
+        ph.style.setProperty('--sc', (1 - enter * 0.12 - leave * 0.04).toFixed(4));
+        ph.style.setProperty('--op', (1 - enter * 0.7).toFixed(3));
+        if (p > 0.38) ph.classList.add('is-settled');
+      });
     }
 
     // 공간 카드: 다음 카드가 덮어 올수록 앞 카드가 살짝 작아지고 어두워진다 (넓은 화면에서만)
