@@ -205,8 +205,8 @@ h2 {
   text-decoration: none;
   line-height: 44px;
 }
-.site-header .button { grid-area: cta; }
 .site-nav { grid-area: nav; }
+.header-actions { grid-area: cta; display: flex; align-items: center; gap: var(--space-2); }
 .site-nav ul { display: flex; gap: var(--space-1); margin-inline: calc(var(--space-3) * -1); }
 .site-nav a {
   display: inline-flex;

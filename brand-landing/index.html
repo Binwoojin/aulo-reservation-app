@@ -25,8 +25,12 @@
           <li><a href="#guide">이용 안내</a></li>
         </ul>
       </nav>
-      <!-- 문의 채널이 확정되기 전까지 가짜 링크 대신 안내 섹션을 연결한다. -->
-      <a class="button button--secondary button--small" href="#contact">공간 문의</a>
+      <div class="header-actions">
+        <!-- 문의 채널이 확정되기 전까지 가짜 링크 대신 안내 섹션을 연결한다. -->
+        <a class="button button--secondary button--small" href="#contact">공간 문의</a>
+        <!-- 데모 웹앱: 같은 사이트의 app/ (GitHub Pages 배포 구조, 2026-10-21) -->
+        <a class="button button--primary button--small" href="app/">앱 체험</a>
+      </div>
     </div>
   </header>
 
@@ -182,9 +186,9 @@
         <p class="section-label" lang="en">YOUR SPACE, YOUR RHYTHM</p>
         <h2 id="cta-title">지금, 나에게<br>필요한 공간.</h2>
         <p>오늘의 목적에 맞는 머무름을 찾아보세요.</p>
-        <!-- 실제 서비스 경로가 아직 없어 작동하는 것처럼 보이는 빈 링크를 만들지 않는다. -->
-        <button class="button button--inverse" type="button" disabled aria-describedby="demo-status" data-action="open-service">공간 이용 체험하기 <span aria-hidden="true">→</span></button>
-        <p id="demo-status" class="service-cta__status">예약 데모는 준비 중입니다. 이 페이지는 가상 브랜드의 HTML 구조 시안이며 실제 예약을 받지 않습니다.</p>
+        <!-- 데모 웹앱으로 이동 (같은 사이트의 app/). 실제 예약처럼 오인되지 않도록 데모 안내를 함께 둔다 -->
+        <a class="button button--inverse" href="app/" aria-describedby="demo-status" data-action="open-service">공간 이용 체험하기 <span aria-hidden="true">→</span></a>
+        <p id="demo-status" class="service-cta__status">Aulo 데모 앱으로 이동해요. 가상 브랜드의 포트폴리오 데모라 실제 예약·결제는 없어요.</p>
       </div>
     </section>
   </main>

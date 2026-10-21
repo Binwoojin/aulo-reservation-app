@@ -19,12 +19,16 @@ npm run build:artifact  # dist-artifact/ 게시용 빌드 (주소창을 쓰지 �
 
 ## 배포 (GitHub Pages)
 
-`.github/workflows/deploy-pages.yml`이 main에 `webapp/` 변경이 올라올 때마다 테스트 → 빌드 → 배포합니다.
-Actions 탭의 'Deploy webapp to GitHub Pages' → Run workflow로 직접 실행할 수도 있습니다.
+`.github/workflows/deploy-pages.yml`이 main에 `webapp/`·`brand-landing/` 변경이 올라올 때마다 테스트 → 빌드 → 배포합니다.
+Actions 탭의 'Deploy Aulo site to GitHub Pages' → Run workflow로 직접 실행할 수도 있습니다.
+
+| 주소 | 내용 |
+|---|---|
+| `https://binwoojin.github.io/aulo-reservation-app/` | 브랜드 랜딩 — 헤더 '앱 체험'·맨 아래 '공간 이용 체험하기'가 웹앱으로 이동 |
+| `https://binwoojin.github.io/aulo-reservation-app/app/` | 이 웹앱 (해시 라우터라 새로고침·직접 링크도 동작) |
 
 - 처음 한 번: 저장소 **Settings → Pages → Build and deployment → Source**를 **GitHub Actions**로 바꿉니다.
-- 주소: `https://binwoojin.github.io/aulo-reservation-app/` (해시 라우터라 새로고침·직접 링크도 동작)
-- 테스트가 실패하면 배포하지 않습니다.
+- 테스트가 실패하면 배포하지 않습니다. 랜딩의 작업 메모(`CLAUDE_HANDOFF.md`)는 올리지 않습니다.
 
 ## 데모 계정
 
