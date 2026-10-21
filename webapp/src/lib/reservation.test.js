@@ -255,3 +255,18 @@ describe('커피 온도', () => {
     expect(make({ type: 'focus', start: 600, hours: 1, drinkId: 'yuja-tea', drinkTemp: null }).reservation.drinkTemp).toBeNull();
   });
 });
+
+describe('예약 음료 옵션 (샷·텀블러)', async () => {
+  const { drinkFee, drinkOptionsText } = await import('./reservation.js');
+  it('Focus·Rest: 음료 가격 + 샷 − 텀블러 할인', () => {
+    expect(drinkFee('focus', 'americano', { shot: 1, ownCup: true })).toBe(3000 + 500 - 300);
+  });
+  it('샷은 커피만, 최대 2회', () => {
+    expect(drinkFee('focus', 'lemon-ade', { shot: 2 })).toBe(drinkFee('focus', 'lemon-ade'));
+    expect(drinkFee('focus', 'latte', { shot: 5 })).toBe(4000 + 1000);
+  });
+  it('Suite: 음료는 포함, 샷만 받고 텀블러 할인은 없다', () => {
+    expect(drinkFee('suite', 'latte', { shot: 1, ownCup: true })).toBe(500);
+    expect(drinkOptionsText({ type: 'suite', drinkShot: 1, drinkOwnCup: true })).toBe('샷 1회 추가 · 텀블러');
+  });
+});

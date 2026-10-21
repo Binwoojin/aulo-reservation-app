@@ -4,8 +4,11 @@ import {
   BOOKING_WINDOW_DAYS,
   CANCEL_POLICY,
   HOURS,
+  MAX_SHOTS,
   MENU,
   MENU_CATEGORIES,
+  OWN_CUP_DISCOUNT,
+  SHOT_PRICE,
   PAYMENT_POLICY,
   SEAT_PRICES,
   SPACES,
@@ -18,11 +21,11 @@ import SeatMap from '../components/SeatMap.jsx';
 import { seatZone } from '../lib/seatLayout.js';
 import {
   DrinkThumb,
-  OptionList,
   Provisional,
   Segmented,
   SpaceImage,
   StepProgress,
+  Stepper,
   SwitchRow,
   Tag,
 } from '../components/ui.jsx';
@@ -33,6 +36,7 @@ import {
   bookedRanges,
   createReservation,
   drinkFee,
+  drinkOptionsText,
   extensionNote,
   getDrink,
   freeUnits,
@@ -44,7 +48,7 @@ import {
 } from '../lib/reservation.js';
 import { formatDate, formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
 import { pointBalance, pointsEarnedFor, usablePoints } from '../lib/rewards.js';
-import { drinkTemps, needsTemp } from '../lib/drink.js';
+import { canAddShot, drinkTemps, fixedTemp, needsTemp } from '../lib/drink.js';
 import { TEMPS, drinkLabel } from '../lib/order.js';
 
 const RESERVABLE = ['focus', 'rest', 'suite'];
@@ -117,31 +121,54 @@ function CafeNotice() {
 }
 
 const DRINK_CAT_INTRO = {
-  coffee: 'ICE·HOT은 고른 뒤 다음 화면에서 정해요',
+  coffee: 'ICE·HOT과 샷 추가는 고른 뒤 다음 화면에서 정해요',
   'non-coffee': '커피 없이 부드럽게 즐기는 한 잔',
   'ade-tea': '상큼한 에이드와 차분한 차',
 };
 
-// 예약 음료 옵션 화면: 옵션만 보여 준다(아이스·핫, 온도별 사진). 2026-10-21 사용자 요청으로 큰 사진·설명은 뺐다.
-// 예약 음료는 1잔이고 샷 추가·텀블러 할인은 예약 결제에 정해진 기준이 없어 넣지 않는다.
-function DrinkOptions({ drink, temp, onTemp, included, onBack }) {
+// 예약 음료 옵션 화면 (2026-10-21 사용자 요청): 옵션만 — 아이스·핫(음료 상세와 같은 구성), 샷 추가(커피)·텀블러 사용.
+function DrinkOptions({ drink, temp, onTemp, shot, onShot, ownCup, onOwnCup, included, onBack }) {
+  const onlyTemp = TEMPS.find((t) => t.value === fixedTemp(drink));
   return (
     <>
-      <h2 className="screen-title">온도를<br />골라 주세요</h2>
+      <h2 className="screen-title">옵션을<br />골라 주세요</h2>
       <p className="muted">{drink.name} · {included ? '이용료에 포함' : formatWon(drink.price)} <Provisional note={MENU.note} /></p>
-      <OptionList
-        legend={<>아이스 · 핫 <span className="sheet-required">필수</span></>}
-        name="resv-temp"
-        value={temp}
-        onChange={onTemp}
-        hint="가격은 같아요 · 다음을 누르면 이 음료로 예약을 이어 가요"
-        options={drinkTemps(drink).map((t) => ({
-          value: t,
-          label: `${TEMPS.find((x) => x.value === t).label} ${drink.name}`,
-          detail: t === 'ice' ? '차갑게 준비해요' : '따뜻하게 준비해요',
-          leading: <DrinkThumb drink={drink} temp={t} size="sm" />,
-        }))}
-      />
+      {/* 아이스·핫: 음료 상세와 같은 구성 (필수 · 세그먼트 · 가격 안내) */}
+      {needsTemp(drink) && (
+        <section className="drink-temp" aria-labelledby="resv-opt-temp">
+          <p id="resv-opt-temp" className="group-title">아이스 · 핫 <span className="sheet-required">필수</span></p>
+          <Segmented label="온도" name="resv-temp" value={temp} onChange={onTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
+          <p className="group-hint">가격은 같아요</p>
+        </section>
+      )}
+      {onlyTemp && (
+        <p className="drink-temp-only">
+          <span className="temp-chip" data-temp={onlyTemp.value}>{onlyTemp.short}</span>
+          {onlyTemp.value === 'hot' ? '따뜻하게만 준비돼요' : '차갑게만 준비돼요'}
+        </p>
+      )}
+      {/* 샷 추가(커피만) · 텀블러: 음료 상세 옵션 창과 같은 항목 */}
+      <section className="drink-opts" aria-label="추가 옵션">
+        <p className="group-title">추가 옵션</p>
+        <div className="list-card">
+          {canAddShot(drink) && (
+            <div className="list-row drink-opts__row">
+              <span className="option-row__text">
+                <span className="option-row__label">샷 추가</span>
+                <span className="option-row__detail">1회 +{formatWon(SHOT_PRICE.value)} · 최대 {MAX_SHOTS}회 <Provisional note={SHOT_PRICE.note} /></span>
+              </span>
+              <Stepper label="샷 추가" value={shot} onChange={onShot} min={0} max={MAX_SHOTS} />
+            </div>
+          )}
+          <SwitchRow
+            label={included ? '텀블러 사용' : `텀블러 사용 · ${formatWon(OWN_CUP_DISCOUNT)} 할인`}
+            detail={included ? '가져온 텀블러·개인컵에 담아 드려요 (포함 음료라 할인은 없어요)' : '가져온 텀블러·개인컵에 담아 드려요'}
+            checked={ownCup}
+            onChange={onOwnCup}
+          />
+        </div>
+        {included && canAddShot(drink) && <p className="group-hint">기본 음료는 포함이고, 샷 추가 금액만 방문 후 함께 결제해요.</p>}
+      </section>
       <button type="button" className="resv-drink-back" onClick={onBack}>다른 음료 고르기</button>
     </>
   );
@@ -176,6 +203,9 @@ function ReserveWizard({ type }) {
   const [drinkTemp, setDrinkTemp] = useState(fromDrink && needsTemp(fromDrink) ? from.drinkTemp : null);
   const drinkNeedsTemp = needsTemp(getDrink(drinkId));
   const [requests, setRequests] = useState(from?.requests ?? []);
+  // 음료 옵션: 샷 추가(커피)·텀블러 — 다시 예약이면 지난 옵션으로 시작
+  const [drinkShot, setDrinkShot] = useState(from?.drinkShot ?? 0);
+  const [drinkOwnCup, setDrinkOwnCup] = useState(!!from?.drinkOwnCup);
   // 음료 단계: 주문 탭과 같은 카테고리 탭 + 사진 카드. ICE/HOT 음료를 고르면 옵션 화면(drinkDetail)으로 넘어간다
   const [drinkCat, setDrinkCat] = useState(fromDrink?.category ?? MENU_CATEGORIES[0].id);
   const [drinkDetail, setDrinkDetail] = useState(false);
@@ -200,7 +230,7 @@ function ReserveWizard({ type }) {
   const clearTime = () => { setStart(null); setHours(space.minHours); setUnit(null); setErrors([]); };
 
   const fee = start != null ? reservationFee(type, hours) : 0;
-  const drinkCost = drinkId ? drinkFee(type, drinkId) : 0;
+  const drinkCost = drinkId ? drinkFee(type, drinkId, { shot: drinkShot, ownCup: drinkOwnCup }) : 0;
   // 포인트는 좌석 이용료에만 쓸 수 있다 (음료 금액 제외)
   const balance = pointBalance(myReservations, now);
   const pointsUsed = usePoints ? usablePoints(balance, fee) : 0;
@@ -230,21 +260,20 @@ function ReserveWizard({ type }) {
     window.scrollTo(0, 0);
   };
 
+  // 음료를 고르면 옵션 화면으로: 아이스·핫(해당 음료만) → 샷 추가(커피만) → 텀블러 사용
   const pickDrink = (d) => {
+    const same = d.id === drinkId;
     setDrinkId(d.id);
-    if (needsTemp(d)) {
-      // 주문 탭과 같이 사진에 보이는 온도(HOT)로 시작하고, 같은 음료를 다시 고르면 고른 온도를 유지한다
-      setDrinkTemp((prev) => (d.id === drinkId && prev ? prev : drinkTemps(d)[0]));
-      setDrinkDetail(true);
-      window.scrollTo(0, 0);
-    } else {
-      setDrinkTemp(null);
-    }
+    // 주문 탭과 같이 사진에 보이는 온도(HOT)로 시작하고, 같은 음료를 다시 고르면 고른 옵션을 유지한다
+    setDrinkTemp((prev) => (needsTemp(d) ? (same && prev ? prev : drinkTemps(d)[0]) : null));
+    if (!same) setDrinkShot(0);
+    setDrinkDetail(true);
+    window.scrollTo(0, 0);
   };
 
   const submit = () => {
     const result = createReservation(
-      { type, storeId, date, start, hours, unit, drinkId, drinkTemp, requests, mine: myReservations, pointsUsed },
+      { type, storeId, date, start, hours, unit, drinkId, drinkTemp, drinkShot, drinkOwnCup, requests, mine: myReservations, pointsUsed },
       reservations,
       new Date(),
     );
@@ -362,7 +391,7 @@ function ReserveWizard({ type }) {
         )}
 
         {(stepName === '음료' || stepName === '음료·요청') && drinkDetail && getDrink(drinkId) && (
-          <DrinkOptions drink={getDrink(drinkId)} temp={drinkTemp} onTemp={setDrinkTemp} included={space.drink === 'included'} onBack={() => { setDrinkDetail(false); window.scrollTo(0, 0); }} />
+          <DrinkOptions drink={getDrink(drinkId)} temp={drinkTemp} onTemp={setDrinkTemp} shot={drinkShot} onShot={setDrinkShot} ownCup={drinkOwnCup} onOwnCup={setDrinkOwnCup} included={space.drink === 'included'} onBack={() => { setDrinkDetail(false); window.scrollTo(0, 0); }} />
         )}
 
         {(stepName === '음료' || stepName === '음료·요청') && !drinkDetail && (
@@ -382,7 +411,7 @@ function ReserveWizard({ type }) {
               <span className="shelf-reason__kicker" lang="en">{MENU_CATEGORIES.find((c) => c.id === drinkCat).en}</span>
               {DRINK_CAT_INTRO[drinkCat]} <Provisional note={MENU.note} />
             </p>
-            {/* 한 줄에 하나씩 목록. ICE/HOT 음료는 '>'(옵션 화면으로), 한 가지 온도 음료는 바로 선택(체크) */}
+            {/* 한 줄에 하나씩 목록. 누르면 옵션 화면(아이스·핫 · 샷 · 텀블러)으로, 고른 음료는 체크 */}
             <ul className="drink-list swap" key={drinkCat} aria-label={`${MENU_CATEGORIES.find((c) => c.id === drinkCat).label} 음료`}>
               {MENU.value.filter((d) => d.category === drinkCat).map((d) => {
                 const selected = drinkId === d.id;
@@ -390,7 +419,7 @@ function ReserveWizard({ type }) {
                 return (
                   <li key={d.id}>
                     <button type="button" className="drink-row" aria-pressed={selected} onClick={() => pickDrink(d)}
-                      aria-label={`${d.name}, ${space.drink === 'included' ? '포함' : formatWon(d.price)}${withTemp ? ', 아이스·핫 선택으로 이동' : ''}${selected ? ', 선택됨' : ''}`}>
+                      aria-label={`${d.name}, ${space.drink === 'included' ? '포함' : formatWon(d.price)}, 옵션 고르기로 이동${selected ? ', 선택됨' : ''}`}>
                       <DrinkThumb drink={d} temp={withTemp ? (selected && drinkTemp ? drinkTemp : drinkTemps(d)[0]) : null} size="sm" />
                       <span className="drink-row__text">
                         <span className="drink-row__name">
@@ -400,7 +429,7 @@ function ReserveWizard({ type }) {
                         <span className="drink-row__desc">{d.desc}</span>
                         <span className="drink-row__price">{space.drink === 'included' ? '이용료에 포함' : <><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</>}</span>
                       </span>
-                      {withTemp && !selected
+                      {!selected
                         ? <Icon name="chevron" size={20} className="drink-row__go" />
                         : <span className="drink-row__check" aria-hidden="true"><Icon name="check" size={16} /></span>}
                     </button>
@@ -435,7 +464,7 @@ function ReserveWizard({ type }) {
               <div><dt>매장</dt><dd>{store.name}</dd></div>
               <div><dt>일시</dt><dd>{formatDate(date)}<br />{formatTime(start)}–{endLabel} ({hours}시간)</dd></div>
               <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
-              <div><dt>음료</dt><dd>{drinkLabel(drinkId, drinkNeedsTemp ? drinkTemp : null)} · {space.drink === 'included' ? '포함' : formatWon(drinkCost)}</dd></div>
+              <div><dt>음료</dt><dd>{drinkLabel(drinkId, drinkNeedsTemp ? drinkTemp : null)}{drinkOptionsText({ type, drinkShot, drinkOwnCup }) && <><br /><small className="kv__sub">{drinkOptionsText({ type, drinkShot, drinkOwnCup })}</small></>}<br />{space.drink === 'included' ? (drinkCost ? `포함 · 샷 추가 ${formatWon(drinkCost)}` : '포함') : formatWon(drinkCost)}</dd></div>
               {requests.length > 0 && <div><dt>무료 요청</dt><dd>{requests.map((id) => space.requests.find((r) => r.id === id).label).join(', ')}</dd></div>}
               {pointsUsed > 0 && <div><dt>포인트 사용</dt><dd>−{formatWon(pointsUsed)}</dd></div>}
               <div className="kv__total"><dt>결제 예정</dt><dd>{formatWon(fee - pointsUsed + drinkCost)}</dd></div>

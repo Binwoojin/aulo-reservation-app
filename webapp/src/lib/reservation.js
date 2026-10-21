@@ -1,5 +1,5 @@
-import { BOOKING_WINDOW_DAYS, EXTENSION, HOLIDAYS, HOURS, MENU, PENALTY, SPACES, STORES } from '../config/policy.js';
-import { needsTemp } from './drink.js';
+import { BOOKING_WINDOW_DAYS, EXTENSION, HOLIDAYS, HOURS, MAX_SHOTS, MENU, OWN_CUP_DISCOUNT, PENALTY, SHOT_PRICE, SPACES, STORES } from '../config/policy.js';
+import { canAddShot, needsTemp } from './drink.js';
 import { addDays, formatTime, minutesOfDay, rangesOverlap, toDateString } from './time.js';
 
 export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
@@ -134,10 +134,24 @@ export const extensionStatus = (r, existing = []) => {
   return `현장에서 ${capped}${formatTime(reservationEnd(r) + max)}까지 최대 ${max}분 연장할 수 있어요. 10분당 ${extensionUnitPrice(r.type).toLocaleString('ko-KR')}원.`;
 };
 
-export const drinkFee = (type, drinkId) => {
-  if (SPACES[type].drink === 'included') return 0;
-  return getDrink(drinkId)?.price ?? 0;
+// 예약 음료 옵션 (2026-10-21 사용자 요청): 샷 추가(커피만, 최대 MAX_SHOTS회)·텀블러 사용
+// - Focus·Rest(이용 전 음료): 음료 가격 + 샷 추가 금액 − 텀블러 할인 (일반 주문과 같은 기준)
+// - Suite(기본 음료 포함): 음료는 무료, 샷 추가 금액만 받고 텀블러 할인은 없다(무료 음료라 깎을 금액이 없음)
+export const drinkOptions = (drinkId, { shot = 0, ownCup = false } = {}) => ({
+  shot: canAddShot(getDrink(drinkId)) ? Math.max(0, Math.min(MAX_SHOTS, Math.floor(shot) || 0)) : 0,
+  ownCup: !!ownCup,
+});
+export const drinkFee = (type, drinkId, options) => {
+  const { shot, ownCup } = drinkOptions(drinkId, options);
+  const shotFee = shot * SHOT_PRICE.value;
+  if (SPACES[type].drink === 'included') return shotFee;
+  return Math.max(0, (getDrink(drinkId)?.price ?? 0) + shotFee - (ownCup ? OWN_CUP_DISCOUNT : 0));
 };
+// '샷 1회 추가 · 텀블러'처럼 예약 음료 옵션 한 줄 (없으면 빈 문자열)
+export const drinkOptionsText = (r) => [
+  r.drinkShot ? `샷 ${r.drinkShot}회 추가` : '',
+  r.drinkOwnCup ? (SPACES[r.type]?.drink === 'included' ? '텀블러' : `텀블러 −${OWN_CUP_DISCOUNT.toLocaleString('ko-KR')}원`) : '',
+].filter(Boolean).join(' · ');
 
 // input.mine: 이 사용자의 기존 예약 (1인 1좌석 확인용)
 export const validateReservation = (input, existing, now) => {
@@ -190,11 +204,13 @@ export const createReservation = (input, existing, now, makeId = () => crypto.ra
       drinkId: input.drinkId,
       // 커피일 때만 아이스/핫
       drinkTemp: needsTemp(getDrink(input.drinkId)) ? input.drinkTemp : null,
+      drinkShot: drinkOptions(input.drinkId, { shot: input.drinkShot }).shot,
+      drinkOwnCup: !!input.drinkOwnCup,
       requests: (input.requests ?? []).filter((id) => space.requests.some((r) => r.id === id)),
       fee: reservationFee(input.type, input.hours),
       // 좌석 이용료에만 쓴 포인트 (보유량 확인은 화면에서, 여기서는 0~이용료로 제한)
       pointsUsed: Math.max(0, Math.min(Math.floor(input.pointsUsed ?? 0), reservationFee(input.type, input.hours))),
-      drinkFee: drinkFee(input.type, input.drinkId),
+      drinkFee: drinkFee(input.type, input.drinkId, { shot: input.drinkShot, ownCup: input.drinkOwnCup }),
       createdAt: now.toISOString(),
     },
   };

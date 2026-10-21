@@ -1710,3 +1710,7 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .drink-row[aria-pressed="true"] .drink-row__check { background: var(--color-olive); border-color: var(--color-olive); color: #FFFFFF; }
 .option-row .drink-thumb--sm { flex-shrink: 0; width: 48px; height: auto; aspect-ratio: 4 / 5; border-radius: 50% 50% 8px 8px / 20px 20px 8px 8px; }
 .resv-drink-back { align-self: center; padding: 0 var(--space-3); border: 0; background: none; font: inherit; font-size: 0.875rem; font-weight: 600; color: var(--color-olive); cursor: pointer; }
+/* 예약 음료 추가 옵션 (샷·텀블러) */
+.drink-opts { display: flex; flex-direction: column; gap: var(--space-3); }
+.drink-opts__row { display: flex; align-items: center; gap: var(--space-3); }
+.kv__sub { font-size: 0.8125rem; color: var(--color-text-sub); }

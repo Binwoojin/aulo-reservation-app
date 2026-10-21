@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { SPACES } from '../config/policy.js';
-import { getDrink, getStore, reservationEnd } from '../lib/reservation.js';
+import { drinkOptionsText, getDrink, getStore, reservationEnd } from '../lib/reservation.js';
 import { formatDate, formatTime, formatWon } from '../lib/time.js';
 import { drinkLabel } from '../lib/order.js';
 import Icon from './Icon.jsx';
@@ -32,7 +32,7 @@ export default function ReservationCard({ reservation: r, link = false, detailed
       {detailed && (
         <dl className="kv ticket__detail">
           <div><dt>이용료</dt><dd>{formatWon(r.fee)}</dd></div>
-          <div><dt>{space.drink === 'included' ? '기본 음료' : '이용 전 음료'}</dt><dd>{drink ? drinkLabel(drink.id, r.drinkTemp) : ''} · {r.drinkFee ? formatWon(r.drinkFee) : '포함'}</dd></div>
+          <div><dt>{space.drink === 'included' ? '기본 음료' : '이용 전 음료'}</dt><dd>{drink ? drinkLabel(drink.id, r.drinkTemp) : ''}{drinkOptionsText(r) ? ` (${drinkOptionsText(r)})` : ''} · {space.drink === 'included' ? (r.drinkFee ? `포함 · 샷 ${formatWon(r.drinkFee)}` : '포함') : formatWon(r.drinkFee ?? 0)}</dd></div>
           {r.requests.length > 0 && (
             <div><dt>무료 요청</dt><dd>{r.requests.map((id) => space.requests.find((q) => q.id === id)?.label).filter(Boolean).join(', ')}</dd></div>
           )}
