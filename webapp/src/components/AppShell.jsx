@@ -17,12 +17,13 @@ const TAB_PATHS = TABS.map((t) => t.to);
 // 탭바를 함께 보여 주는 하위 화면 (2026-10-21): 아래쪽에 자기 버튼 바가 없는 둘러보기 화면.
 // 예약 단계·음료 상세·장바구니·주문 현황·로그인·회원가입·도우미처럼 하단 버튼이 있거나 진행 중인 흐름은 숨긴다.
 const TAB_SUBPAGES = [/^\/my\/(reservations|orders|coupons)$/, /^\/info$/, /^\/notice(\/[^/]+)?$/, /^\/demo$/];
-// 마이 탭이 켜지는 화면: 마이 아래 화면과 마이 '안내 · 고객 지원'에서 들어가는 공지·이용 안내
-const MY_AREA = /^\/(my|notice|info)(\/|$)/;
+// 마이 탭이 켜지는 화면: 마이 아래 화면. 공지·이용 안내는 홈 맨 아래에서 들어가므로 홈 탭이 켜진다
+const MY_AREA = /^\/my(\/|$)/;
+const HOME_AREA = /^\/(notice|info)(\/|$)/;
 
 export { isUpcoming } from '../lib/status.js';
 
-// 앱 셸: 화면마다 AppBar를 직접 둔다. 햄버거 서랍은 2026-10-21에 없앴다(공지·이용 안내·도우미는 마이 '안내 · 고객 지원').
+// 앱 셸: 화면마다 AppBar를 직접 둔다. 햄버거 서랍은 2026-10-21에 없앴다(공지·이용 안내·도우미는 홈 맨 아래 '안내 · 고객 지원').
 export default function AppShell() {
   const { pathname, search } = useLocation();
   const mainRef = useRef(null);
@@ -86,7 +87,7 @@ function TabBar() {
       <ul>
         {TABS.map((t) => (
           <li key={t.to}>
-            <NavLink to={t.to} end={t.end} className={({ isActive }) => `${t.primary ? 'tab tab--primary' : 'tab'}${isActive || (t.to === '/my' && MY_AREA.test(pathname)) ? ' active' : ''}`}>
+            <NavLink to={t.to} end={t.end} className={({ isActive }) => `${t.primary ? 'tab tab--primary' : 'tab'}${isActive || (t.to === '/my' && MY_AREA.test(pathname)) || (t.to === '/' && HOME_AREA.test(pathname)) ? ' active' : ''}`}>
               {t.primary ? (
                 // 가운데 주문: 아이콘과 글자를 한 원 안에 담는다
                 <span className="tab__bubble"><Icon name={t.icon} /><span>{t.label}</span></span>

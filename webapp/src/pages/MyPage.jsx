@@ -12,11 +12,11 @@ import { couponWallet } from '../lib/coupons.js';
 import { pointBalance, stampCount } from '../lib/rewards.js';
 import { formatDate, toDateString } from '../lib/time.js';
 import LoginPage from './LoginPage.jsx';
-import { MyRow, MySection, SupportSection } from '../components/MySection.jsx';
+import { MyRow, MySection } from '../components/MySection.jsx';
 
 // 하단 '마이' 탭 = 마이페이지. 비로그인이면 그 자리에 바로 로그인 화면을 보여 준다.
-// 구성: 프로필 → 내 현황(스탬프·포인트·예약) → 나의 이용 → 예약 이용 상태 → 적립 기준 → 안내 · 고객 지원 → 계정 → 회원 탈퇴(작은 링크)
-// 이용 안내·공지·고객 지원은 계정 위 '안내 · 고객 지원' 묶음 (필수 규칙 6, 2026-10-21 서랍 대신)
+// 구성: 프로필 → 내 현황(스탬프·포인트·예약) → 나의 이용 → 예약 이용 상태 → 적립 기준 → 계정 → 회원 탈퇴(작은 링크)
+// 이용 안내·공지·고객 지원은 홈 맨 아래 '안내 · 고객 지원' (필수 규칙 6, 2026-10-21)
 export default function MyPage() {
   const { user, logout, myReservations, myOrders, orders } = useAppData();
   const now = useNow();
@@ -91,8 +91,6 @@ export default function MyPage() {
           <summary className="rules__summary">스탬프·포인트 적립 기준<Icon name="down" size={18} /></summary>
           <ul className="note-list">{REWARD_POLICY.map((n) => <li key={n}>{n}</li>)}</ul>
         </details>
-
-        <SupportSection />
 
         <MySection title="계정">
           <li className="my-row">

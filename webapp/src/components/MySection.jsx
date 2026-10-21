@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import Icon from './Icon.jsx';
 
-// 마이 페이지 묶음과 줄 (로그인 화면 아래 '안내 · 고객 지원'에서도 쓴다)
+// 마이 페이지 묶음과 줄 (홈 맨 아래 '안내 · 고객 지원'에서도 쓴다)
 export function MySection({ title, children }) {
   return (
     <section className="my-section" aria-label={title}>
@@ -23,7 +23,7 @@ export function MyRow({ to, icon, label, value }) {
   );
 }
 
-// 보조 기능 (2026-10-21 사용자 결정: 햄버거 서랍을 없애고 마이 맨 아래로). 로그인하지 않아도 보인다.
+// 보조 기능 (2026-10-21 사용자 결정: 햄버거 서랍을 없애고 홈 맨 아래로). 로그인하지 않아도 보인다.
 export function SupportSection() {
   return (
     <MySection title="안내 · 고객 지원">

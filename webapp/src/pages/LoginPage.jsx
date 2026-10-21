@@ -4,7 +4,6 @@ import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { NoticeDialog } from '../components/ui.jsx';
 import { useAppData } from '../lib/AppData.jsx';
-import { SupportSection } from '../components/MySection.jsx';
 import { EMAIL_RE, MIN_PASSWORD, register } from '../lib/auth.js';
 import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_START_STATES, SCENARIOS, canBeInUse } from '../lib/scenarios.js';
 import { HOURS } from '../config/policy.js';
@@ -121,8 +120,6 @@ export default function LoginPage({ inline = false }) {
         <p className="login-divider">또는</p>
         <button type="button" className="button button--kakao button--block" onClick={() => setKakaoOpen(true)}>카카오로 로그인</button>
         <p className="login-note">데모 버전이라 형식에 맞는 이메일과 비밀번호면 로그인돼요. 정보는 이 기기에만 저장돼요.</p>
-        {/* 마이 탭(비로그인)에서도 공지·이용 안내·도우미로 갈 수 있게 */}
-        {inline && <SupportSection />}
       </div>
 
       <NoticeDialog open={kakaoOpen} title="서비스 준비 중" onClose={() => setKakaoOpen(false)}>

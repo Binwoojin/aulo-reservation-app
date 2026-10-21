@@ -10,7 +10,7 @@ import NotFoundPage from './NotFoundPage.jsx';
 
 const dotDate = (d) => d.replaceAll('-', '.');
 
-// 공지사항 목록 (마이 > 안내 · 고객 지원, 필수 규칙 6): 게시판처럼 분류 · 제목 · 날짜 한 줄씩, 중요 공지는 맨 위 고정
+// 공지사항 목록 (홈 맨 아래 안내 · 고객 지원, 필수 규칙 6): 게시판처럼 분류 · 제목 · 날짜 한 줄씩, 중요 공지는 맨 위 고정
 export default function NoticePage() {
   const list = sortedNotices();
   return (

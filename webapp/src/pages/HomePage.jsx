@@ -19,6 +19,7 @@ import { QUESTIONS } from '../lib/recommend.js';
 import { TEMPS, drinkLabel } from '../lib/order.js';
 import { ORDER_STAGES, STAGE_TITLE, latestActiveOrder, orderStage, stageIndex } from '../lib/orderStatus.js';
 import { addDays, formatDate, formatTime, formatWon, minutesOfDay } from '../lib/time.js';
+import { SupportSection } from '../components/MySection.jsx';
 
 // 홈: 맨 위에 지금 매장과 내 상태 하나(이용 중 > 다가오는 예약 > 예약 없음, 필수 규칙 2·3),
 // 그 아래 '한 번에 다시 하기'(규칙 1), 대표 음료, 매장 기준 공간 정보(규칙 4), 맨 아래 데모 안내(규칙 7).
@@ -63,6 +64,9 @@ export default function HomePage() {
         <DrinkShelf orders={user ? myOrders : []} now={now} showPicks={status.kind !== 'in-use'} />
 
         <AuloDay now={now} />
+
+        {/* 보조 기능: 홈 맨 아래 (2026-10-21 사용자 결정, 마이에서 옮김). 로그인 없이도 쓴다 */}
+        <SupportSection />
 
         <p className="demo-pill home-demo">데모 · 실제 예약·결제 없음</p>
       </div>
