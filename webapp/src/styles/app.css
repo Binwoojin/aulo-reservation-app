@@ -385,6 +385,8 @@ a.ticket__link:active { background: var(--color-bg); }
 .date-chip__month { font-size: 0.6875rem; color: var(--color-text-sub); }
 .date-chip:has(input:checked) { background: var(--color-olive); border-color: var(--color-olive); color: #FFFFFF; box-shadow: 0 4px 12px color-mix(in srgb, var(--color-olive) 30%, transparent); }
 .date-chip:has(input:checked) span { color: inherit; }
+/* 주말 요일 색(.date-chip[data-weekend] .date-chip__dow)이 선택 상태의 흰 글자보다 우선해 올리브 배경 위에서 안 보였다 (2026-10-21) */
+.date-chip[data-weekend]:has(input:checked) .date-chip__dow { color: inherit; }
 .date-chip:has(input:focus-visible) { outline: 2px solid var(--color-olive); outline-offset: 2px; }
 
 .duration-card { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); padding: var(--space-4) var(--space-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
