@@ -1646,3 +1646,48 @@ a.my-summary__cell:active { background: var(--color-bg); }
   .photo img, .drink-thumb img { opacity: 1; transition: none; }
   .purpose-hero .photo img { transform: none; }
 }
+
+/* ---------- 좌석 배치도 (임시, 2026-10-21) ----------
+   매장 평면처럼: 창 쪽 구역은 위에 창 표시, 벽 쪽은 굵은 벽선, 중앙은 가운데 가림막, Suite는 복도 양쪽 방 */
+.seat-map { display: flex; flex-direction: column; gap: var(--space-3); }
+.seat-map__head .group-hint { margin-top: 4px; }
+.floor { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4) var(--space-3) var(--space-3); border: 2px solid #CDBFAE; border-radius: var(--radius-lg); background: linear-gradient(180deg, #FBF7F1 0%, #F4ECE1 100%); }
+.zone { position: relative; display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-3); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.72); border: 1px solid var(--color-hairline); }
+.zone__label { font-size: 0.8125rem; font-weight: 700; color: var(--cafe-fg); }
+.zone__label span { margin-left: var(--space-2); font-weight: 500; color: var(--color-text-sub); font-size: 0.75rem; }
+/* 창 쪽: 위 테두리에 하늘빛 창 */
+.zone--window { padding-top: calc(var(--space-3) + 6px); }
+.zone--window::before { content: "창"; position: absolute; z-index: 1; top: -9px; left: 50%; transform: translateX(-50%); padding: 0 var(--space-2); border-radius: 999px; background: #E3EEF2; color: #3F6573; font-size: 0.6875rem; font-weight: 700; }
+.zone--window::after { content: ""; position: absolute; top: -2px; left: 12%; right: 12%; height: 4px; border-radius: 2px; background: repeating-linear-gradient(90deg, #A9C7D1 0 18px, transparent 18px 22px); }
+/* 벽 쪽: 왼쪽 굵은 벽선 */
+.zone--wall { border-left: 5px solid #CDBFAE; }
+.zone--quiet { background: rgba(236, 228, 216, 0.6); }
+.zone__seats { display: grid; grid-template-columns: repeat(var(--cols, 6), minmax(0, 1fr)); gap: 6px; }
+.zone__facing { display: flex; flex-direction: column; gap: 6px; }
+.zone__divider { height: 4px; margin: 2px 8%; border-radius: 2px; background: #CDBFAE; }
+.floor__door { align-self: center; padding: 2px var(--space-3); border-radius: 999px; background: var(--color-surface); border: 1px dashed #CDBFAE; font-size: 0.6875rem; font-weight: 600; color: var(--color-text-sub); }
+/* Suite: 왼쪽 창 쪽 방 · 가운데 복도 · 오른쪽 안쪽 방 */
+.floor__suite { display: grid; grid-template-columns: 1fr 44px 1fr; gap: var(--space-2); }
+.floor__suite .zone[data-side="window"] { grid-column: 1; grid-row: 1; }
+.floor__suite .zone[data-side="inner"] { grid-column: 3; grid-row: 1; }
+.floor__suite .zone--rooms[data-side="window"]::before { content: "창"; position: absolute; left: -9px; top: 50%; transform: translateY(-50%); writing-mode: vertical-rl; padding: var(--space-2) 0; border-radius: 999px; background: #E3EEF2; color: #3F6573; font-size: 0.6875rem; font-weight: 700; }
+.floor__corridor { grid-column: 2; grid-row: 1; display: grid; place-items: center; border-radius: var(--radius-md); background: repeating-linear-gradient(180deg, rgba(205, 191, 174, 0.35) 0 10px, transparent 10px 20px); }
+.floor__corridor span { writing-mode: vertical-rl; font-size: 0.6875rem; font-weight: 600; color: var(--color-text-sub); letter-spacing: 0.3em; }
+.zone__rooms { display: flex; flex-direction: column; gap: 6px; }
+.zone--rooms .zone__label span { display: block; margin: 2px 0 0; }
+/* 좌석 한 칸 */
+.seat { position: relative; display: grid; place-items: center; min-height: 40px; border-radius: 10px; background: var(--color-surface); border: 1.5px solid #CDBFAE; font-family: var(--font-logo); font-size: 0.9375rem; font-weight: 600; color: var(--color-text); cursor: pointer; transition: background-color var(--motion) var(--ease), border-color var(--motion) var(--ease), transform var(--press, 120ms) var(--ease); }
+.zone--rooms .seat { min-height: 44px; border-radius: 8px; }
+.seat input { position: absolute; inset: 0; opacity: 0; margin: 0; cursor: inherit; }
+.seat:active:not([data-booked]) { transform: scale(0.94); }
+.seat:has(input:checked) { background: var(--grad-olive); border-color: var(--color-olive); color: #FFFFFF; box-shadow: 0 4px 10px color-mix(in srgb, var(--color-olive) 30%, transparent); }
+.seat:has(input:focus-visible) { outline: 2px solid var(--color-olive); outline-offset: 2px; }
+.seat[data-booked] { cursor: not-allowed; background: var(--color-bg-sub); border-style: dashed; border-color: var(--color-border); color: var(--color-text-sub); }
+.seat[data-booked] span { text-decoration: line-through; }
+.seat-legend { display: flex; justify-content: center; gap: var(--space-4); font-size: 0.75rem; color: var(--color-text-sub); }
+.seat-legend li { display: flex; align-items: center; gap: 6px; }
+.seat-legend__dot { width: 14px; height: 14px; border-radius: 4px; background: var(--color-surface); border: 1.5px solid #CDBFAE; }
+.seat-legend__dot--on { background: var(--color-olive); border-color: var(--color-olive); }
+.seat-legend__dot--off { background: var(--color-bg-sub); border-style: dashed; border-color: var(--color-border); }
+.seat-map__picked { text-align: center; font-size: 0.9375rem; font-weight: 600; }
+.seat-map__picked b { font-family: var(--font-logo); font-size: 1.125rem; font-weight: 600; color: var(--color-olive-hover); }

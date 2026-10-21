@@ -13,8 +13,9 @@ import {
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import StorePicker from '../components/StorePicker.jsx';
+import SeatMap from '../components/SeatMap.jsx';
+import { seatZone } from '../lib/seatLayout.js';
 import {
-  ChipGrid,
   OptionList,
   Provisional,
   Segmented,
@@ -297,6 +298,7 @@ function ReserveWizard({ type }) {
           <>
             <h2 className="screen-title">어느 Suite를<br />사용할까요?</h2>
             <p className="muted">{formatDate(date)} · {formatTime(start)}–{endLabel}</p>
+            <SeatMap type={type} count={store.units[type]} value={unit} onChange={setUnit} isFree={(n) => freeNow.includes(n)} />
             <SuiteRooms storeId={storeId} date={date} start={start} hours={hours} value={unit} onChange={setUnit} free={freeNow} reservations={reservations} />
           </>
         )}
@@ -305,17 +307,8 @@ function ReserveWizard({ type }) {
           <>
             <h2 className="screen-title">어느 {space.unitName}에<br />앉을까요?</h2>
             <p className="muted">{formatDate(date)} · {formatTime(start)}–{endLabel} · {store.name}</p>
-            <ChipGrid
-              legend={`${space.unitName} 번호`}
-              name="seat"
-              value={unit}
-              onChange={setUnit}
-              hint={`남은 ${space.unitName} ${freeNow.length}개 / 전체 ${store.units[type]}개 · 앱 예약은 직접 고르고, 매장 방문은 자동 배정돼요`}
-              options={unitIds(storeId, type).map((n) => {
-                const ok = freeNow.includes(n);
-                return { value: n, label: `${n}번`, disabled: !ok, detail: ok ? undefined : '예약됨' };
-              })}
-            />
+            <SeatMap type={type} count={store.units[type]} value={unit} onChange={setUnit} isFree={(n) => freeNow.includes(n)} />
+            <p className="group-hint">앱 예약은 직접 고르고, 매장 방문은 자동 배정돼요.</p>
           </>
         )}
 
@@ -368,7 +361,7 @@ function ReserveWizard({ type }) {
           <>
             <h2 className="screen-title">예약 내용을<br />확인해 주세요</h2>
             <dl className="kv summary-card">
-              <div><dt>공간</dt><dd>{space.name} {unit}번</dd></div>
+              <div><dt>공간</dt><dd>{space.name} {unit}번{seatZone(type, store.units[type], unit) && ` · ${seatZone(type, store.units[type], unit).label}`}</dd></div>
               <div><dt>매장</dt><dd>{store.name}</dd></div>
               <div><dt>일시</dt><dd>{formatDate(date)}<br />{formatTime(start)}–{endLabel} ({hours}시간)</dd></div>
               <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd>{formatWon(space.pricePerHour)} × {hours}시간</dd></div>
@@ -486,8 +479,8 @@ function SuiteRooms({ storeId, date, start, hours, value, onChange, free, reserv
 
   return (
     <fieldset className="option-group">
-      <legend className="group-title">Suite 공간</legend>
-      <p className="group-hint">막대의 진한 구간은 이미 예약된 시간, 테두리는 선택한 시간이에요.</p>
+      <legend className="group-title">공간별 예약 현황</legend>
+      <p className="group-hint">막대의 진한 구간은 이미 예약된 시간, 테두리는 선택한 시간이에요. 여기서 골라도 돼요.</p>
       <div className="option-list">
         {unitIds(storeId, 'suite').map((room) => {
           const booked = bookedRanges({ storeId, type: 'suite', date, unit: room }, reservations);

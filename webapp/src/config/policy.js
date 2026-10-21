@@ -178,6 +178,25 @@ export const BEST_MENU_TEMP = 'hot';
 
 // 매장: 2026-10-16 사용자 요청으로 임시 설정. 성수·연남 두 곳 모두 대형 카페로
 // Cafe·Focus·Rest·Suite 네 가지 공간을 모두 운영한다. Suite 공간 수가 매장마다 다르다는 확정 정책과 맞는다.
+// 좌석 배치도 (2026-10-21 사용자 결정 '임시 배치도'): 실제 인테리어·도면이 정해지지 않아 구역만 나눈 임시 배치.
+// 매장의 좌석 수를 구역 비율(share)대로 나눠 번호를 차례로 붙인다. 실제 도면이 나오면 이 값만 바꾼다.
+// cols: 한 줄 최대 칸 수. look: window(창 쪽, 위에 창 표시) · wall(벽 쪽) · facing(가운데 칸막이를 두고 마주 보기) · lounge · quiet · rooms(복도 옆 방)
+export const SEAT_LAYOUT = p({
+  focus: [
+    { id: 'window', label: '창가', desc: '창밖을 보는 일렬 좌석', share: 1 / 3, look: 'window', cols: 6 },
+    { id: 'wall', label: '벽면', desc: '벽을 등진 조용한 좌석', share: 1 / 3, look: 'wall', cols: 6 },
+    { id: 'center', label: '중앙', desc: '가운데 가림막을 두고 마주 보는 좌석', share: 1 / 3, look: 'facing', cols: 6 },
+  ],
+  rest: [
+    { id: 'window', label: '창가 라운지', desc: '햇살이 드는 리클라이너', share: 0.4, look: 'window', cols: 5 },
+    { id: 'quiet', label: '안쪽 조용한 구역', desc: '빛이 적어 쉬기 좋은 자리', share: 0.6, look: 'quiet', cols: 5 },
+  ],
+  suite: [
+    { id: 'window', label: '창 쪽 방', desc: '바깥 창이 있는 방', share: 0.5, look: 'rooms', cols: 1 },
+    { id: 'inner', label: '안쪽 방', desc: '복도 안쪽의 조용한 방', share: 0.5, look: 'rooms', cols: 1 },
+  ],
+}, '좌석 배치도 미정 — 실제 도면 전 임시 구역 배치(창가·벽면·중앙 등)');
+
 export const STORES = p(
   [
     { id: 'seongsu', name: 'Aulo 성수', units: { focus: 24, rest: 18, suite: 16 } },
