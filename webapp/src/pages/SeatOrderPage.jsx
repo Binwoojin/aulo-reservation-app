@@ -138,7 +138,7 @@ export default function SeatOrderPage() {
                 <ul className="cart-list">
                   {sortedKeys(items).map((key) => {
                     const d = MENU.value.find((x) => x.id === parseKey(key).id);
-                    return <CartItem key={key} drink={d} itemKey={key} quantity={items[key]} line={quote.lines.find((l) => l.key === key)} onChange={(q) => setQty(key, q)} link={false} />;
+                    return <CartItem key={key} drink={d} itemKey={key} quantity={items[key]} line={quote.lines.find((l) => l.key === key)} onChange={(q) => setQty(key, q)} link={false} freeShot={isSuite} />;
                   })}
                 </ul>
               </section>
@@ -147,7 +147,7 @@ export default function SeatOrderPage() {
           </>
         )}
       </div>
-      <DrinkOptionSheet drink={sheetDrink} open={sheetOpen} onClose={() => setSheetOpen(false)} onAdd={addItem} />
+      <DrinkOptionSheet drink={sheetDrink} open={sheetOpen} onClose={() => setSheetOpen(false)} onAdd={addItem} freeShot={isSuite} />
 
       {inUse && (
         <BottomBar note={<>{quote.benefit === 'normal' ? '이번 주문' : '쿠폰 적용'} <strong>{BENEFIT_LABEL[quote.benefit]}</strong></>}>

@@ -8,13 +8,13 @@ import { BottomSheet, Provisional, Segmented, Stepper, SwitchRow } from './ui.js
 // 음료 옵션 시트 (좌석 추가 주문·Suite 배달): 메뉴를 누르면 열린다.
 // 아이스·핫(음료 상세와 같은 구성, HOT으로 시작) → 샷 추가(커피만) → 텀블러 → 수량 → '담기'
 // onAdd(itemKey, qty)로 담는다. 가격은 정상가 기준이고 쿠폰은 주문 요약에서 적용된다.
-// 음료가 바뀌면 key로 새로 그려 선택값을 처음부터 시작한다.
-export default function DrinkOptionSheet({ drink, open, onClose, onAdd }) {
+// 음료가 바뀌면 key로 새로 그려 선택값을 처음부터 시작한다. freeShot: Suite 배달은 샷 추가 무료
+export default function DrinkOptionSheet({ drink, open, onClose, onAdd, freeShot = false }) {
   if (!drink) return null;
-  return <Sheet key={drink.id} drink={drink} open={open} onClose={onClose} onAdd={onAdd} />;
+  return <Sheet key={drink.id} drink={drink} open={open} onClose={onClose} onAdd={onAdd} freeShot={freeShot} />;
 }
 
-function Sheet({ drink, open, onClose, onAdd }) {
+function Sheet({ drink, open, onClose, onAdd, freeShot }) {
   const chooseTemp = needsTemp(drink);
   const isCoffee = canAddShot(drink);
   const onlyTemp = TEMPS.find((t) => t.value === fixedTemp(drink));
@@ -23,7 +23,7 @@ function Sheet({ drink, open, onClose, onAdd }) {
   const [ownCup, setOwnCup] = useState(false);
   const [qty, setQty] = useState(1);
   const key = itemKey(drink.id, chooseTemp ? temp : null, { shot: isCoffee ? shot : 0, ownCup });
-  const unit = unitPriceOf(key);
+  const unit = unitPriceOf(key, { freeShot });
 
   return (
     <BottomSheet
@@ -52,7 +52,9 @@ function Sheet({ drink, open, onClose, onAdd }) {
         <section className="sheet-section sheet-row" aria-label="샷 추가">
           <span className="option-row__text">
             <span className="option-row__label">샷 추가</span>
-            <span className="option-row__detail">1회 +{formatWon(SHOT_PRICE.value)} · 최대 {MAX_SHOTS}회 <Provisional note={SHOT_PRICE.note} /></span>
+            <span className="option-row__detail">{freeShot
+              ? <>최대 {MAX_SHOTS}회 · Suite는 무료</>
+              : <>1회 +{formatWon(SHOT_PRICE.value)} · 최대 {MAX_SHOTS}회 <Provisional note={SHOT_PRICE.note} /></>}</span>
           </span>
           <Stepper label="샷 추가" value={shot} onChange={setShot} min={0} max={MAX_SHOTS} />
         </section>

@@ -143,7 +143,7 @@ export const answer = (intent, { user, myReservations = [], reservations = [], o
         text: [
           `${namesWhere((d) => needsTemp(d))}는 아이스·핫 중에서 골라요(가격 같음).`,
           `${namesWhere((d) => fixedTemp(d) === 'hot')}는 HOT만, ${namesWhere((d) => fixedTemp(d) === 'ice')}는 ICE만 있어요.`,
-          `샷 추가는 커피에만 되고 최대 ${MAX_SHOTS}회, 1회 ${formatWon(SHOT_PRICE.value)}이에요(임시 가격).`,
+          `샷 추가는 커피에만 되고 최대 ${MAX_SHOTS}회, 1회 ${formatWon(SHOT_PRICE.value)}이에요(임시 가격). Suite 예약 음료와 Suite 배달 주문은 샷 추가가 무료예요.`,
         ],
         actions: [{ label: '음료 주문', to: '/order' }],
       };

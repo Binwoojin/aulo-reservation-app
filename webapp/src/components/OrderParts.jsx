@@ -24,12 +24,12 @@ export function OrderLines({ quote }) {
 
 // 담은 음료 카드 (이미지 자리 + 이름·배지 + 1잔 가격 + 수량 + 줄 합계)
 // itemKey가 있으면 그 안의 온도·샷·개인컵 옵션을 함께 보여 준다. link=false면 사진을 상세로 잇지 않는다(좌석 주문)
-export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [], onChange, link = true }) {
+export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [], onChange, link = true, freeShot = false }) {
   const opts = parseKey(itemKey);
   const temp = opts.temp ?? fixedTemp(drink);
   const tempInfo = TEMPS.find((t) => t.value === temp);
   const options = optionsText(opts);
-  const unit = unitPriceOf(itemKey);
+  const unit = unitPriceOf(itemKey, { freeShot });
   return (
     <li className="cart-item">
       {link ? (

@@ -98,8 +98,10 @@ describe('음료 옵션', () => {
     expect(r.total).toBe(4700 + 4000);
   });
 
-  it('Suite 무료 리필 잔은 샷 추가 금액만 받고 텀블러 할인은 겹치지 않는다', () => {
-    expect(priceOrder({ kind: 'suite', items: { 'latte@hot+shot1': 1 }, reservation: suite }).total).toBe(500);
+  it('Suite 배달은 샷 추가가 무료: 리필 잔은 0원, 텀블러 할인은 겹치지 않는다', () => {
+    expect(priceOrder({ kind: 'suite', items: { 'latte@hot+shot1': 1 }, reservation: suite }).total).toBe(0);
+    expect(priceOrder({ kind: 'suite', items: { 'caramel-macchiato@hot+shot2': 1 }, reservation: suite, chosen: 'normal' }).total).toBe(4500);
+    expect(priceOrder({ kind: 'extra', items: { 'caramel-macchiato@hot+shot2': 1 }, reservation: { id: 'f8', type: 'focus' }, chosen: 'normal' }).total).toBe(5500);
     expect(priceOrder({ kind: 'suite', items: { 'latte@hot+cup': 1 }, reservation: suite }).total).toBe(0);
   });
 

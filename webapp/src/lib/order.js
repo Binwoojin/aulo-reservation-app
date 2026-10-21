@@ -53,9 +53,10 @@ export const parseKey = (key) => {
 // 옵션 설명 (예: '샷 1회 추가 · 개인컵'), 없으면 ''
 export const optionsText = ({ shot, ownCup }) => [shot ? `샷 ${shot}회 추가` : '', ownCup ? `텀블러 −${OWN_CUP_DISCOUNT.toLocaleString('ko-KR')}원` : ''].filter(Boolean).join(' · ');
 // 1잔 가격 = 음료 가격 + 샷 추가 금액 − 텀블러 할인(300원)
-export const unitPriceOf = (key) => {
+// freeShot: Suite 배달 주문은 샷 추가가 무료 (2026-10-21 사용자 결정, Suite 예약 음료와 같게)
+export const unitPriceOf = (key, { freeShot = false } = {}) => {
   const { id, shot, ownCup } = parseKey(key);
-  return (MENU.value.find((d) => d.id === id)?.price ?? 0) + shot * SHOT_PRICE.value - (ownCup ? OWN_CUP_DISCOUNT : 0);
+  return (MENU.value.find((d) => d.id === id)?.price ?? 0) + (freeShot ? 0 : shot * SHOT_PRICE.value) - (ownCup ? OWN_CUP_DISCOUNT : 0);
 };
 // '아이스 아메리카노'처럼 온도를 붙인 이름
 export const drinkLabel = (id, temp) => {
@@ -107,15 +108,16 @@ export const priceOrder = ({ kind, items, reservation, previousOrders = [], chos
   const auto = orderBenefit(couponKind, reservation, previousOrders, items);
   const benefit = chosen && !benefitBlocker(chosen, couponKind, reservation, previousOrders, items) ? chosen : auto;
   const refillKey = benefit === 'refill' ? refillDrinkIn(items, reservation) : null;
+  const freeShot = kind === 'suite';
   const lines = sortedKeys(items)
     .map((key) => {
       const opts = parseKey(key);
       const drink = MENU.value.find((d) => d.id === opts.id);
       const quantity = items[key];
-      const listUnit = unitPriceOf(key);
+      const listUnit = unitPriceOf(key, { freeShot });
       const unitPrice = benefit === 'half' ? Math.round(listUnit / 2) : listUnit;
-      // 무료 리필 잔은 샷 추가 금액만 받는다 (이미 무료라 텀블러 할인은 겹쳐 주지 않는다)
-      const refillDiscount = key === refillKey ? listUnit - opts.shot * SHOT_PRICE.value : 0;
+      // 무료 리필 잔은 샷 추가 금액만 받는다(Suite 배달은 샷도 무료라 0원). 이미 무료라 텀블러 할인은 겹쳐 주지 않는다
+      const refillDiscount = key === refillKey ? listUnit - (freeShot ? 0 : opts.shot * SHOT_PRICE.value) : 0;
       return {
         key,
         drinkId: drink.id,
