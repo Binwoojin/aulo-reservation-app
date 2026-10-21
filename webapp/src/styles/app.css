@@ -1691,3 +1691,12 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .seat-legend__dot--off { background: var(--color-bg-sub); border-style: dashed; border-color: var(--color-border); }
 .seat-map__picked { text-align: center; font-size: 0.9375rem; font-weight: 600; }
 .seat-map__picked b { font-family: var(--font-logo); font-size: 1.125rem; font-weight: 600; color: var(--color-olive-hover); }
+
+/* ---------- 예약 음료: 주문 탭과 같은 사진 카드에서 고르기 (2026-10-21) ---------- */
+.menu-card--pick { padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
+.menu-card__media { position: relative; display: block; width: 100%; }
+.menu-card--pick[aria-pressed="true"] .drink-thumb--card { box-shadow: 0 0 0 3px var(--color-olive), var(--shadow-card); }
+.menu-card__check { position: absolute; top: 10px; right: 10px; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: var(--color-olive); color: #FFFFFF; box-shadow: 0 2px 6px rgba(48, 43, 38, 0.25); animation: pop 360ms var(--ease-out) both; }
+.menu-card--pick[aria-pressed="true"] .menu-card__name { color: var(--color-olive-hover); }
+.menu-card__temp { font-weight: 700; color: var(--color-olive-hover); }
+.resv-drink-back { align-self: center; padding: 0 var(--space-3); border: 0; background: none; font: inherit; font-size: 0.875rem; font-weight: 600; color: var(--color-olive); cursor: pointer; }

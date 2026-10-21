@@ -5,6 +5,7 @@ import {
   CANCEL_POLICY,
   HOURS,
   MENU,
+  MENU_CATEGORIES,
   PAYMENT_POLICY,
   SEAT_PRICES,
   SPACES,
@@ -16,7 +17,7 @@ import StorePicker from '../components/StorePicker.jsx';
 import SeatMap from '../components/SeatMap.jsx';
 import { seatZone } from '../lib/seatLayout.js';
 import {
-  OptionList,
+  DrinkThumb,
   Provisional,
   Segmented,
   SpaceImage,
@@ -42,7 +43,7 @@ import {
 } from '../lib/reservation.js';
 import { formatDate, formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
 import { pointBalance, pointsEarnedFor, usablePoints } from '../lib/rewards.js';
-import { needsTemp } from '../lib/drink.js';
+import { drinkTemps, needsTemp } from '../lib/drink.js';
 import { TEMPS, drinkLabel } from '../lib/order.js';
 
 const RESERVABLE = ['focus', 'rest', 'suite'];
@@ -114,6 +115,36 @@ function CafeNotice() {
   );
 }
 
+const DRINK_CAT_INTRO = {
+  coffee: 'ICE·HOT은 고른 뒤 다음 화면에서 정해요',
+  'non-coffee': '커피 없이 부드럽게 즐기는 한 잔',
+  'ade-tea': '상큼한 에이드와 차분한 차',
+};
+
+// 예약 음료 옵션 화면: 음료 상세와 같은 구성(아치형 큰 사진 · 카테고리 · 이름 · 가격 · 설명)에 아이스·핫 선택.
+// 예약 음료는 1잔이고 샷 추가·텀블러 할인은 예약 결제에 정해진 기준이 없어 넣지 않는다.
+function DrinkOptions({ drink, temp, onTemp, included, onBack }) {
+  return (
+    <>
+      <section className="detail-hero" aria-labelledby="resv-drink-title">
+        <DrinkThumb drink={drink} temp={temp} size="lg" />
+        <span className="drink-head__meta">
+          <span className="drink-head__category" lang="en">{MENU_CATEGORIES.find((c) => c.id === drink.category)?.en}</span>
+        </span>
+        <h2 id="resv-drink-title" className="screen-title">{drink.name}</h2>
+        <p className="drink-price">{included ? '이용료에 포함' : <><span lang="en">{drink.price.toLocaleString('ko-KR')}</span>원</>} <Provisional note={MENU.note} /></p>
+        <p className="drink-desc">{drink.desc}</p>
+      </section>
+      <section className="drink-temp" aria-labelledby="resv-opt-temp">
+        <p id="resv-opt-temp" className="group-title">아이스 · 핫 <span className="sheet-required">필수</span></p>
+        <Segmented label="온도" name="resv-temp" value={temp} onChange={onTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
+        <p className="group-hint">가격은 같아요 · 다음을 누르면 이 음료로 예약을 이어 가요</p>
+      </section>
+      <button type="button" className="text-link resv-drink-back" onClick={onBack}>다른 음료 고르기</button>
+    </>
+  );
+}
+
 const DRINK_TITLE = { included: <>기본 음료를<br />골라 주세요</>, required: <>이용 전 음료를<br />골라 주세요</> };
 
 function ReserveWizard({ type }) {
@@ -143,6 +174,9 @@ function ReserveWizard({ type }) {
   const [drinkTemp, setDrinkTemp] = useState(fromDrink && needsTemp(fromDrink) ? from.drinkTemp : null);
   const drinkNeedsTemp = needsTemp(getDrink(drinkId));
   const [requests, setRequests] = useState(from?.requests ?? []);
+  // 음료 단계: 주문 탭과 같은 카테고리 탭 + 사진 카드. ICE/HOT 음료를 고르면 옵션 화면(drinkDetail)으로 넘어간다
+  const [drinkCat, setDrinkCat] = useState(fromDrink?.category ?? MENU_CATEGORIES[0].id);
+  const [drinkDetail, setDrinkDetail] = useState(false);
   const [errors, setErrors] = useState([]);
   const [usePoints, setUsePoints] = useState(false);
 
@@ -189,8 +223,21 @@ function ReserveWizard({ type }) {
       }
       if ((nextName === '좌석' || nextName === '공간') && unit == null && freeNow.includes(from.unit)) setUnit(from.unit);
     }
+    setDrinkDetail(false);
     setStep(next);
     window.scrollTo(0, 0);
+  };
+
+  const pickDrink = (d) => {
+    setDrinkId(d.id);
+    if (needsTemp(d)) {
+      // 주문 탭과 같이 사진에 보이는 온도(HOT)로 시작하고, 같은 음료를 다시 고르면 고른 온도를 유지한다
+      setDrinkTemp((prev) => (d.id === drinkId && prev ? prev : drinkTemps(d)[0]));
+      setDrinkDetail(true);
+      window.scrollTo(0, 0);
+    } else {
+      setDrinkTemp(null);
+    }
   };
 
   const submit = () => {
@@ -212,7 +259,7 @@ function ReserveWizard({ type }) {
 
   return (
     <>
-      <AppBar back={step > 0 ? () => go(step - 1) : true} title={space.name} />
+      <AppBar back={drinkDetail ? () => { setDrinkDetail(false); window.scrollTo(0, 0); } : step > 0 ? () => go(step - 1) : true} title={space.name} />
       <StepProgress steps={steps} current={step} label="예약 진행" />
       <div className="screen-body has-bottom-bar">
         {/* 지금 예약 중인 공간: 작은 아치형 사진 + Fraunces 이름 + 브랜드 문구 (모든 단계 공통) */}
@@ -312,7 +359,11 @@ function ReserveWizard({ type }) {
           </>
         )}
 
-        {(stepName === '음료' || stepName === '음료·요청') && (
+        {(stepName === '음료' || stepName === '음료·요청') && drinkDetail && getDrink(drinkId) && (
+          <DrinkOptions drink={getDrink(drinkId)} temp={drinkTemp} onTemp={setDrinkTemp} included={space.drink === 'included'} onBack={() => { setDrinkDetail(false); window.scrollTo(0, 0); }} />
+        )}
+
+        {(stepName === '음료' || stepName === '음료·요청') && !drinkDetail && (
           <>
             <h2 className="screen-title">{DRINK_TITLE[space.drink]}</h2>
             <p className="muted">
@@ -320,24 +371,38 @@ function ReserveWizard({ type }) {
                 ? '이용료에 포함돼요(예약당 1잔). 이용 중 아메리카노·카페라떼 1잔 무료 리필 1회, 이후 재주문 50% 할인 쿠폰 최대 2회.'
                 : '방문 후 이용료와 함께 결제해요. 이용 시작부터 재주문에 50% 할인 쿠폰을 최대 2회 드려요.'}
             </p>
-            <OptionList
-              legend={<>음료 <Provisional note={MENU.note} /></>}
-              name="drink"
-              value={drinkId}
-              onChange={setDrinkId}
-              options={MENU.value.map((d) => ({
-                value: d.id,
-                label: d.name,
-                trailing: space.drink === 'included' ? '포함' : formatWon(d.price),
-              }))}
-            />
-            {drinkNeedsTemp && (
-              <section className="block temp-pick" aria-labelledby="drink-temp-title">
-                <p id="drink-temp-title" className="group-title">온도</p>
-                <Segmented label="온도" name="drink-temp" value={drinkTemp} onChange={setDrinkTemp} options={TEMPS.map((t) => ({ value: t.value, label: t.label }))} />
-                {!drinkTemp && <p className="group-hint">아이스와 핫 중 하나를 골라 주세요.</p>}
-              </section>
-            )}
+            <div className="text-tabs" role="tablist" aria-label="음료 카테고리">
+              {MENU_CATEGORIES.map((c) => (
+                <button key={c.id} type="button" role="tab" aria-selected={drinkCat === c.id} onClick={() => setDrinkCat(c.id)}>{c.label}</button>
+              ))}
+            </div>
+            <p className="shelf-reason order-intro swap" key={`intro-${drinkCat}`}>
+              <span className="shelf-reason__kicker" lang="en">{MENU_CATEGORIES.find((c) => c.id === drinkCat).en}</span>
+              {DRINK_CAT_INTRO[drinkCat]} <Provisional note={MENU.note} />
+            </p>
+            {/* 주문 탭과 같은 2열 사진 카드. ICE/HOT 음료는 누르면 옵션 화면으로 넘어간다 */}
+            <ul className="menu-grid swap" key={drinkCat} aria-label={`${MENU_CATEGORIES.find((c) => c.id === drinkCat).label} 음료`}>
+              {MENU.value.filter((d) => d.category === drinkCat).map((d) => {
+                const selected = drinkId === d.id;
+                const temp = selected && drinkTemp ? drinkTemp : drinkTemps(d)[0] ?? null;
+                return (
+                  <li key={d.id}>
+                    <button type="button" className="menu-card menu-card--pick" aria-pressed={selected} onClick={() => pickDrink(d)}
+                      aria-label={`${d.name}${needsTemp(d) ? ', 아이스·핫 선택' : ''}${selected ? ', 선택됨' : ''}`}>
+                      <span className="menu-card__media">
+                        <DrinkThumb drink={d} temp={needsTemp(d) ? temp : null} size="card" />
+                        {selected && <span className="menu-card__check" aria-hidden="true"><Icon name="check" size={18} /></span>}
+                      </span>
+                      <span className="menu-card__name">{d.name}</span>
+                      <span className="menu-card__price">
+                        {space.drink === 'included' ? '포함' : <><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</>}
+                        {selected && drinkTemp && <span className="menu-card__temp"> · {TEMPS.find((t) => t.value === drinkTemp).short}</span>}
+                      </span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
             {space.requests.length > 0 && (
               <section className="block">
                 <p className="group-title">무료 요청</p>
