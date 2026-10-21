@@ -30,7 +30,7 @@
   --font-ko: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
   --font-en: "Manrope", var(--font-ko);
   --font-logo: "Fraunces", Georgia, "Times New Roman", serif; /* 로고 워드마크 전용 */
-  --font-title: "Noto Serif KR", "Nanum Myeongjo", "AppleMyungjo", serif; /* 화면·섹션 제목 (2026-10-21: 브랜드 톤에 맞춰 세리프) */
+  --font-title: "Gowun Batang", "Noto Serif KR", "AppleMyungjo", serif; /* 화면·섹션 제목 (2026-10-21: 브랜드 톤에 맞춰 세리프, 고운바탕 시안) */
 
   --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
   --space-5: 20px; --space-6: 24px; --space-7: 32px; --space-8: 48px;
