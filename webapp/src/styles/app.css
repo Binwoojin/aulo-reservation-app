@@ -1745,3 +1745,11 @@ a.my-summary__cell:active { background: var(--color-bg); }
 .stay-card__total dt { flex-direction: column; align-items: flex-start; gap: 0; color: var(--color-text); font-weight: 700; }
 .stay-card__total dt small { font-size: 0.75rem; font-weight: 500; color: var(--color-text-sub); }
 .stay-card__total dd { font-family: var(--font-logo); font-size: 1.5rem; font-weight: 600; color: var(--cafe-fg); }
+
+/* 좌석 주문 메뉴: 누르면 옵션 시트. 오른쪽 + 와 담은 잔 수 */
+.drink-row__add { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 32px; border-radius: 50%; background: var(--color-olive-light); color: var(--color-olive-hover); }
+.drink-row__count { display: grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: var(--color-olive); color: #FFFFFF; font-family: var(--font-logo); font-size: 0.8125rem; font-weight: 600; }
+.drink-row .cart-item__badges { margin: 2px 0; }
+/* 할인 전 금액(취소선)이 있으면 위아래로 쌓아 카드 밖으로 넘치지 않게 (좌석 주문 쿠폰 적용 시) */
+.cart-item__total { flex-direction: column; align-items: flex-end; gap: 0; line-height: 1.2; }
+.cart-item__body { min-width: 0; }

@@ -23,8 +23,8 @@ export function OrderLines({ quote }) {
 }
 
 // 담은 음료 카드 (이미지 자리 + 이름·배지 + 1잔 가격 + 수량 + 줄 합계)
-// itemKey가 있으면 그 안의 온도·샷·개인컵 옵션을 함께 보여 준다
-export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [], onChange }) {
+// itemKey가 있으면 그 안의 온도·샷·개인컵 옵션을 함께 보여 준다. link=false면 사진을 상세로 잇지 않는다(좌석 주문)
+export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [], onChange, link = true }) {
   const opts = parseKey(itemKey);
   const temp = opts.temp ?? fixedTemp(drink);
   const tempInfo = TEMPS.find((t) => t.value === temp);
@@ -32,9 +32,13 @@ export function CartItem({ drink, itemKey = drink.id, quantity, line, badges = [
   const unit = unitPriceOf(itemKey);
   return (
     <li className="cart-item">
-      <Link to={opts.temp ? `/menu/${drink.id}?temp=${opts.temp}` : `/menu/${drink.id}`} className="cart-item__media" aria-label={`${drink.name} 상세 보기`}>
-        <DrinkThumb drink={drink} temp={temp} />
-      </Link>
+      {link ? (
+        <Link to={opts.temp ? `/menu/${drink.id}?temp=${opts.temp}` : `/menu/${drink.id}`} className="cart-item__media" aria-label={`${drink.name} 상세 보기`}>
+          <DrinkThumb drink={drink} temp={temp} />
+        </Link>
+      ) : (
+        <span className="cart-item__media"><DrinkThumb drink={drink} temp={temp} /></span>
+      )}
       <div className="cart-item__body">
         <div className="cart-item__head">
           <div className="cart-item__title">

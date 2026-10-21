@@ -4,11 +4,13 @@ import { MENU, MENU_CATEGORIES, SPACES } from '../config/policy.js';
 import { SpaceHead } from '../components/BrandBand.jsx';
 import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import { OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
-import { DrinkThumb, Stepper } from '../components/ui.jsx';
+import { CartItem, OrderLines, OrderSuccess } from '../components/OrderParts.jsx';
+import { DrinkThumb } from '../components/ui.jsx';
+import DrinkOptionSheet from '../components/DrinkOptionSheet.jsx';
 import CouponPicker from '../components/CouponPicker.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
-import { BENEFIT_LABEL, couponFor, hasTemp, itemKey, orderKindFor, priceOrder, REFILL_DRINKS, remainingBenefits, TEMPS } from '../lib/order.js';
+import { BENEFIT_LABEL, couponFor, orderKindFor, parseKey, priceOrder, REFILL_DRINKS, remainingBenefits, sortedKeys } from '../lib/order.js';
+import { drinkTemps, needsTemp } from '../lib/drink.js';
 import { getStore, isInUse, reservationEnd } from '../lib/reservation.js';
 import { formatTime, formatWon } from '../lib/time.js';
 
@@ -24,6 +26,18 @@ export default function SeatOrderPage() {
   const [category, setCategory] = useState(MENU_CATEGORIES[0].id);
   const [placed, setPlaced] = useState(null);
   const [chosen, setChosen] = useState(null); // 고른 쿠폰 (없으면 가장 유리한 쿠폰 자동)
+  // 메뉴를 누르면 옵션 시트(아이스·핫 → 샷 → 텀블러 → 수량)를 열고, '담기'로 담은 메뉴에 더한다
+  const [sheetDrink, setSheetDrink] = useState(null);
+  const [sheetOpen, setSheetOpen] = useState(false);
+  const addItem = (key, qty) => {
+    setItems((prev) => ({ ...prev, [key]: Math.min(9, (prev[key] ?? 0) + qty) }));
+    setSheetOpen(false);
+  };
+  const setQty = (key, q) => setItems((prev) => {
+    const next = { ...prev };
+    if (q > 0) next[key] = q; else delete next[key];
+    return next;
+  });
 
   if (!reservation) {
     return (
@@ -93,46 +107,47 @@ export default function SeatOrderPage() {
                   <button key={c.id} type="button" role="tab" aria-selected={category === c.id} onClick={() => setCategory(c.id)}>{c.label}</button>
                 ))}
               </div>
-              <ul className="seat-menu swap" key={category}>
+              <ul className="drink-list swap" key={category} aria-label="메뉴">
                 {MENU.value.filter((d) => d.category === category).map((d) => {
                   const badges = [
                     isSuite && reservation.drinkId === d.id && '기본 음료',
                     left.refill > 0 && REFILL_DRINKS.includes(d.id) && '리필 가능',
                   ].filter(Boolean);
+                  const inCart = sortedKeys(items).filter((k) => parseKey(k).id === d.id).reduce((n, k) => n + items[k], 0);
                   return (
-                    <li key={d.id} className="seat-menu__item">
-                      <DrinkThumb drink={d} size="sm" />
-                      <span className="seat-menu__text">
-                        <span className="seat-menu__name">{d.name}</span>
-                        {badges.length > 0 && <span className="cart-item__badges">{badges.map((b) => <span key={b} className="badge">{b}</span>)}</span>}
-                        <span className="seat-menu__price">{formatWon(d.price)}</span>
-                      </span>
-                      {hasTemp(d) ? (
-                        // 커피는 아이스·핫을 따로 담는다
-                        <span className="temp-steppers">
-                          {TEMPS.map((t) => {
-                            const key = itemKey(d.id, t.value);
-                            return (
-                              <span key={t.value} className="temp-stepper">
-                                <span className="temp-chip" data-temp={t.value}>{t.short}</span>
-                                <Stepper label={`${t.label} ${d.name}`} value={items[key] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [key]: q }))} />
-                              </span>
-                            );
-                          })}
+                    <li key={d.id}>
+                      <button type="button" className="drink-row" onClick={() => { setSheetDrink(d); setSheetOpen(true); }} aria-label={`${d.name} ${formatWon(d.price)}, 옵션 고르고 담기${inCart ? `, ${inCart}잔 담음` : ''}`}>
+                        <DrinkThumb drink={d} temp={needsTemp(d) ? drinkTemps(d)[0] : null} size="sm" />
+                        <span className="drink-row__text">
+                          <span className="drink-row__name">{d.name}</span>
+                          {badges.length > 0 && <span className="cart-item__badges">{badges.map((b) => <span key={b} className="badge">{b}</span>)}</span>}
+                          <span className="drink-row__price"><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</span>
                         </span>
-                      ) : (
-                        <Stepper label={d.name} value={items[d.id] ?? 0} onChange={(q) => setItems((prev) => ({ ...prev, [d.id]: q }))} />
-                      )}
+                        {inCart > 0 && <span className="drink-row__count" aria-hidden="true">{inCart}</span>}
+                        <span className="drink-row__add" aria-hidden="true"><Icon name="plus" size={18} /></span>
+                      </button>
                     </li>
                   );
                 })}
               </ul>
             </section>
 
+            {count > 0 && (
+              <section className="block" aria-labelledby="seat-cart-title">
+                <h2 id="seat-cart-title" className="block-title">담은 메뉴</h2>
+                <ul className="cart-list">
+                  {sortedKeys(items).map((key) => {
+                    const d = MENU.value.find((x) => x.id === parseKey(key).id);
+                    return <CartItem key={key} drink={d} itemKey={key} quantity={items[key]} line={quote.lines.find((l) => l.key === key)} onChange={(q) => setQty(key, q)} link={false} />;
+                  })}
+                </ul>
+              </section>
+            )}
             {count > 0 && <OrderLines quote={quote} />}
           </>
         )}
       </div>
+      <DrinkOptionSheet drink={sheetDrink} open={sheetOpen} onClose={() => setSheetOpen(false)} onAdd={addItem} />
 
       {inUse && (
         <BottomBar note={<>{quote.benefit === 'normal' ? '이번 주문' : '쿠폰 적용'} <strong>{BENEFIT_LABEL[quote.benefit]}</strong></>}>
