@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { CANCEL_POLICY, CLOSING_NOTICES, HOURS, LATE_POLICY, PAYMENT_POLICY, PENALTY, SPACES } from '../config/policy.js';
-import { SpaceHead } from '../components/BrandBand.jsx';
 import { AppBar, BottomBar, isUpcoming } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
-import ReservationCard from '../components/ReservationCard.jsx';
+import StayCard from '../components/StayCard.jsx';
 import { NoticeDialog } from '../components/ui.jsx';
 import { useAppData, useNow } from '../lib/AppData.jsx';
 import { canCancel, extensionStatus, forfeitAt, isInUse, reservationEnd } from '../lib/reservation.js';
@@ -57,13 +56,13 @@ export default function ReservationDetailPage() {
         {isNew && (
           <div className="success-head">
             <span className="success-head__icon" aria-hidden="true"><Icon name="check" size={32} /></span>
-            <h2 className="screen-title">예약이 완료되었어요</h2>
+            <h1 className="screen-title">예약이 완료되었어요</h1>
             <p className="muted">방문하시면 매장에서 결제 후 이용을 시작해요.</p>
           </div>
         )}
 
-        <SpaceHead space={space} />
-        <ReservationCard reservation={reservation} detailed />
+        {/* 예약 확인 단계와 같은 예약 카드 (2026-10-21) */}
+        <StayCard reservation={reservation} />
 
         {/* 지금 알아 둘 것: 예약 단계(이용 전 · 오늘 · 이용 중)에 맞는 안내만 먼저 보여 준다 */}
         {inUse && (
@@ -118,7 +117,7 @@ export default function ReservationDetailPage() {
 
         {upcoming && (
           <section className="block" aria-labelledby="cancel-title">
-            <h3 id="cancel-title" className="block-title">예약 취소</h3>
+            <h2 id="cancel-title" className="block-title">예약 취소</h2>
             {cancellable ? (
               <>
                 <p className="muted">{formatDate(reservation.date)} 전날 23:59까지 취소할 수 있어요.</p>

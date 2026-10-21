@@ -29,12 +29,11 @@ export default function HomePage() {
   const status = homeStatus(myReservations, now);
   const lastOrder = user ? lastReorderable(recentOrders(myOrders, now)) : null;
   const lastPast = user && status.kind === 'none' ? lastPastReservation(recentPastReservations(myReservations, now), now) : null;
-  const fabHidden = useHideOnScrollDown();
 
   return (
     <>
-      <AppBar />
-      <div className="screen-body has-fab">
+      <AppBar srTitle="Aulo 홈" />
+      <div className="screen-body">
         {/* 지금 매장 + 오늘 운영: 박스 없이 한 줄 (필수 규칙 4) */}
         <div className="home-meta">
           <StorePicker variant="inline" />
@@ -65,16 +64,11 @@ export default function HomePage() {
 
         <AuloDay now={now} />
 
-        {/* 보조 기능: 홈 맨 아래 (2026-10-21 사용자 결정, 마이에서 옮김). 로그인 없이도 쓴다 */}
+        {/* 보조 기능: 홈 맨 아래 한곳 (2026-10-21 사용자 결정, 마이에서 옮김). 로그인 없이도 쓴다. 떠 있던 도우미 버튼은 같은 기능이라 없앴다(규칙 6) */}
         <SupportSection />
 
         <p className="demo-pill home-demo">데모 · 실제 예약·결제 없음</p>
       </div>
-
-      {/* 이용 도우미: 오른쪽 아래 고정 버튼. 탭바 위에 떠서 스크롤해도 늘 보인다 */}
-      <Link to="/help" className="help-fab" data-hidden={fabHidden || undefined} aria-label="이용 도우미 열기">
-        <Icon name="chat" size={24} />
-      </Link>
     </>
   );
 }
@@ -112,8 +106,6 @@ function InUseCard({ status, orders }) {
   const kind = orderKindFor(r);
   const left = remainingBenefits(kind, r, orders);
   const progress = Math.min(100, Math.max(0, ((r.hours * 60 - status.minutesLeft) / (r.hours * 60)) * 100));
-  // 쿠폰 남은 장수는 아래 쿠폰 줄에서 보여 주므로, 여기서는 받는 방법만
-  const tip = kind === 'suite' ? `주문하면 ${r.unit}번 Suite로 배달해 드려요.` : `추가 주문은 ${r.unit}번 ${space.unitName}에서 받아 가세요.`;
   return (
     <section className="status-card" aria-labelledby="status-title">
       <p className="status-card__eyebrow"><span className="live-dot" aria-hidden="true" />이용 중 · {getStore(r.storeId)?.name}</p>
@@ -123,7 +115,6 @@ function InUseCard({ status, orders }) {
         <span style={{ width: `${progress}%` }} />
       </div>
       <p className="status-card__meta">{formatTime(r.start)} – {formatTime(reservationEnd(r))} 이용 · {formatTime(HOURS.checkout)}까지 퇴실</p>
-      <p className="status-card__tip"><Icon name="cup" size={16} />{tip}</p>
       {/* 이용 시작과 함께 발급된 재주문 쿠폰의 남은 장수 → 쿠폰함 */}
       <Link to="/my/coupons" className="status-card__coupons">
         <Icon name="percent" size={18} />
@@ -286,23 +277,6 @@ function DrinkShelf({ orders, now, showPicks }) {
       </ul>
     </section>
   );
-}
-
-// 도우미 버튼: 아래로 내리는 동안에는 숨겨 콘텐츠(섹션 링크 등)를 가리지 않고, 위로 올리거나 맨 위면 다시 보인다
-function useHideOnScrollDown() {
-  const [hidden, setHidden] = useState(false);
-  useEffect(() => {
-    let last = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      if (y < 80 || y < last - 6) setHidden(false);
-      else if (y > last + 6) setHidden(true);
-      last = y;
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
-  return hidden;
 }
 
 // Aulo의 하루 (브랜드 'Stay in your rhythm'): 시간 흐름에 따라 어울리는 공간을 세로 타임라인으로 보여 준다.

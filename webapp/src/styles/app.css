@@ -483,7 +483,7 @@ a.ticket__link:active { background: var(--color-bg); }
   font-size: 0.875rem;
 }
 .coupon-cta p { margin: 0; }
-.cancel-button { margin-top: var(--space-3); color: var(--color-error); border-color: var(--color-error); }
+.cancel-button { margin-top: var(--space-3); color: var(--color-error); }
 .date-chip[data-disabled] { opacity: 0.45; cursor: not-allowed; }
 .date-chip[data-disabled] input { cursor: not-allowed; }
 
@@ -754,22 +754,6 @@ a.ticket__link:active { background: var(--color-bg); }
 .chat-send:disabled { background: var(--color-bg-sub); color: var(--color-text-sub); }
 .help-link { color: var(--color-text); }
 .help-link span { font-size: 0.875rem; }
-/* 홈 이용 도우미 고정 버튼: 앱 폭 기준 오른쪽 아래, 탭바 위 */
-.screen[data-tabs] .screen-body.has-fab { padding-bottom: calc(var(--tab-h) + var(--space-8) + 72px + var(--safe-bottom)); }
-.help-fab {
-  position: fixed; z-index: 30;
-  right: calc((100vw - min(100vw, var(--app-width))) / 2 + var(--gutter));
-  bottom: calc(var(--tab-h) + var(--safe-bottom) + var(--space-4));
-  display: grid; place-items: center; width: 56px; height: 56px; border-radius: 50%;
-  background: var(--color-surface); color: var(--color-olive-hover);
-  border: 1px solid var(--color-hairline); box-shadow: var(--shadow-float);
-  animation: fab-in var(--motion-reveal, 640ms) var(--ease-settle, ease) 240ms backwards;
-  transition: transform 160ms var(--ease-out);
-}
-.help-fab:active { transform: scale(0.94); }
-.help-fab:focus-visible { outline: 2px solid var(--color-olive); outline-offset: 3px; }
-@keyframes fab-in { from { opacity: 0; transform: translateY(8px) scale(0.92); } }
-@media (prefers-reduced-motion: reduce) { .help-fab { animation: none; } }
 
 /* ── 지금 매장 (필수 규칙 4) ── */
 .store-picker {
@@ -798,12 +782,6 @@ a.ticket__link:active { background: var(--color-bg); }
 .status-progress { height: 6px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.22); overflow: hidden; }
 .status-progress span { display: block; height: 100%; border-radius: inherit; background: #FFFFFF; }
 .status-card__meta { font-size: 0.8125rem; opacity: 0.85; }
-.status-card__tip {
-  display: flex; align-items: flex-start; gap: 6px; margin-top: var(--space-1);
-  padding: var(--space-3); border-radius: var(--radius-md); background: rgba(255, 255, 255, 0.12);
-  font-size: 0.875rem; line-height: 1.5;
-}
-.status-card__tip .icon { flex-shrink: 0; margin-top: 2px; }
 .status-card__actions { display: grid; grid-template-columns: 1.4fr 1fr; gap: var(--space-2); margin-top: var(--space-2); }
 .status-card .button--primary { background: #FFFFFF; color: var(--color-olive-hover); }
 .status-card .button--secondary { background: transparent; color: #FFFFFF; border-color: rgba(255, 255, 255, 0.45); box-shadow: none; }
@@ -833,7 +811,7 @@ a.again-card:active { transform: scale(0.99); }
 /* ── 예약 상세: 지금 알아 둘 것 / 전체 규칙 ── */
 .live-panel { display: flex; flex-direction: column; gap: var(--space-3); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
 .live-panel__time { font-size: 0.9375rem; }
-.live-panel__time strong { font-size: 1.125rem; font-weight: 700; }
+.live-panel__time strong { font-family: var(--font-logo); font-size: 1.25rem; font-weight: 600; }
 .status-progress--light { background: var(--color-bg-sub); }
 .status-progress--light span { background: var(--color-olive); }
 .rules { border-radius: var(--radius-lg); background: var(--color-bg-sub); }
@@ -863,8 +841,6 @@ a.again-card:active { transform: scale(0.99); }
 .penalty-card small { font-size: 0.8125rem; color: var(--color-text-sub); }
 
 /* ── 홈 도우미 버튼: 아래로 스크롤하는 동안 비켜 준다 ── */
-.help-fab[data-hidden] { transform: translateY(16px) scale(0.85); opacity: 0; pointer-events: none; }
-.help-fab { transition: transform 240ms var(--ease-settle), opacity 240ms ease; }
 
 /* ── 공지사항 ── */
 .notice-card { display: flex; flex-direction: column; gap: var(--space-2); padding: var(--space-4); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
@@ -996,7 +972,6 @@ a.again-card:active { transform: scale(0.99); }
 .drink-shelf .best-item:focus-visible { border-radius: 50% 50% 18px 18px / 68px 68px 18px 18px; }
 
 /* 포인트 그라데이션 적용 (나머지) */
-.help-fab { background: var(--grad-cream); }
 .live-panel { background: var(--grad-sage); }
 .order-steps { background: var(--grad-sage); }
 .again-tile__body { background: var(--grad-cream); }

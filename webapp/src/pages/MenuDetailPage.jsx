@@ -56,7 +56,7 @@ export default function MenuDetailPage() {
             <span className="drink-head__category" lang="en">{MENU_CATEGORIES.find((c) => c.id === drink.category)?.en}</span>
             {BEST_MENU.includes(drink.id) && <span className="badge badge--best">대표 메뉴</span>}
           </span>
-          <h2 id="drink-title" className="screen-title">{drink.name}</h2>
+          <h1 id="drink-title" className="screen-title">{drink.name}</h1>
           <p className="drink-price"><span lang="en">{drink.price.toLocaleString('ko-KR')}</span>원 <Provisional note={MENU.note} /></p>
           <p className="drink-desc">{drink.desc}</p>
         </section>

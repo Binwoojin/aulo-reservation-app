@@ -2,7 +2,7 @@ import { CANCEL_POLICY, CLOSING_NOTICES, LATE_POLICY, PAYMENT_POLICY, REWARD_POL
 import { BrandBand } from '../components/BrandBand.jsx';
 import { AppBar } from '../components/AppShell.jsx';
 import { Provisional, Tag } from '../components/ui.jsx';
-import { extensionNote } from '../lib/reservation.js';
+import { extensionRule, extensionShort } from '../lib/reservation.js';
 import { formatWon } from '../lib/time.js';
 
 export default function InfoPage() {
@@ -26,7 +26,7 @@ export default function InfoPage() {
                     <ul className="note-list">
                       <li>{formatWon(s.pricePerHour)}/시간 <Provisional note={SEAT_PRICES.note} /> · 1시간 단위 · {s.minHours}~{s.maxHours}시간</li>
                       {s.features.map((f) => <li key={f}>{f}</li>)}
-                      <li>{extensionNote(t)}</li>
+                      <li>{extensionShort(t)}</li>
                     </ul>
                   ) : (
                     <p className="muted">{s.summary}</p>
@@ -42,6 +42,7 @@ export default function InfoPage() {
           <ul className="note-list">
             <li>{PAYMENT_POLICY}</li>
             <li>{CANCEL_POLICY}</li>
+            <li>{extensionRule()}</li>
             {LATE_POLICY.map((n) => <li key={n}>{n}</li>)}
             <li>매장 운영 시간은 08:00–23:00이며, 공휴일은 휴무입니다.</li>
             <li>한 사람은 같은 날 1개의 좌석만 예약·이용할 수 있습니다.</li>

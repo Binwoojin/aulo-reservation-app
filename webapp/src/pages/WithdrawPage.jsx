@@ -28,7 +28,7 @@ export default function WithdrawPage() {
         <div className="screen-body has-bottom-bar auth-done">
           <span className="success-head__icon" aria-hidden="true"><Icon name="check" size={32} /></span>
           <p className="shelf-script" lang="en">see you again</p>
-          <h2 className="screen-title">탈퇴가 완료됐어요</h2>
+          <h1 className="screen-title">탈퇴가 완료됐어요</h1>
           <p className="muted">그동안 Aulo와 함께해 주셔서 고마워요.<br />같은 이메일로 언제든 다시 가입할 수 있어요.</p>
         </div>
         <BottomBar><button type="button" className="button button--primary button--block" onClick={() => navigate('/', { replace: true })}>홈으로</button></BottomBar>

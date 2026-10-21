@@ -78,7 +78,7 @@ export default function SignupPage() {
         <div className="screen-body has-bottom-bar auth-done">
           <span className="success-head__icon" aria-hidden="true"><Icon name="check" size={32} /></span>
           <p className="shelf-script" lang="en">welcome to aulo</p>
-          <h2 className="screen-title">가입을 환영해요</h2>
+          <h1 className="screen-title">가입을 환영해요</h1>
           <p className="muted">{email.trim()} 계정으로 로그인했어요.</p>
           <ul className="auth-done__perks">{REWARD_POLICY.slice(0, 2).map((n) => <li key={n}>{n}</li>)}</ul>
         </div>

@@ -80,6 +80,7 @@ export const SPACES = {
     highlights: [{ icon: 'partition', label: '가림막 개인 좌석' }, { icon: 'locker', label: '사물함' }, { icon: 'percent', label: '재주문 50%' }],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
     sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
+    sameDayHint: '오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요', // 날짜 단계 한 줄 안내
     extendable: true,
     extension: '앱으로 사전 예약하면 현장에서 10분 단위로 최대 1시간 연장할 수 있습니다.',
   },
@@ -105,6 +106,7 @@ export const SPACES = {
     highlights: [{ icon: 'recliner', label: '리클라이너' }, { icon: 'headphones', label: '헤드셋' }, { icon: 'blanket', label: '담요 요청' }],
     sameDayApp: false, // 앱 당일 예약 불가, 당일 이용은 매장 방문 (2026-10-16 결정)
     sameDayNote: '앱에서는 당일 예약할 수 없어요. 오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요.',
+    sameDayHint: '오늘 이용은 매장에 방문하면 빈 좌석을 배정해 드려요', // 날짜 단계 한 줄 안내
     extendable: true,
     extension: '앱으로 사전 예약하면 현장에서 10분 단위로 최대 1시간 연장할 수 있습니다.',
   },
@@ -126,6 +128,7 @@ export const SPACES = {
     highlights: [{ icon: 'door', label: '문 닫히는 방' }, { icon: 'tray', label: '음료 배달' }, { icon: 'repeat', label: '리필 1회' }],
     sameDayApp: false, // 공간 준비가 필요해 사전 예약만 받는다, 당일 예약 불가 (2026-10-19 결정)
     sameDayNote: '공간을 미리 준비해야 해서 사전 예약만 받아요. 당일 예약은 할 수 없어요.',
+    sameDayHint: '공간을 미리 준비해야 해서 사전 예약만 받아요',
     extendable: false,
     extension: '현장 예약과 연장은 할 수 없습니다.',
   },

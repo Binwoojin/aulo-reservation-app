@@ -123,6 +123,15 @@ export const extensionNote = (type) => {
   return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원이며, 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 연장할 수 있습니다. 다음 예약과 겹치거나 최대 ${SPACES[type].maxHours}시간으로 예약한 경우에는 연장할 수 없습니다.`;
 };
 
+// 이용 안내 공간 카드용 짧은 연장 안내. 공통 조건(마감·다음 예약·최대 시간)은 extensionRule() 한 줄로 따로 보여 준다
+export const extensionShort = (type) => {
+  const unit = extensionUnitPrice(type);
+  if (unit === null) return SPACES[type].extension;
+  return `현장 연장 ${EXTENSION.unitMinutes}분 단위 · 최대 ${EXTENSION.maxMinutes / 60}시간 · ${EXTENSION.unitMinutes}분당 ${unit.toLocaleString('ko-KR')}원 (앱 사전 예약만)`;
+};
+export const extensionRule = () =>
+  `연장은 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 할 수 있고, 다음 예약과 겹치거나 최대 시간으로 예약한 경우에는 할 수 없습니다.`;
+
 // 예약별 연장 안내: 가능한 범위, 또는 연장 불가
 export const extensionStatus = (r, existing = []) => {
   const { max, reason } = extensionRange(r, existing);

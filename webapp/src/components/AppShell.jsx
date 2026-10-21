@@ -37,15 +37,16 @@ export default function AppShell() {
 
   return (
     <>
-      <div id="main" ref={mainRef} tabIndex={-1} className="screen" data-tabs={showTabs || undefined}>
+      <main id="main" ref={mainRef} tabIndex={-1} className="screen" data-tabs={showTabs || undefined}>
         <Outlet />
-      </div>
+      </main>
       {showTabs && <TabBar />}
     </>
   );
 }
 
-export function AppBar({ title, back, transparent = false, children }) {
+// srTitle: 앱 바에 제목을 보이지 않는 화면(홈·음료 상세)도 화면 제목(h1)은 하나 둔다
+export function AppBar({ title, srTitle, back, transparent = false, children }) {
   const navigate = useNavigate();
   const location = useLocation();
   // 앱 안에서 이동해 온 기록이 없으면(첫 화면) 홈으로 간다
@@ -62,7 +63,7 @@ export function AppBar({ title, back, transparent = false, children }) {
         ) : null}
       </div>
       {/* 제목이 없어도 가운데 칸을 유지해야 오른쪽 버튼(장바구니 등)이 끝에 고정된다 */}
-      {title ? <h1 className="app-bar__title">{title}</h1> : <span aria-hidden="true" />}
+      {title ? <h1 className="app-bar__title">{title}</h1> : srTitle ? <h1 className="visually-hidden">{srTitle}</h1> : <span aria-hidden="true" />}
       <div className="app-bar__side app-bar__side--end">
         {children}
       </div>

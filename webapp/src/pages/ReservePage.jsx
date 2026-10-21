@@ -18,7 +18,7 @@ import { AppBar, BottomBar } from '../components/AppShell.jsx';
 import Icon from '../components/Icon.jsx';
 import StorePicker from '../components/StorePicker.jsx';
 import SeatMap from '../components/SeatMap.jsx';
-import { seatZone } from '../lib/seatLayout.js';
+import StayCard from '../components/StayCard.jsx';
 import {
   DrinkThumb,
   Provisional,
@@ -36,7 +36,6 @@ import {
   bookedRanges,
   createReservation,
   drinkFee,
-  drinkOptionsText,
   extensionNote,
   getDrink,
   freeUnits,
@@ -49,7 +48,7 @@ import {
 import { formatDate, formatTime, formatWon, minutesOfDay, toDateString } from '../lib/time.js';
 import { pointBalance, pointsEarnedFor, usablePoints } from '../lib/rewards.js';
 import { canAddShot, drinkTemps, fixedTemp, needsTemp } from '../lib/drink.js';
-import { TEMPS, drinkLabel } from '../lib/order.js';
+import { TEMPS } from '../lib/order.js';
 
 const RESERVABLE = ['focus', 'rest', 'suite'];
 
@@ -356,10 +355,10 @@ function ReserveWizard({ type }) {
                     );
                   })}
                 </div>
+                {/* 휴무·예약 있음은 날짜 칸에 표시되므로 안내는 기간·하루 1좌석·당일 이용만 짧게 */}
                 <p className="group-hint">
-                  옆으로 밀어 {space.sameDayApp ? '오늘' : '내일'}부터 {formatDate(dates.at(-1))}까지 고를 수 있어요
-                  {!space.sameDayApp && <><br />{space.sameDayNote}</>}
-                  <br />공휴일은 휴무이고, 한 사람은 같은 날 1개의 좌석만 예약할 수 있어요.
+                  {space.sameDayApp ? '오늘' : '내일'}부터 {formatDate(dates.at(-1)).replace(/ \(.\)$/, '')}까지 · 하루 1좌석만 예약할 수 있어요
+                  {!space.sameDayApp && <><br />{space.sameDayHint}</>}
                 </p>
               </fieldset>
             </section>
@@ -462,49 +461,11 @@ function ReserveWizard({ type }) {
         {stepName === '확인' && (
           <>
             <h2 className="screen-title">예약 내용을<br />확인해 주세요</h2>
-            {/* 예약 카드: 공간 머리(아치 사진·Fraunces 이름) → 날짜·시간 → 절취선 → 음료·요청 → 금액 */}
-            <article className="stay-card" aria-label="예약 내용">
-              <header className="stay-card__head">
-                <SpaceImage space={space} />
-                <div className="stay-card__who">
-                  <p className="shelf-script" lang="en">your stay</p>
-                  <p className="stay-card__space" lang="en">{space.name}</p>
-                  <p className="stay-card__where">{store.name} · {unit}번 {space.unitName}{seatZone(type, store.units[type], unit) && ` · ${seatZone(type, store.units[type], unit).label}`}</p>
-                </div>
-              </header>
-              <div className="stay-card__when">
-                <div>
-                  <span className="stay-card__label">날짜</span>
-                  <span className="stay-card__big" lang="en">{date.slice(5).replace('-', '.')}</span>
-                  <span className="stay-card__small">{formatDate(date).replace(/^\d+월 \d+일 /, '')}</span>
-                </div>
-                <div>
-                  <span className="stay-card__label">시간</span>
-                  <span className="stay-card__big" lang="en">{formatTime(start)}<span className="stay-card__dash">–</span>{endLabel}</span>
-                  <span className="stay-card__chip">{hours}시간 이용</span>
-                </div>
-              </div>
-              <div className="stay-card__cut" aria-hidden="true" />
-              <div className="stay-card__drink">
-                <DrinkThumb drink={getDrink(drinkId)} temp={drinkNeedsTemp ? drinkTemp : null} size="sm" />
-                <span className="stay-card__drink-text">
-                  <span className="stay-card__label">{space.drink === 'included' ? '기본 음료' : '이용 전 음료'}</span>
-                  <strong>{drinkLabel(drinkId, drinkNeedsTemp ? drinkTemp : null)}</strong>
-                  {drinkOptionsText({ type, drinkShot, drinkOwnCup }) && <span className="stay-card__opts">{drinkOptionsText({ type, drinkShot, drinkOwnCup })}</span>}
-                </span>
-              </div>
-              {requests.length > 0 && (
-                <ul className="stay-card__requests" aria-label="무료 요청">
-                  {requests.map((id) => <li key={id}>{space.requests.find((r) => r.id === id).label} · 무료</li>)}
-                </ul>
-              )}
-              <dl className="stay-card__price">
-                <div><dt>이용료 <Provisional note={SEAT_PRICES.note} /></dt><dd><span lang="en">{formatWon(space.pricePerHour)}</span> × {hours}시간</dd></div>
-                <div><dt>음료</dt><dd>{space.drink === 'included' ? (drinkCost ? `포함 · 샷 ${formatWon(drinkCost)}` : '포함') : formatWon(drinkCost)}</dd></div>
-                {pointsUsed > 0 && <div><dt>포인트 사용</dt><dd>−{formatWon(pointsUsed)}</dd></div>}
-                <div className="stay-card__total"><dt>결제 예정 <small>방문 후 매장에서</small></dt><dd lang="en">{formatWon(fee - pointsUsed + drinkCost)}</dd></div>
-              </dl>
-            </article>
+            <StayCard
+              reservation={{ type, storeId, unit, date, start, hours, drinkId, drinkTemp: drinkNeedsTemp ? drinkTemp : null, drinkShot, drinkOwnCup, requests, fee, drinkFee: drinkCost, pointsUsed }}
+              feeNote={<Provisional note={SEAT_PRICES.note} />}
+              feeDetail={<><span lang="en">{formatWon(space.pricePerHour)}</span> × {hours}시간</>}
+            />
             <SwitchRow
               label={`포인트 사용 · 보유 ${balance.toLocaleString('ko-KR')}P`}
               detail={balance > 0 ? '좌석 이용료에만 쓸 수 있어요. 음료 금액에는 쓸 수 없어요.' : '이용을 시작하면 좌석 이용료의 10%가 적립돼요.'}

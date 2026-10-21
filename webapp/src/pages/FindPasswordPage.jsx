@@ -42,7 +42,7 @@ export default function FindPasswordPage() {
         <div className="screen-body has-bottom-bar auth-done">
           <span className="success-head__icon" aria-hidden="true"><Icon name="check" size={32} /></span>
           <p className="shelf-script" lang="en">all set</p>
-          <h2 className="screen-title">비밀번호를 바꿨어요</h2>
+          <h1 className="screen-title">비밀번호를 바꿨어요</h1>
           <p className="muted">새 비밀번호로 다시 로그인해 주세요. 데모 버전이라 실제로 저장되지는 않아요.</p>
         </div>
         <BottomBar><Link className="button button--primary button--block" to={loginTo} replace>로그인하기</Link></BottomBar>
