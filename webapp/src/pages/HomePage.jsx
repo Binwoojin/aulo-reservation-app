@@ -308,7 +308,8 @@ function AuloDay({ now }) {
               <span className="day-line__dot" aria-hidden="true" />
               <p className="day-line__time"><span lang="en">{d.time}</span><span lang="en" className="day-line__en">{d.en}</span>{i === current && <span className="day-line__now">지금</span>}</p>
               {i !== open ? (
-                <button type="button" className="day-row" onClick={() => setOpen(i)} aria-expanded="false" aria-label={`${d.time} ${space.name} 펼치기`}>
+                <button type="button" className="day-row" onClick={() => setOpen(i)} aria-expanded="false">
+                  {/* 이름은 보이는 글자(공간 이름 · 좌석 수 · 가격)로, 접힘 상태는 aria-expanded로 알린다 — 보이는 글자와 다른 aria-label은 WCAG 2.5.3 위반 (2026-10-22) */}
                   <SpaceImage space={space} />
                   <span className="day-row__text">
                     <span className="day-row__name" lang="en">{space.name}</span>
@@ -366,7 +367,7 @@ function RewardStrip() {
   const stamps = stampCount(myOrders, myReservations, now);
   const points = pointBalance(myReservations, now);
   return (
-    <Link to={points > 0 ? '/reserve' : '/my'} className="reward-strip" aria-label={`적립: 스탬프 ${stamps}개, 포인트 ${points}P`}>
+    <Link to={points > 0 ? '/reserve' : '/my'} className="reward-strip">{/* 이름은 보이는 글자 그대로 (WCAG 2.5.3, 2026-10-22) */}
       <span className="reward-strip__stats">
         <span><strong lang="en">{stamps}</strong>스탬프</span>
         <span className="reward-strip__sep" aria-hidden="true" />

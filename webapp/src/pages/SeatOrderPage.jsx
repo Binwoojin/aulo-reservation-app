@@ -116,7 +116,8 @@ export default function SeatOrderPage() {
                   const inCart = sortedKeys(items).filter((k) => parseKey(k).id === d.id).reduce((n, k) => n + items[k], 0);
                   return (
                     <li key={d.id}>
-                      <button type="button" className="drink-row" onClick={() => { setSheetDrink(d); setSheetOpen(true); }} aria-label={`${d.name} ${formatWon(d.price)}, 옵션 고르고 담기${inCart ? `, ${inCart}잔 담음` : ''}`}>
+                      <button type="button" className="drink-row" onClick={() => { setSheetDrink(d); setSheetOpen(true); }}>
+                        {/* 이름은 보이는 글자(음료 · 배지 · 가격) 뒤에 숨김 안내를 붙여 만든다 — 보이는 글자와 다른 aria-label은 WCAG 2.5.3 위반 (2026-10-22) */}
                         <DrinkThumb drink={d} temp={needsTemp(d) ? drinkTemps(d)[0] : null} size="sm" />
                         <span className="drink-row__text">
                           <span className="drink-row__name">{d.name}</span>
@@ -124,6 +125,7 @@ export default function SeatOrderPage() {
                           <span className="drink-row__price"><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</span>
                         </span>
                         {inCart > 0 && <span className="drink-row__count" aria-hidden="true">{inCart}</span>}
+                        <span className="visually-hidden">, 옵션 고르고 담기{inCart ? `, ${inCart}잔 담음` : ''}</span>
                         <span className="drink-row__add" aria-hidden="true"><Icon name="plus" size={18} /></span>
                       </button>
                     </li>

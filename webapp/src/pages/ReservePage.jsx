@@ -437,8 +437,8 @@ function ReserveWizard({ type }) {
                 const withTemp = needsTemp(d);
                 return (
                   <li key={d.id}>
-                    <button type="button" className="drink-row" aria-pressed={selected} onClick={() => pickDrink(d)}
-                      aria-label={`${d.name}, ${space.drink === 'included' ? '포함' : formatWon(d.price)}, 옵션 고르기로 이동${selected ? ', 선택됨' : ''}`}>
+                    {/* 이름은 보이는 글자(음료 · 설명 · 가격) + 숨김 안내, 선택 상태는 aria-pressed — 보이는 글자와 다른 aria-label은 WCAG 2.5.3 위반 (2026-10-22) */}
+                    <button type="button" className="drink-row" aria-pressed={selected} onClick={() => pickDrink(d)}>
                       <DrinkThumb drink={d} temp={withTemp ? (selected && drinkTemp ? drinkTemp : drinkTemps(d)[0]) : null} size="sm" />
                       <span className="drink-row__text">
                         <span className="drink-row__name">
@@ -448,6 +448,7 @@ function ReserveWizard({ type }) {
                         <span className="drink-row__desc">{d.desc}</span>
                         <span className="drink-row__price">{space.drink === 'included' ? '이용료에 포함' : <><span lang="en">{d.price.toLocaleString('ko-KR')}</span>원</>}</span>
                       </span>
+                      <span className="visually-hidden">, 옵션 고르기로 이동</span>
                       {!selected
                         ? <Icon name="chevron" size={20} className="drink-row__go" />
                         : <span className="drink-row__check" aria-hidden="true"><Icon name="check" size={16} /></span>}
@@ -557,11 +558,13 @@ function TimeRange({ type, date, now, start, hours, canStart, maxHoursFor, onCha
           const label = `${formatTime(t)}–${formatTime(t + 60)}`;
           const action = selected ? (t === start ? '시작 시간' : '선택됨') : inReach(t) ? '여기까지 늘리기' : canStart(t) ? '여기부터 시작' : '예약 불가';
           return (
-            <button key={t} type="button" className="time-slot" data-state={state} disabled={state === 'off'} aria-pressed={selected} aria-label={`${label}, ${action}`} onClick={() => pick(t)}>
+            // 이름은 보이는 글자(시각 · 시작/~종료/마감) 뒤에 칸 범위와 동작을 숨김 글자로 붙인다 — 보이는 글자와 다른 aria-label은 WCAG 2.5.3 위반 (2026-10-22)
+            <button key={t} type="button" className="time-slot" data-state={state} disabled={state === 'off'} aria-pressed={selected} onClick={() => pick(t)}>
               <span lang="en">{formatTime(t)}</span>
               {state === 'start' && <small>시작</small>}
               {state === 'end' && <small lang="en">~{formatTime(end)}</small>}
               {state === 'off' && <small>마감</small>}
+              <span className="visually-hidden">, {label} {action}</span>
             </button>
           );
         })}
