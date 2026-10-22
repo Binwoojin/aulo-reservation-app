@@ -1,0 +1,66 @@
+# Aulo 사이트를 GitHub Pages에 배포한다 (2026-10-21 구조).
+#   /      브랜드 랜딩(brand-landing/) — '공간 이용 체험하기'·'앱 체험'이 app/으로 간다
+#   /app/  데모 웹앱(webapp/ 빌드)
+# main에 둘 중 하나의 변경이 올라오면 테스트 → 빌드 → 배포. Actions 탭에서 직접 실행할 수도 있다.
+# 처음 한 번: 저장소 Settings > Pages > Build and deployment > Source를 'GitHub Actions'로 바꾼다.
+name: Deploy Aulo site to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'webapp/**'
+      - 'brand-landing/**'
+      - '.github/workflows/deploy-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포가 겹치면 진행 중인 것은 끝내고 마지막 것만 이어서 배포한다
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+defaults:
+  run:
+    working-directory: webapp
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: webapp/package-lock.json
+      - run: npm ci
+      - run: npm test
+      # vite.config.js의 base './'와 HashRouter 덕분에 /aulo-reservation-app/app/ 하위 경로에서도 그대로 동작한다
+      - run: npm run build
+      # 랜딩을 사이트 맨 앞에, 웹앱을 app/에 모은다. 작업 메모(CLAUDE_HANDOFF.md)는 올리지 않는다
+      - name: Assemble site
+        working-directory: .
+        run: |
+          mkdir -p _site/app
+          cp -r brand-landing/. _site/
+          rm -f _site/CLAUDE_HANDOFF.md
+          cp -r webapp/dist/. _site/app/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

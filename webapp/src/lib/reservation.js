@@ -1,0 +1,268 @@
+import { BOOKING_WINDOW_DAYS, EXTENSION, HOLIDAYS, HOURS, MAX_SHOTS, MENU, OWN_CUP_DISCOUNT, PENALTY, SHOT_PRICE, SPACES, STORES } from '../config/policy.js';
+import { canAddShot, needsTemp } from './drink.js';
+import { addDays, formatTime, minutesOfDay, rangesOverlap, toDateString } from './time.js';
+
+export const getStore = (storeId) => STORES.value.find((s) => s.id === storeId);
+export const getDrink = (drinkId) => MENU.value.find((d) => d.id === drinkId);
+
+// 모든 공간 공통: 마지막 슬롯 22:00 종료
+export const lastEndFor = () => HOURS.lastEnd;
+
+export const unitIds = (storeId, type) => {
+  const count = getStore(storeId)?.units[type] ?? 0;
+  return Array.from({ length: count }, (_, i) => i + 1);
+};
+
+// 앱 예약 가능 날짜. 모든 공간이 당일 예약 불가라 내일부터 (Focus·Rest 당일은 매장 방문, Suite는 사전 예약 전용)
+// 휴무일(공휴일)은 날짜 목록에 보이되 예약할 수 없다
+export const isHoliday = (date) => HOLIDAYS.includes(date);
+
+export const windowDates = (now, type) => {
+  const today = toDateString(now);
+  const first = type && !SPACES[type].sameDayApp ? 1 : 0;
+  return Array.from({ length: BOOKING_WINDOW_DAYS + 1 - first }, (_, i) => addDays(today, i + first));
+};
+
+export const bookableDates = (now, type) => windowDates(now, type).filter((d) => !isHoliday(d));
+
+// 1인 1좌석: 같은 날에는 공간 종류와 관계없이 1건만 예약할 수 있다 (2026-10-19 확정)
+export const hasReservationOn = (date, mine = []) => mine.some((r) => r.date === date);
+
+// 선택 가능한 시작 시각 (정시, 최소 이용 시간을 22:00 종료 전에 채울 수 있어야 함)
+// Suite는 최소 3시간이라 19:00 이후 시작은 자연히 막힌다(별도 '마감 3시간 전' 제한은 두지 않음).
+export const startOptions = (type, date, now) => {
+  const space = SPACES[type];
+  if (!space?.reservable) return [];
+  const isToday = date === toDateString(now);
+  const latestStart = lastEndFor(type) - space.minHours * 60;
+  const options = [];
+  for (let start = HOURS.open; start <= latestStart; start += 60) {
+    if (isToday && start <= minutesOfDay(now)) continue;
+    options.push(start);
+  }
+  return options;
+};
+
+export const durationOptions = (type, start) => {
+  const space = SPACES[type];
+  if (!space?.reservable || start == null) return [];
+  const options = [];
+  for (let hours = space.minHours; hours <= space.maxHours; hours += 1) {
+    if (start + hours * 60 <= lastEndFor(type)) options.push(hours);
+  }
+  return options;
+};
+
+export const reservationEnd = (r) => r.start + r.hours * 60;
+
+const conflicts = (a, b) =>
+  a.storeId === b.storeId &&
+  a.type === b.type &&
+  a.unit === b.unit &&
+  a.date === b.date &&
+  rangesOverlap(a.start, reservationEnd(a), b.start, reservationEnd(b));
+
+export const freeUnits = ({ storeId, type, date, start, hours }, existing) =>
+  unitIds(storeId, type).filter(
+    (unit) => !existing.some((r) => conflicts(r, { storeId, type, date, start, hours, unit })),
+  );
+
+// Suite 공간별 예약된 시간대 (가능 시간 조회용)
+export const bookedRanges = ({ storeId, type, date, unit }, existing) =>
+  existing
+    .filter((r) => r.storeId === storeId && r.type === type && r.date === date && r.unit === unit)
+    .map((r) => ({ start: r.start, end: reservationEnd(r) }))
+    .sort((a, b) => a.start - b.start);
+
+export const reservationFee = (type, hours) => SPACES[type].pricePerHour * hours;
+
+// 현장 연장 요금: 10분 단가(100원 단위 버림) × 10분 단위 수. 연장이 없는 공간은 null
+export const extensionUnitPrice = (type) => {
+  if (!SPACES[type].extendable) return null;
+  const { unitMinutes, roundDownTo } = EXTENSION;
+  return Math.floor((SPACES[type].pricePerHour * unitMinutes) / 60 / roundDownTo) * roundDownTo;
+};
+
+// 연장은 폐점 1시간 전까지만 (23:00 마감 → 22:00)
+export const extensionDeadline = () => HOURS.close - EXTENSION.cutoffBeforeCloseMinutes;
+
+// 같은 좌석·공간의 다음 예약 시작 시각 (없으면 null). 다음 예약이 연장보다 우선한다
+export const nextReservationStart = (r, existing = []) => {
+  const starts = existing
+    .filter((x) => x.id !== r.id && x.storeId === r.storeId && x.type === r.type && x.date === r.date && x.unit === r.unit && x.start >= reservationEnd(r))
+    .map((x) => x.start);
+  return starts.length ? Math.min(...starts) : null;
+};
+
+// 연장 가능 범위: 최대 1시간, 폐점 1시간 전까지, 다음 예약 시작 전까지 (10분 단위)
+// 최대 예약 시간(Focus·Rest 4시간)으로 예약했다면 연장할 수 없다
+// reason: 'none'(연장 없는 공간) | 'max'(최대 시간 예약) | 'deadline'(폐점 1시간 전 이후) | 'next'(다음 예약과 겹침) | null(가능)
+export const extensionRange = (r, existing = []) => {
+  if (!SPACES[r.type].extendable) return { max: 0, reason: 'none' };
+  if (r.hours >= SPACES[r.type].maxHours) return { max: 0, reason: 'max' };
+  const { unitMinutes, maxMinutes } = EXTENSION;
+  const end = reservationEnd(r);
+  const next = nextReservationStart(r, existing);
+  const byDeadline = extensionDeadline() - end;
+  const byNext = next === null ? Infinity : next - end;
+  const room = Math.floor(Math.min(maxMinutes, byDeadline, byNext) / unitMinutes) * unitMinutes;
+  if (room > 0) return { max: room, reason: null };
+  return { max: 0, reason: byNext <= byDeadline ? 'next' : 'deadline' };
+};
+
+export const maxExtensionMinutes = (r, existing = []) => extensionRange(r, existing).max;
+
+export const extensionFee = (r, minutes, existing = []) => {
+  if (minutes <= 0 || minutes % EXTENSION.unitMinutes || minutes > maxExtensionMinutes(r, existing)) return null;
+  return extensionUnitPrice(r.type) * (minutes / EXTENSION.unitMinutes);
+};
+
+export const extensionNote = (type) => {
+  const unit = extensionUnitPrice(type);
+  if (unit === null) return SPACES[type].extension;
+  return `${SPACES[type].extension} 연장 요금은 10분당 ${unit.toLocaleString('ko-KR')}원이며, 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 연장할 수 있습니다. 다음 예약과 겹치거나 최대 ${SPACES[type].maxHours}시간으로 예약한 경우에는 연장할 수 없습니다.`;
+};
+
+// 이용 안내 공간 카드용 짧은 연장 안내. 공통 조건(마감·다음 예약·최대 시간)은 extensionRule() 한 줄로 따로 보여 준다
+export const extensionShort = (type) => {
+  const unit = extensionUnitPrice(type);
+  if (unit === null) return SPACES[type].extension;
+  return `현장 연장 ${EXTENSION.unitMinutes}분 단위 · 최대 ${EXTENSION.maxMinutes / 60}시간 · ${EXTENSION.unitMinutes}분당 ${unit.toLocaleString('ko-KR')}원 (앱 사전 예약만)`;
+};
+export const extensionRule = () =>
+  `연장은 폐점 1시간 전(${formatTime(extensionDeadline())})까지만 할 수 있고, 다음 예약과 겹치거나 최대 시간으로 예약한 경우에는 할 수 없습니다.`;
+
+// 예약별 연장 안내: 가능한 범위, 또는 연장 불가
+export const extensionStatus = (r, existing = []) => {
+  const { max, reason } = extensionRange(r, existing);
+  if (reason === 'none') return SPACES[r.type].extension;
+  if (reason === 'max') return `최대 이용 시간(${SPACES[r.type].maxHours}시간)으로 예약해 연장이 불가해요.`;
+  if (reason === 'deadline') return `폐점 1시간 전(${formatTime(extensionDeadline())}) 이후로는 연장할 수 없어 이 예약은 연장이 불가해요.`;
+  if (reason === 'next') return '바로 다음 시간에 이 좌석의 다른 예약이 있어 연장이 불가해요. 다음 예약이 우선이에요.';
+  const capped = nextReservationStart(r, existing) === reservationEnd(r) + max ? '다음 예약 전인 ' : '';
+  return `현장에서 ${capped}${formatTime(reservationEnd(r) + max)}까지 최대 ${max}분 연장할 수 있어요. 10분당 ${extensionUnitPrice(r.type).toLocaleString('ko-KR')}원.`;
+};
+
+// 예약 음료 옵션 (2026-10-21 사용자 요청): 샷 추가(커피만, 최대 MAX_SHOTS회)·텀블러 사용
+// - Focus·Rest(이용 전 음료): 음료 가격 + 샷 추가 금액 − 텀블러 할인 (일반 주문과 같은 기준)
+// - Suite(기본 음료 포함): 음료는 무료, 샷 추가 금액만 받고 텀블러 할인은 없다(무료 음료라 깎을 금액이 없음)
+export const drinkOptions = (drinkId, { shot = 0, ownCup = false } = {}) => ({
+  shot: canAddShot(getDrink(drinkId)) ? Math.max(0, Math.min(MAX_SHOTS, Math.floor(shot) || 0)) : 0,
+  ownCup: !!ownCup,
+});
+export const drinkFee = (type, drinkId, options) => {
+  const { shot, ownCup } = drinkOptions(drinkId, options);
+  // Suite(기본 음료 포함)는 샷 추가도 이용료에 포함, 텀블러 할인은 없다 (2026-10-21 사용자 결정)
+  if (SPACES[type].drink === 'included') return 0;
+  const shotFee = shot * SHOT_PRICE.value;
+  return Math.max(0, (getDrink(drinkId)?.price ?? 0) + shotFee - (ownCup ? OWN_CUP_DISCOUNT : 0));
+};
+// '샷 1회 추가 · 텀블러'처럼 예약 음료 옵션 한 줄 (없으면 빈 문자열)
+export const drinkOptionsText = (r) => [
+  r.drinkShot ? `샷 ${r.drinkShot}회 추가` : '',
+  r.drinkOwnCup ? (SPACES[r.type]?.drink === 'included' ? '텀블러' : `텀블러 −${OWN_CUP_DISCOUNT.toLocaleString('ko-KR')}원`) : '',
+].filter(Boolean).join(' · ');
+
+// input.mine: 이 사용자의 기존 예약 (1인 1좌석 확인용)
+export const validateReservation = (input, existing, now) => {
+  const errors = [];
+  const space = SPACES[input.type];
+  if (!space?.reservable) return ['예약할 수 없는 공간입니다.'];
+  if (!getStore(input.storeId)) errors.push('매장을 선택해 주세요.');
+  if (!space.sameDayApp && input.date === toDateString(now)) {
+    errors.push(`${space.name}: ${space.sameDayNote}`);
+  } else if (isHoliday(input.date)) {
+    errors.push('공휴일은 매장 휴무라 예약할 수 없어요.');
+  } else if (!bookableDates(now, input.type).includes(input.date)) errors.push('예약 가능한 날짜가 아닙니다.');
+  if (hasReservationOn(input.date, input.mine)) errors.push('같은 날에는 1개의 좌석만 예약할 수 있어요.');
+  if (!startOptions(input.type, input.date, now).includes(input.start)) {
+    errors.push('선택할 수 없는 시작 시간입니다.');
+  } else if (!durationOptions(input.type, input.start).includes(input.hours)) {
+    errors.push(`이용 시간은 ${space.minHours}~${space.maxHours}시간, 마감 전에 끝나야 합니다.`);
+  }
+  if (needsTemp(getDrink(input.drinkId)) && !['ice', 'hot'].includes(input.drinkTemp)) {
+    errors.push('음료의 아이스와 핫 중 하나를 골라 주세요.');
+  }
+  if (!getDrink(input.drinkId)) {
+    errors.push(space.drink === 'included' ? '기본 음료를 선택해 주세요.' : '이용 전 음료를 선택해 주세요.');
+  }
+  if (input.unit != null && errors.length === 0) {
+    if (!freeUnits(input, existing).includes(input.unit)) errors.push('이미 예약된 시간입니다.');
+  }
+  if (input.unit == null && errors.length === 0 && freeUnits(input, existing).length === 0) {
+    errors.push(`선택한 시간에 남은 ${space.unitName}이 없습니다.`);
+  }
+  return errors;
+};
+
+// Suite는 사용자가 공간을 고르고, Focus·Rest는 빈 좌석을 자동 배정한다.
+export const createReservation = (input, existing, now, makeId = () => crypto.randomUUID()) => {
+  const errors = validateReservation(input, existing, now);
+  if (errors.length) return { errors };
+  const unit = input.unit ?? freeUnits(input, existing)[0];
+  const space = SPACES[input.type];
+  return {
+    errors: [],
+    reservation: {
+      id: makeId(),
+      type: input.type,
+      storeId: input.storeId,
+      date: input.date,
+      start: input.start,
+      hours: input.hours,
+      unit,
+      drinkId: input.drinkId,
+      // 커피일 때만 아이스/핫
+      drinkTemp: needsTemp(getDrink(input.drinkId)) ? input.drinkTemp : null,
+      drinkShot: drinkOptions(input.drinkId, { shot: input.drinkShot }).shot,
+      drinkOwnCup: !!input.drinkOwnCup,
+      requests: (input.requests ?? []).filter((id) => space.requests.some((r) => r.id === id)),
+      fee: reservationFee(input.type, input.hours),
+      // 좌석 이용료에만 쓴 포인트 (보유량 확인은 화면에서, 여기서는 0~이용료로 제한)
+      pointsUsed: Math.max(0, Math.min(Math.floor(input.pointsUsed ?? 0), reservationFee(input.type, input.hours))),
+      drinkFee: drinkFee(input.type, input.drinkId, { shot: input.drinkShot, ownCup: input.drinkOwnCup }),
+      createdAt: now.toISOString(),
+    },
+  };
+};
+
+// 이용 중: 오늘 예약이고 시작 시각이 지났고 아직 끝나지 않음. 재주문 혜택은 이때만 적용
+export const isInUse = (r, now) =>
+  r.date === toDateString(now) && r.start <= minutesOfDay(now) && reservationEnd(r) > minutesOfDay(now);
+
+// 취소: 이용 전날 23:59까지 (당일 취소 불가)
+export const canCancel = (r, now) => toDateString(now) < r.date;
+
+// 강제 취소 시각: 이 시각까지 도착(체크인)하지 않으면 취소. 연락 없으면 30분, 지각 연락을 남기면 1시간
+export const forfeitAt = (r, notified = false) => r.start + (notified ? PENALTY.lateLimitMinutes : PENALTY.noNoticeLimitMinutes);
+
+// 도착 결과 판정 (매장 체크인 시 사용)
+// minutesLate: 늦은 분, 노쇼는 null / notice: 'none' | 'late'(지각 연락) | 'cancel'(당일 취소 연락)
+// reasonAccepted: 당일 취소 사유를 매장이 확인해 페널티를 면제했는지 (매장 재량)
+export const arrivalOutcome = ({ minutesLate, notice = 'none', reasonAccepted = false }) => {
+  if (notice === 'cancel') return { status: 'cancelled', penalty: !reasonAccepted };
+  const limit = notice === 'late' ? PENALTY.lateLimitMinutes : PENALTY.noNoticeLimitMinutes;
+  if (minutesLate === null || minutesLate >= limit) return { status: 'cancelled', penalty: true };
+  return { status: 'kept', penalty: false };
+};
+
+// 페널티 상태. penalties: [{ at: ISO 문자열 }]
+// - 유효 페널티: 받은 지 1년 이내
+// - 제한: 가장 최근 페널티부터 1주일
+// - 영구 제한: 유효 페널티 5회 이상, 또는 3개월 연속(달력 기준) 매달 페널티 (permanent 플래그로 기록, 이후 만료되지 않음)
+const monthIndex = (t) => { const [y, m] = toDateString(new Date(t)).split('-').map(Number); return y * 12 + m; };
+export const hasFrequentPenalties = (times) => {
+  const months = [...new Set(times.map(monthIndex))].sort((a, b) => a - b);
+  let run = 0;
+  return months.some((m, i) => { run = i > 0 && m === months[i - 1] + 1 ? run + 1 : 1; return run >= PENALTY.frequentMonths; });
+};
+
+export const penaltyStatus = (penalties, now, permanent = false) => {
+  const day = 24 * 60 * 60 * 1000;
+  const times = penalties.map((p) => new Date(p.at).getTime()).sort((a, b) => a - b);
+  const active = times.filter((t) => now.getTime() - t < PENALTY.validDays * day);
+  const isPermanent = permanent || active.length >= PENALTY.permanentAt || hasFrequentPenalties(active);
+  const last = times.at(-1);
+  const blockedUntil = last !== undefined && now.getTime() < last + PENALTY.banDays * day ? new Date(last + PENALTY.banDays * day) : null;
+  return { activeCount: active.length, permanent: isPermanent, blockedUntil, canReserve: !isPermanent && !blockedUntil };
+};

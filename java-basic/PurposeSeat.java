@@ -6,7 +6,7 @@ public class PurposeSeat {
     System.out.println("=== Purpose Seat Recommendation ===");
 
     for (int i = 0; i < purpose.length; i++) {
-      System.out.println(purpose[i] + " 추천 좌석 : " + recommentSeat[i]);
+      System.out.println(purpose[i] + " 추천 좌석 : " + recommendSeat[i]);
     }
   }
 }
