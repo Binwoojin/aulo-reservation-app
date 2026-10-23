@@ -107,17 +107,39 @@
   const narrowQuery = window.matchMedia('(max-width: 899px)');
   let activeScreen = 'find';
 
+  // 위치를 모두 먼저 읽고(measure) 그다음 한꺼번에 쓴다(update).
+  // 읽기와 쓰기를 섞으면 쓸 때마다 브라우저가 레이아웃을 다시 계산해 스크롤이 끊길 수 있다.
+  const measure = () => {
+    const stack = motion && stackQuery.matches;
+    const narrow = motion && narrowQuery.matches;
+    return {
+      steps: steps.map((s) => s.getBoundingClientRect()),
+      stepList: stepList?.getBoundingClientRect(),
+      parallax: motion ? parallax.map((el) => el.parentElement.getBoundingClientRect()) : [],
+      statement: motion && words.length ? statement.getBoundingClientRect() : null,
+      dayLine: motion ? dayLine?.getBoundingClientRect() : null,
+      marquee: motion ? marquee?.parentElement.getBoundingClientRect() : null,
+      phones: narrow ? inlinePhones.map((ph) => ph.getBoundingClientRect()) : [],
+      cards: stack ? cards.map((card) => ({
+        stick: parseFloat(getComputedStyle(card).top) || 0,
+        h: card.offsetHeight,
+        top: card.getBoundingClientRect().top,
+      })) : null,
+    };
+  };
+
   const update = () => {
     const vh = window.innerHeight;
     const max = root.scrollHeight - vh;
+    const m = measure();
     if (bar) bar.style.transform = `scaleX(${max > 0 ? window.scrollY / max : 0})`;
 
     // 앱 단계: 화면 가운데에 가장 가까운 단계를 현재로 (동작 줄이기여도 위치 안내로 동작)
     if (steps.length) {
       let best = null;
       let bestDist = Infinity;
-      steps.forEach((step) => {
-        const r = step.getBoundingClientRect();
+      steps.forEach((step, i) => {
+        const r = m.steps[i];
         const dist = Math.abs(r.top + r.height / 2 - vh / 2);
         if (dist < bestDist) { bestDist = dist; best = step; }
       });
@@ -129,7 +151,7 @@
         if (counter) counter.textContent = String(steps.indexOf(best) + 1).padStart(2, '0');
       }
       if (stepList) {
-        const r = stepList.getBoundingClientRect();
+        const r = m.stepList;
         stepList.style.setProperty('--progress', clamp((vh / 2 - r.top) / r.height).toFixed(3));
       }
     }
@@ -138,30 +160,30 @@
     header?.classList.toggle('is-scrolled', window.scrollY > 8);
 
     // 사진·휴대폰: 부모 기준으로 천천히 다른 속도로 움직인다 (translate 속성만 써서 등장 애니메이션과 겹치지 않게)
-    parallax.forEach((el) => {
-      const r = el.parentElement.getBoundingClientRect();
+    parallax.forEach((el, i) => {
+      const r = m.parallax[i];
       if (r.bottom < -200 || r.top > vh + 200) return;
       const offset = (vh / 2 - (r.top + r.height / 2)) * Number(el.dataset.parallax);
       el.style.translate = `0 ${offset.toFixed(1)}px`;
     });
 
     // 브랜드 문장: 읽는 만큼 단어가 밝아진다
-    if (words.length) {
-      const r = statement.getBoundingClientRect();
+    if (m.statement) {
+      const r = m.statement;
       const p = clamp((vh * 0.85 - r.top) / (r.height + vh * 0.35));
       const lit = Math.round(p * words.length);
       words.forEach((w, i) => w.classList.toggle('is-lit', i < lit));
     }
 
     // 하루 타임라인: 스크롤한 만큼 선이 그어진다
-    if (dayLine) {
-      const r = dayLine.getBoundingClientRect();
+    if (m.dayLine) {
+      const r = m.dayLine;
       dayLine.style.setProperty('--progress', clamp((vh * 0.75 - r.top) / (r.height + vh * 0.2)).toFixed(3));
     }
 
     // 큰 영문 문장: 마지막 화면이 올라오는 동안 오른쪽에서 왼쪽으로 흐른다
-    if (marquee) {
-      const r = marquee.parentElement.getBoundingClientRect();
+    if (m.marquee) {
+      const r = m.marquee;
       if (r.top < vh && r.bottom > 0) {
         const p = clamp((vh - r.top) / (vh + r.height));
         marquee.style.transform = `translateX(${(10 - p * 45).toFixed(2)}%)`;
@@ -172,7 +194,7 @@
     // p는 휴대폰이 화면 아래 끝(0)에서 위 끝(1)까지 지나간 정도
     if (narrowQuery.matches) {
       inlinePhones.forEach((ph, i) => {
-        const r = ph.getBoundingClientRect();
+        const r = m.phones[i];
         if (r.bottom < -100 || r.top > vh + 100) return;
         const p = clamp((vh - r.top) / (vh + r.height));
         const enter = clamp((0.45 - p) / 0.45);   // 들어오는 중 1 → 자리 0
@@ -188,13 +210,12 @@
     }
 
     // 공간 카드: 다음 카드가 덮어 올수록 앞 카드가 살짝 작아지고 어두워진다 (넓은 화면에서만)
-    if (stackQuery.matches) {
+    if (m.cards) {
       cards.forEach((card, i) => {
-        const next = cards[i + 1];
+        const next = m.cards[i + 1];
         if (!next) return;
-        const stick = parseFloat(getComputedStyle(card).top) || 0;
-        const h = card.offsetHeight;
-        const t = clamp((stick + h - next.getBoundingClientRect().top) / h);
+        const { stick, h } = m.cards[i];
+        const t = clamp((stick + h - next.top) / h);
         card.style.setProperty('--s', (1 - t * 0.06).toFixed(4));
         card.style.setProperty('--b', (1 - t * 0.35).toFixed(3));
       });

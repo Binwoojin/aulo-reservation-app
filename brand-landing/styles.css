@@ -284,7 +284,8 @@ h2 {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--motion-slow) var(--ease-out);
+  /* 등장은 transform, 호버 확대는 scale 속성 — 서로 덮어쓰지 않게 나눈다 */
+  transition: transform var(--motion-slow) var(--ease-out), scale var(--motion-slow) var(--ease-out);
 }
 
 /* ---------- 휴대폰 틀: 실제 앱 화면(웹앱 캡처)을 담는다 ---------- */
@@ -661,7 +662,7 @@ h2 {
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-card);
-  transition: transform var(--motion) var(--ease), border-color var(--motion) var(--ease), box-shadow var(--motion) var(--ease);
+  transition: translate var(--motion) var(--ease), border-color var(--motion) var(--ease), box-shadow var(--motion) var(--ease);
 }
 .principles__list svg { width: 32px; height: 32px; fill: none; stroke: var(--color-olive); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
 .principles__list h4 { font-size: var(--fs-lead); font-weight: 600; }
@@ -864,7 +865,7 @@ h2 {
   transition-delay: calc(var(--i, 0) * 90ms);
 }
 .motion-ready [data-reveal].is-visible { opacity: 1; transform: none; }
-.motion-ready [data-reveal].is-settled { transition: transform var(--motion) var(--ease), border-color var(--motion) var(--ease), box-shadow var(--motion) var(--ease); transition-delay: 0s; }
+.motion-ready [data-reveal].is-settled { transition: transform var(--motion) var(--ease), translate var(--motion) var(--ease), border-color var(--motion) var(--ease), box-shadow var(--motion) var(--ease); transition-delay: 0s; }
 /* 음료는 옆에서 차례로 */
 .motion-ready .menu-row [data-reveal] { transform: translateX(48px); }
 .motion-ready .menu-row [data-reveal].is-visible { transform: none; }
@@ -939,10 +940,11 @@ h2 {
 .motion-ready .site-header { border-bottom-color: transparent; transition: border-color var(--motion) var(--ease), background-color var(--motion) var(--ease); }
 .motion-ready .site-header.is-scrolled { border-bottom-color: var(--color-border); }
 
-/* 8. 반응: 카드는 4px 떠오르고 사진은 천천히 다가온다, 화살표는 앞으로 */
+/* 8. 반응: 카드는 4px 떠오르고 사진은 천천히 다가온다, 화살표는 앞으로.
+   등장 규칙(.is-visible·.is-in)이 transform을 none으로 두므로 호버는 translate·scale 개별 속성으로 겹쳐 준다 */
 @media (hover: hover) {
-  .principles__list li:hover { transform: translateY(-4px); border-color: var(--color-olive); box-shadow: 0 16px 30px -18px rgba(48, 43, 38, 0.35); }
-  .space-card:hover .photo > img { transform: scale(1.04); }
+  .principles__list li:hover { translate: 0 -4px; border-color: var(--color-olive); box-shadow: 0 16px 30px -18px rgba(48, 43, 38, 0.35); }
+  .space-card:hover .photo > img { scale: 1.04; }
   .footer-mark span:hover { color: var(--color-olive-light); transition-delay: 0s; }
   .button:hover > span[aria-hidden] { transform: translateX(4px); }
   .button:hover { transform: translateY(-1px); }
