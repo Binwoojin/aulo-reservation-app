@@ -11,6 +11,8 @@ Aulo는 사용자의 목적에 따라 좌석을 추천하고,
 - `brand-landing/` — 브랜드 랜딩페이지 (정적 HTML/CSS/JS)
 - `webapp/` — 공간 추천·예약·음료 주문 데모 웹앱 (React + Vite) → [실행 방법](./webapp/README.md)
 
+이벤트 프로모션 페이지는 이 저장소가 아니라 [aulo-event-promotion](https://github.com/Binwoojin/aulo-event-promotion)에서 만들고 보관합니다(그쪽은 이 저장소의 디자인 컨셉만 참고).
+
 배포: [브랜드 랜딩](https://binwoojin.github.io/aulo-reservation-app/) → [데모 웹앱](https://binwoojin.github.io/aulo-reservation-app/app/) (GitHub Pages, main 머지 시 자동 배포)
 
 ---
